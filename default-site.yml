@@ -1,0 +1,30 @@
+---
+site:
+  title: Emerging Tech Experience (ETX) Ansible Automation
+  start_page: modules::index.adoc
+
+content:
+  sources:
+    - url: .
+      start_path: content
+
+ui:
+  bundle:
+    url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/v0.0.1/ui-bundle.zip
+  supplemental_files:
+    - path: ./content/supplemental-ui
+    - path: ./content/lib
+    - path: .nojekyll
+    - path: ui.yml
+      contents: "static_files: [ .nojekyll ]"
+
+runtime:
+  cache_dir: ./.cache/antora
+
+antora:
+  extensions:
+    - require: ./content/lib/dev-mode.js
+      enabled: true
+
+output:
+  dir: ./www
