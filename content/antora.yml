@@ -1,12 +1,12 @@
 name: modules
-title: ETX Ansible Automation
+title: Ansible Bootcamp Enablement
 version: master
 nav:
   - modules/ROOT/nav.adoc
 
 asciidoc:
   attributes:
-    lab_name: "Emerging Tech Experience (ETX) Ansible Automation"
+    lab_name: "Ansible Bootcamp Enablement"
     release-version: master
     page-pagination: true
     my_var: "foo"

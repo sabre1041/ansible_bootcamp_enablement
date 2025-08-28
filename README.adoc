@@ -1,6 +1,6 @@
-= Emerging Tech Experience (ETX) Ansible Automation
+= Ansible Bootcamp Enablement
 
-Site content for the Emerging Tech Experience (ETX) Ansible Automation course.
+Site content for the Ansible Bootcamp Enablement.
 
 == Getting Started
 
