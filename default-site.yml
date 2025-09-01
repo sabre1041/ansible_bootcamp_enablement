@@ -6,14 +6,14 @@ site:
 content:
   sources:
     - url: .
-      start_path: content
+      start_path: documentation
 
 ui:
   bundle:
     url: https://github.com/rhpds/rhdp_showroom_theme/releases/download/v0.0.1/ui-bundle.zip
   supplemental_files:
-    - path: ./content/supplemental-ui
-    - path: ./content/lib
+    - path: ./documentation/supplemental-ui
+    - path: ./documentation/lib
     - path: .nojekyll
     - path: ui.yml
       contents: "static_files: [ .nojekyll ]"
@@ -23,7 +23,7 @@ runtime:
 
 antora:
   extensions:
-    - require: ./content/lib/dev-mode.js
+    - require: ./documentation/lib/dev-mode.js
       enabled: true
 
 output:

@@ -1,0 +1,5 @@
+= {lab_name}
+
+Welcome to the {lab_name}!
+
+Use the navigation on the left to browse the various modules.
