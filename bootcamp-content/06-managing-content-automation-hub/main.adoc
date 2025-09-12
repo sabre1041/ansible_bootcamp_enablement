@@ -41,18 +41,19 @@ export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
 
 # Configure the 'published' repository
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://pah.example.com/pulp_ansible/galaxy/published/'
-export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='<YOUR_API_TOKEN_HERE>'
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'certified' repository
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://pah.example.com/pulp_ansible/galaxy/rh-certified/'
-export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='<YOUR_API_TOKEN_HERE>'
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'validated' repository
 export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://pah.example.com/pulp_ansible/galaxy/validated/'
-export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='<YOUR_API_TOKEN_HERE>'
+export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'community' repository
-export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://pah.example.com/pulp_ansible/galaxy/community/' export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='<YOUR_API_TOKEN_HERE>'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://pah.example.com/pulp_ansible/galaxy/community/'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 ----
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
@@ -72,13 +73,20 @@ Create namespace in Hub
 
 Remove ansible.utils from deps list
 
-=== Step 3.2: Build and Publish the Collection [source,bash]
-Build your custom collection
+=== Step 3.2: Build and Publish the Collection
+
+[source,bash]
+----
+# Build your custom collection
 ansible-galaxy collection build
 
-Publish the collection to PAH
+# Publish the collection to PAH
 ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ automation_bootcamp-my_collection-1.0.0.tar.gz --token <token>
-Approve collection
+----
+
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub
+
+NOTE: Make sure to Approve collection in the hub UI
 
 == 4. Syncing a Base EE from the Red Hat Registry
 
@@ -99,32 +107,53 @@ Now, we'll define and build an EE that uses our synced minimal image and our cus
 Create a file named execution-environment.yml.
 
 [source,yaml,title="execution-environment.yml"]
+----
+---
 version: 3
 
 images:
-base_image:
-name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+  base_image:
+    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
-ansible_core:
-package_pip: ansible-core==2.16.14
-galaxy:
-collections:
-- name: automation_bootcamp.my_collection
-version: 1.0.0
+  ansible_core:
+    package_pip: ansible-core==2.16.14
+  galaxy:
+    collections:
+      - name: automation_bootcamp.my_collection
+        version: 1.0.0
 options:
-package_manager_path: /usr/bin/microdnf
+  package_manager_path: /usr/bin/microdnf
 
-additional_build_steps: prepend_galaxy: - ARG TOKEN - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community' - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/' - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/' - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/' - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/' - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
-=== Step 5.2: Build and Publish the Execution Environment [source,bash]
-Log in to your PAH container registry
+additional_build_steps: prepend_galaxy:
+  - ARG TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+  - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+  - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+  - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+  - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+  - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
+
+----
+
+=== Step 5.2: Build and Publish the Execution Environment
+
+[source,bash]
+----
+# Log in to your PAH container registry
 podman login pah.example.com
 
-Build the EE. It will pull the base from PAH, then add our content.
+# Build the EE. It will pull the base from PAH, then add our content.
 ansible-builder build --tag my-pah-ee:1.0 --build-arg TOKEN=<TOKEN>
 
-Tag and push the image to your PAH registry
-podman tag localhost/my-pah-ee:1.0 pah.example.com/my-pah-ee:1.0 podman push pah.example.com/my-pah-ee:1.0
+# Tag and push the image to your PAH registry
+podman tag localhost/my-pah-ee:1.0 pah.example.com/my-pah-ee:1.0
+podman push pah.example.com/my-pah-ee:1.0
+----
+
 == 6. Adding a Custom Filter Plugin
 
 Now that we have a working EE, let's iterate by adding a custom filter plugin to our collection.
@@ -134,68 +163,101 @@ Now that we have a working EE, let's iterate by adding a custom filter plugin to
 Create the file automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py with the following content:
 
 [source,python,title="automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py"]
-from future import (absolute_import, division, print_function)
-metaclass = type
+----
+# automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
 
 DOCUMENTATION = '''
-name: cowsay
-short_description: A filter to wrap text in a cowsay bubble.
-description:
-- This filter takes a string and returns it formatted by the cowsay library.
-requirements:
-- The cowsay python library must be installed.
+    name: cowsay
+    short_description: A filter to wrap text in a cowsay bubble.
+    description:
+        - This filter takes a string and returns it formatted by the cowsay library.
+    requirements:
+      - The `cowsay` python library must be installed.
 '''
 
 try:
-import cowsay
+    import cowsay
 except ImportError:
-cowsay = None
+    cowsay = None
 
 def cowsay_filter(text):
-if not cowsay:
-raise AnsibleFilterError("The 'cowsay' Python library is not installed. Cannot use filter.")
-return cowsay.cow(text)
+    if not cowsay:
+        raise AnsibleFilterError("The 'cowsay' Python library is not installed. Cannot use filter.")
+    return cowsay.cow(text)
 
-class FilterModule(object): def filters(self): return { 'cowsay': cowsay_filter }
+class FilterModule(object):
+    def filters(self):
+        return {
+            'cowsay': cowsay_filter
+        }
+----
+
 === Step 6.2: Update the EE Definition for the Plugin Dependency
 
 Our new plugin requires the cowsay Python library, and we need to ensure our EE is pulling the new version of our collection. Modify execution-environment.yml to include both changes.
 
 [source,yaml,title="execution-environment.yml"]
+----
+---
 version: 3
 
 images:
-base_image:
-name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+ base_image:
+   name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
-ansible_core:
-package_pip: ansible-core==2.16.14
-galaxy:
-collections:
-- name: automation_bootcamp.my_collection
-version: 1.0.1
-python:
-- cowsay
+ ansible_core:
+   package_pip: ansible-core==2.16.14
+ galaxy:
+   collections:
+     - name: automation_bootcamp.my_collection
+       version: 1.0.1
+ python:
+   - cowsay
 options:
-package_manager_path: /usr/bin/microdnf
+ package_manager_path: /usr/bin/microdnf
 
-additional_build_steps: prepend_galaxy: - ARG TOKEN - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community' - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/' - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/' - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/' - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/' - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
+additional_build_steps:
+ prepend_galaxy:
+   - ARG TOKEN
+   - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+   - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+   - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
+   - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+   - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
+   - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+   - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
+   - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+   - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
+----
+
 === Step 6.3: Increment Version and Republish
 
 Now, we publish a new version of the collection and a new version of the EE that includes the updated collection and dependency.
 
 First, edit automation_bootcamp/my_collection/galaxy.yml and change the version from 1.0.0 to 1.0.1.
 
-Then, run the following commands: [source,bash]
-Rebuild and republish the collection
+Then, run the following commands:
+
+[source,bash]
+----
+# Rebuild and republish the collection
 cd automation_bootcamp/my_collection
 ansible-galaxy collection build
 ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ automation_bootcamp-my_collection-1.0.1.tar.gz --token <token>
+----
 
-Approve collection
-Rebuild and republish the EE with a new version tag
-ansible-builder build --tag my-pah-ee:1.1 podman tag localhost/my-pah-ee:1.1 pah.example.com/my-pah-ee:1.1 podman push pah.example.com/my-pah-ee:1.1
+NOTE: Make sure to Approve collection in the hub UI
+
+[source,bash]
+----
+# Rebuild and republish the EE with a new version tag
+ansible-builder build --tag my-pah-ee:1.1
+podman tag localhost/my-pah-ee:1.1 pah.example.com/my-pah-ee:1.1
+podman push pah.example.com/my-pah-ee:1.1
+----
 == 7. Preparing the Project for Automation Controller
 
 Now we'll update our playbook to use the new filter.
@@ -205,16 +267,19 @@ Now we'll update our playbook to use the new filter.
 Create a playbook named test_pah_ee.yml. This playbook uses the debug module to print a message that has been formatted by our custom cowsay filter.
 
 [source,yaml,title="test_pah_ee.yml"]
-name: Test custom filter from Private Automation Hub
-hosts: localhost
-connection: local
-gather_facts: false
+----
+---
+- name: Test custom filter from Private Automation Hub
+  hosts: localhost
+  connection: local
+  gather_facts: false
 
-tasks:
-
-name: Print a message using the cowsay filter
-ansible.builtin.debug:
-msg: "{{ 'Hello from my custom filter!' | automation_bootcamp.my_collection.cowsay }}"
+  tasks:
+    - name: Print a message using the cowsay filter
+      ansible.builtin.debug:
+        msg: "{{ 'Hello from my custom filter!' | automation_bootcamp.my_collection.cowsay }}"
+...
+----
 
 === Step 7.2: Push Project Files to Git
 
