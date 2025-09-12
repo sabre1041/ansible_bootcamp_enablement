@@ -9,13 +9,10 @@ A Private Automation Hub acts as a central repository for your organization's cu
 
 .Why is this important?
 
-Centralized Control: A single source of truth for all your certified automation content.
-
-Security & Trust: Ensures that teams are using approved and vetted collections and EEs.
-
-Dependency Management: Simplifies dependency resolution by providing a private, trusted source for collections.
-
-Scalability: Enables the distribution of automation content across large organizations.
+. Centralized Control: A single source of truth for all your certified automation content.
+. Security & Trust: Ensures that teams are using approved and vetted collections and EEs.
+. Dependency Management: Simplifies dependency resolution by providing a private, trusted source for collections.
+. Scalability: Enables the distribution of automation content across large organizations.
 
 == 2. Lab Setup: Configuring Your Environment
 
@@ -169,7 +166,7 @@ Now that we have a working EE, let's iterate by adding a custom filter plugin to
 
 === Step 6.1: Create the Custom Filter Plugin
 
-Create the file automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py with the following content:
+Create the file with the following content:
 
 [source,python,title="automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py"]
 ----
