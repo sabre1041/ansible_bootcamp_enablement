@@ -35,28 +35,27 @@ Instead of creating a configuration file with your secret token, we will set env
 In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 
 [source,bash]
-Set the list of servers Ansible should know about
+----
+# Set the list of servers Ansible should know about
 export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
 
-Configure the 'published' repository
+# Configure the 'published' repository
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://pah.example.com/pulp_ansible/galaxy/published/'
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='<YOUR_API_TOKEN_HERE>'
 
-Configure the 'certified' repository
+# Configure the 'certified' repository
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://pah.example.com/pulp_ansible/galaxy/rh-certified/'
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='<YOUR_API_TOKEN_HERE>'
 
-Configure the 'validated' repository
+# Configure the 'validated' repository
 export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://pah.example.com/pulp_ansible/galaxy/validated/'
 export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='<YOUR_API_TOKEN_HERE>'
 
-Configure the 'community' repository
+# Configure the 'community' repository
 export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://pah.example.com/pulp_ansible/galaxy/community/' export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='<YOUR_API_TOKEN_HERE>'
-NOTE: Replace the following values:
+----
 
-https://pah.example.com/: With the URL of your Private Automation Hub.
-
-<YOUR_API_TOKEN_HERE>: With the personal API token you just copied from PAH.
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 3. Creating and Publishing a Custom Collection
 
