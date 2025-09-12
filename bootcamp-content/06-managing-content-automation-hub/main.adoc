@@ -62,16 +62,21 @@ NOTE: Replace the following values `pah.example.com` With the URL of your Privat
 
 Now, let's use ansible-creator to scaffold a new collection.
 
-=== Step 3.1: Initialize the Collection with ansible-creator [source,bash]
-Create a main project directory
+=== Step 3.1: Initialize the Collection with ansible-creator
+
+[source,bash]
+----
+# Create a main project directory
 mkdir my_pah_project
 cd my_pah_project
 
-Initialize the collection structure using ansible-creator
+# Initialize the collection structure using ansible-creator
 ansible-creator init automation_bootcamp.my_collection --init-path ./
-Create namespace in Hub
+----
 
-Remove ansible.utils from deps list
+WARNING: Remove ansible.utils from deps list
+
+NOTE: Create namespace in Hub
 
 === Step 3.2: Build and Publish the Collection
 
@@ -139,6 +144,8 @@ additional_build_steps: prepend_galaxy:
 
 ----
 
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
+
 === Step 5.2: Build and Publish the Execution Environment
 
 [source,bash]
@@ -147,12 +154,14 @@ additional_build_steps: prepend_galaxy:
 podman login pah.example.com
 
 # Build the EE. It will pull the base from PAH, then add our content.
-ansible-builder build --tag my-pah-ee:1.0 --build-arg TOKEN=<TOKEN>
+ansible-builder build --tag my-pah-ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
 
 # Tag and push the image to your PAH registry
 podman tag localhost/my-pah-ee:1.0 pah.example.com/my-pah-ee:1.0
 podman push pah.example.com/my-pah-ee:1.0
 ----
+
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 6. Adding a Custom Filter Plugin
 
@@ -233,11 +242,13 @@ additional_build_steps:
    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
+
 === Step 6.3: Increment Version and Republish
 
 Now, we publish a new version of the collection and a new version of the EE that includes the updated collection and dependency.
 
-First, edit automation_bootcamp/my_collection/galaxy.yml and change the version from 1.0.0 to 1.0.1.
+First, edit `automation_bootcamp/my_collection/galaxy.yml` and change the version from `1.0.0` to `1.0.1`.
 
 Then, run the following commands:
 
@@ -246,8 +257,10 @@ Then, run the following commands:
 # Rebuild and republish the collection
 cd automation_bootcamp/my_collection
 ansible-galaxy collection build
-ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ automation_bootcamp-my_collection-1.0.1.tar.gz --token <token>
+ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ automation_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
 ----
+
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 NOTE: Make sure to Approve collection in the hub UI
 
@@ -258,6 +271,9 @@ ansible-builder build --tag my-pah-ee:1.1
 podman tag localhost/my-pah-ee:1.1 pah.example.com/my-pah-ee:1.1
 podman push pah.example.com/my-pah-ee:1.1
 ----
+
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
+
 == 7. Preparing the Project for Automation Controller
 
 Now we'll update our playbook to use the new filter.
@@ -283,9 +299,7 @@ Create a playbook named test_pah_ee.yml. This playbook uses the debug module to 
 
 === Step 7.2: Push Project Files to Git
 
-Push the following file to your Git repository:
-
-test_pah_ee.yml
+Push the `test_pah_ee.yml` playbook to your Git repository
 
 == 8. Integrating with Automation Controller
 
@@ -321,19 +335,11 @@ Now, let's configure Controller to use our custom content.
 
 Congratulations! You have successfully completed this workflow for managing custom Ansible content:
 
-Configured your local environment to connect to a Private Automation Hub.
-
-Built and published a custom collection.
-
-Synced a certified base EE from Red Hat into your PAH.
-
-Iterated on your content by adding a filter plugin and its dependencies.
-
-Built and published a custom Execution Environment on top of the certified base image.
-
-Configured Automation Controller to use all of your custom content.
-
-Verified the entire process by launching a Job Template.
-
-This process is fundamental to creating a secure, scalable, and manageable automation practice in an enterprise environment.
-
+. Configured your local environment to connect to a Private Automation Hub.
+. Built and published a custom collection.
+. Synced a certified base EE from Red Hat into your PAH.
+. Iterated on your content by adding a filter plugin and its dependencies.
+. Built and published a custom Execution Environment on top of the certified base image.
+. Configured Automation Controller to use all of your custom content.
+. Verified the entire process by launching a Job Template.
+. This process is fundamental to creating a secure, scalable, and manageable automation practice in an enterprise environment.
