@@ -1,0 +1,380 @@
+= Configuring the Automation controller
+
+In this section, you will only be given a summary of the objects you
+need to create along with some screenshots of a controller that is
+configured with the completed code. You will also be provided the
+variables sections from the readme’s for each of the required roles to
+help you complete this task.
+
+== Task 1 - Configure settings
+
+- Create a file `group_vars/all/settings.yml` with the below content.
++ 
+[source,yaml,role=execute]
+----
+---
+controller_settings:
+  settings:
+    GALAXY_IGNORE_CERTS: true
+...
+----
+
+- Further documentation are provided below for those who are interested to learn more:
+
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_settings[Settings role,window=_blank]
+
+== Task 2 - Configure Execution Environments
+
+- Create a file `group_vars/all/execution_environments.yml` and add the required information to the list `controller_execution_environments`
+to include a new EE (that we will show how to create with code in the next module) called `config_as_code` with image path `{{ aap_hostname }}/config_as_code` that is pull `always` and uses the credential `cr_ah`.
++
+image::module_2/config_ee.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
+image::module_2/minimal_ee.png[title="Minimal Execution Environment",125%,125%, link=self, window=blank]
+image::module_2/supported_ee.png[title="Supported Execution Environment",125%,125%, link=self, window=blank]
+
+[source,yaml,role=execute]
+----
+---
+controller_execution_environments:
+  - name: "supported"
+    image: "{{ aap_hostname }}/ee-supported-rhel8"
+    pull: always
+    credential: cr_ah
+
+  - name: "minimal"
+    image: "{{ aap_hostname }}/ee-minimal-rhel8"
+    pull: always
+    credential: cr_ah
+
+...
+
+----
+NOTE: While you have not created this EE yet it, we have already added a version to hub so this won't fail.
+
+- Further documentation for those who are interested to learn more see:
++
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_execution_environments[Execution Environments role,window=_blank]
+
+== Task 3 - Create credential types
+
+- Create a file `group_vars/all/credential_types.yml` where we will create a list called `controller_credential_types` that has 5 variables per item defined below:
+
+* `name` this is required and will be what the credential type will be
+called
+* `description` this is the description of the credential type
+* `kind` The type of credential type being added. Note that only cloud
+and net can be used for creating credential types.
+* `inputs` Enter inputs using either JSON or YAML syntax. Refer to the
+Ansible controller documentation for example syntax. These will be the
+fields in the GUI that prompt the user for input.
+* `injectors` Enter injectors using either JSON or YAML syntax. Refer
+to the Ansible controller documentation for example syntax. These are
+the variables that will then be useable in a job.
++
+The role will iterate through this list and for each item in this list it will create custom credential types for using it in the controller.
++
+[source,yaml,role=execute]
+----
+---
+controller_credential_types:
+  - name: automation_hub
+    description: automation hub
+    kind: cloud
+    inputs:
+      fields:
+        - id: verify_ssl
+          type: boolean
+          label: Verify SSL
+        - id: hostname
+          type: string
+          label: Hostname
+        - id: username
+          type: string
+          label: Username
+        - id: password
+          type: string
+          label: Password
+          secret: true
+        - id: token
+          type: string
+          label: Token
+          secret: true
+      required:
+        - hostname
+    injectors:
+      env:
+        AAP_PASSWORD: !unsafe "{{ password }}"
+        AAP_USERNAME: !unsafe "{{ username }}"
+        AAP_HOSTNAME: !unsafe # Insert appropriate variable from above here
+        AAP_TOKEN: !unsafe # Insert appropriate variable from above here
+        AAP_VALIDATE_CERTS: !unsafe # Insert appropriate variable from above here
+      extra_vars:
+        aap_password: !unsafe "{{ password }}"
+        aap_username: !unsafe "{{ username }}"
+        aap_hostname: !unsafe # Insert appropriate variable from above here
+        aap_token: !unsafe # Insert appropriate variable from above here
+        aap_validate_certs: !unsafe # Insert appropriate variable from above here
+
+  - name: ssh_priv_file
+    kind: cloud
+    description: creates temp ssh priv key to use (cannot have passphrase)
+    inputs:
+      fields:
+        - id: priv_key
+          type: string
+          label: Certificate
+          format: ssh_private_key
+          multiline: true
+          secret: true
+    injectors:
+      env:
+        MY_CERT_FILE_PATH: !unsafe '{{ tower.filename.cert_file }}'
+      file:
+        template.cert_file: !unsafe '{{ priv_key }}'
+...
+----
+
+- Further documentation for those who are interested to learn more see:
++
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credential_types[Credential types role,window=_blank]
+
+== Task 4 - Create credentials
+
+- Create a file `group_vars/all/credentials.yml` and add the required information to the list `controller_credentials` to configure the UI to look like the screenshot. Make it to look like the screenshot, but make sure to use parameters for the values.
+*DO NOT PASTE YOUR PASSWORD IN CLEARTEXT FOR CREDENTIALS!*
++
+[source,yaml,role=execute]
+----
+---
+controller_credentials:
+  - name: aap_admin
+    credential_type: Red Hat Ansible Automation Platform
+    organization: config_as_code
+    description: aap admin account
+    inputs:
+      host: "{{ aap_hostname }}"
+      username: "{{ aap_username }}"
+      password: "{{ aap_password }}"
+      verify_ssl: false
+
+  - name: hub_service_account
+    credential_type: automation_hub
+    organization: config_as_code
+    description: automation hub api account
+    inputs:
+      hostname: "{{ aap_hostname }}"
+      username: "{{ aap_service_account_username }}"
+      token: "{{ hub_token }}"
+      verify_ssl: false
+
+  - name: hub_certified
+    credential_type: "Ansible Galaxy/Automation Hub API Token"
+    organization: config_as_code
+    inputs:
+      url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/rh-certified/"
+      token: "{{ hub_token }}"
+
+  - name: hub_published
+    credential_type:  "Ansible Galaxy/Automation Hub API Token"
+    organization: config_as_code
+    inputs:
+      url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/published/"
+      token: "{{ hub_token }}"
+
+  - name: hub_community
+    credential_type:  "Ansible Galaxy/Automation Hub API Token"
+    organization: config_as_code
+    inputs:
+      url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/community/"
+      token: "{{ hub_token }}"
+
+  - name: hub_community_infra_repo
+    credential_type:  "Ansible Galaxy/Automation Hub API Token"
+    organization: config_as_code
+    inputs:
+      url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/community-infra-repo/"
+      token: "{{ hub_token }}"
+
+  - name: cr_ah
+    credential_type: Container Registry
+    organization: config_as_code
+    inputs:
+      host: "{{ aap_hostname }}"
+      username: "{{ aap_username }}"
+      password: "{{ aap_password }}"
+      verify_ssl: false
+
+  - name: vault
+    credential_type: Vault
+    organization: config_as_code
+    description: vault password
+    inputs:
+      vault_password: "{{ vault_pass }}"
+...
+----
++
+image::module_2/credential.png[title="Credential",125%,125%, link=self, window=blank]
+
+- Further documentation for those who are interested to learn more see:
++
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credentials[Credentials role,window=_blank]
+
+== Task 5 - Create organizations
+
+- Update the file `group_vars/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the credentials that we created above to the Organization so we can pull collections from Automation Hub.
++
+image::module_2/orgs.png[title="Config as Code Organization",125%,125%, link=self, window=blank]
++
+[source,yaml,role=execute]
+----
+---
+aap_organizations:
+...
+----
+
+- Further documentation for those who are interested to learn more see:
+
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/gateway_organizations[Organizations role,window=_blank]
+
+== Task 6 - Create projects
+
+- Create a file `group_vars/all/projects.yml` and add the required
+information to the list `controller_projects` to configure the UI to
+look like the screenshot. The project you want to use is
++
+----
+https://github.com/redhat-cop/aap_configuration_template
+----
++
+WARNING: There are some values such as `project base path`, `playbook directory`, and `source control version` that are generated by AAP and are not options
+
+NOTE: You will want to refer to the role documentation to determine which options need to be set
+// TODO - What git project are we pointing at? Also, perhaps consider providing a table with the values they need to set so they can at least copy/paste URLs etc, but still have to look up the options required
++
+[source,yaml,role=execute]
+----
+---
+controller_configuration_projects_async_delay: 5
+controller_projects:
+
+...
+----
+
++
+image::module_2/project.png[title="Project",125%,125%, link=self, window=_blank]
+
+- Further documentation for those who are interested to learn more see:
++
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_projects[Projects role,window=_blank]
+
+== Task 7 - Create inventories
+
+- Create a file `group_vars/all/inventories.yml` and add the required
+information to the list `controller_inventories` to configure the UI
+to look like the screenshot
++
+[source,yaml,role=execute]
+----
+---
+controller_inventories:
+...
+----
++
+image::module_2/inventories.png[title="Inventory",125%,125%, link=self, window=_blank]
+
+- Further documentation for those who are interested to learn more see:
+
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_inventories[Inventories role,window=_blank]
+
+== Task 8 - Create inventory sources
+
+- Add to file `group_vars/all/inventory_sources.yml` and a new variable with the required information to the list `controller_inventory_sources` to configure the UI to look like the screenshot
++
+[source,yaml,role=execute]
+----
+---
+controller_inventory_sources:
+...
+----
++
+image::module_2/inventory_sources.png[title="Inventory Sources",125%,125%, link=self, window=_blank]
+
+- Further documentation for those who are interested to learn more see:
++
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_inventory_sources[Inventory sources role,window=_blank]
+
+== Task 9 - Create job_templates
+
+- Create a file `group_vars/all/job_templates.yml` and add the required
+information to the list `controller_templates` to configure the UI to like the screenshot. 
++
+Pay attention to the credentials attached to each job template.
++
+[source,yaml,role=execute]
+----
+---
+controller_templates:
+
+...
+----
++
+image::module_2/aap_config_template_v2.png[title="AAP Config Template",125%,125%, link=self, window=_blank]
+image::module_2/build_ee_template_v2.png[title="Build EE Template",125%,125%, link=self, window=_blank]
+
+- Further documentation for those who are interested to learn more see:
++
+* https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_job_templates[Job templates role,window=_blank]
+
+== Task 10 - Update the Playbook
+=== Update the playbook to get the hub token for the configuration
+
+- We need to create a token from Automation Hub so that we can provide it to the Platform for the collection syncing to take place.
++
+The next step is to create a playbook/file `playbooks/aap_config.yml` that will call the aap_configuration dispatch role which will apply all provided configurations in the order that they need to be created.
++
+[source,yaml,role=execute]
+----
+---
+- name: Playbook to configure ansible controller post installation
+  hosts: all
+  gather_facts: false
+  vars_files:
+    - ../vault.yml
+  connection: local
+  tasks:
+    - name: Authenticate and get an API token from Automation Hub
+      ansible.hub.ah_token:
+        ah_host: "{{ aap_hostname }}"
+        ah_username: "{{ aap_username }}"
+        ah_password: "{{ aap_password }}"
+        ah_path_prefix: 'galaxy'  # this is for private automation hub
+        ah_verify_ssl: false
+    - name: Fixing format
+      ansible.builtin.set_fact:
+        hub_token: "{{ ah_token['token'] }}"
+    - name: Call dispatch role
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.dispatch
+...
+----
+
+== Task 11 - Run the playbook
+
+- Run `/home/lab-user/casc_lab/playbooks/aap_config` playbook.
++
+[source,console]
+----
+ansible-playbook playbooks/aap_config.yml -i inventory.yml -l execution
+----
+
+- If you run into problems, look back at the section that failed, and check the documentation for that role that was linked. If the output was hidden, look for 'Secure logging variables' on the https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credentials[controller_credentials role documentation].
+
+TIP: If you run into an error that says "Failed to get token: HTTP Error 401: Unauthorized" while other tasks pass, please rerun the playbook, this is a known issue.
+
+== Task 12 - See the Results
+
+- After the playbook is complete you should be able to navigate to the controller and see all the changes.
+
+== ✅ Next Challenge
+
+- Once you’ve completed the above tasks we will move towards building `Execution Environment`. 
