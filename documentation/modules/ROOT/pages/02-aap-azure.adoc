@@ -119,9 +119,9 @@ Verify the job runs successfully.
 
 For automation beyond localhost, configure Azure VNET peering:
 
-* Public Access: Already works for internet-facing automation.
-* Private Access: Requires VNET peering or VWAN configuration.
-* Automation Mesh: Deploy execution nodes closer to your workloads for hybrid or edge use cases.
+. Public Access: Already works for internet-facing automation.
+. Private Access: Requires VNET peering or VWAN configuration.
+. Automation Mesh: Deploy execution nodes closer to your workloads for hybrid or edge use cases.
 ## TODO (@iday can you add information about execution nodes and such?) ##
 
 == 7. Conclusion
