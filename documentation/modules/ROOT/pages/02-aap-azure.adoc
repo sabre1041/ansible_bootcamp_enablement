@@ -40,8 +40,6 @@ In summary, choose the Managed Application if your priority is to accelerate aut
 
 Before we begin deployment, ensure the following prerequisites are met:
 
-## TODO (@iday is this accurate?) ##
-
 . Red Hat Account – Required to activate your AAP subscription entitlement after deployment.
 . Azure Subscription
 . Networking Plan – Prepare a dedicated VNET with a `/24` range that does not overlap with existing CIDRs.
