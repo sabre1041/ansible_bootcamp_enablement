@@ -127,7 +127,7 @@ For automation beyond localhost, configure Azure VNET peering:
 * Ensure the VM's Network Security Group (NSG) allows inbound traffic on port 27199 (the default receptor communication port) from your AAP controller.
 * If you're using a private automation hub, also ensure the VM can reach it.
 * Integrate with controller: Execute the installer playbook on the Azure VM. This playbook installs the receptor service and configures a secure, encrypted connection back to your main AAP controller.
-- Hop Nodes: Consider using these if you need to traverse firewalls or complex networks, They don't run jobs
+- Hop Nodes: Consider using these if you need to traverse firewalls or complex networks, they don't run jobs
 * Ensure the hop node can reach both the AAP controller and the execution nodes that will connect to it. Open port 27199 (the default receptor port) on the firewall to allow communication.
 
  
