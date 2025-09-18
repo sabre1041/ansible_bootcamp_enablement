@@ -115,15 +115,24 @@ After deployment, three resource groups will be created:
 Click the Rocket Icon next to the template.  
 Verify the job runs successfully.
 
-== 6. Step 4: Explore Networking (Optional Advanced Lab)
+== 6. Explore Networking (Optional Advanced Lab)
 
 For automation beyond localhost, configure Azure VNET peering:
 
 . Public Access: Already works for internet-facing automation.
 . Private Access: Requires VNET peering or VWAN configuration.
 . Automation Mesh: Deploy execution nodes closer to your workloads for hybrid or edge use cases.
-## TODO (@iday can you add information about execution nodes and such?) ##
+  Assess the network conditions (latency, bandwidth) and security requirements for each location.
 
+. Decide on Node Roles:
+- Execution Nodes: Decide how many you need and where they'll be deployed. Each will require a separate server or VM.
+* Ensure the VM's Network Security Group (NSG) allows inbound traffic on port 27199 (the default receptor communication port) from your AAP controller.
+* If you're using a private automation hub, also ensure the VM can reach it.
+* Integrate with controller: Execute the installer playbook on the Azure VM. This playbook installs the receptor service and configures a secure, encrypted connection back to your main AAP controller.
+- Hop Nodes: Consider using these if you need to traverse firewalls or complex networks, They don't run jobs
+* Ensure the hop node can reach both the AAP controller and the execution nodes that will connect to it. Open port 27199 (the default receptor port) on the firewall to allow communication.
+
+ 
 == 7. Conclusion
 
 You have successfully:
