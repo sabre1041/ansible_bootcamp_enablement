@@ -1,3 +1,151 @@
 = Ansible Automation Platform on Azure
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+[abstract]
+We will deploy Red Hat Ansible Automation Platform as a managed application on Microsoft Azure. We will provision the platform directly from the Azure Marketplace, configure networking access, and validate that we can log into Automation Controller and run our first automation job.
+
+== 1. Introduction: Why AAP on Azure?
+
+.Why is this important?
+
+. Speed to Value: Deploy in minutes from the Azure Marketplace.
+. Fully Supported: Backed by Red Hat SREs for patching, upgrades, and reliability.
+. Hybrid Cloud Ready: Automate Azure, on-prem, and multi-cloud resources.
+. Unified Billing: Consumption billed directly through your Azure subscription.
+. Flexible Deployment: Three options to deploy AAP on Azure – Managed Application, Self-Managed, or on Azure Red Hat OpenShift.
+
+=== Choosing Between Managed and Self-Managed
+
+Based on Red Hat’s guidance, choosing to deploy Ansible Automation Platform (AAP) as a managed service in Azure offers significant advantages in convenience, support, and operational efficiency.
+It is an ideal choice for organizations that want to focus on automation rather than platform maintenance. 
+In contrast, the self-managed option provides greater control and is suited for those with specific architectural or security policy needs.
+
+==== Key Advantages of the Managed Application
+
+. Reduced Operational Burden: Red Hat’s Site Reliability Engineering (SRE) team handles upgrades, patches, and daily maintenance.
+. Automated Upgrades and Maintenance: You always stay current without doing upgrades yourself.
+. Infrastructure Management: Red Hat manages the AKS cluster, database, and scaling.
+. Monitoring and Support: Active monitoring with Red Hat as your single support contact.
+. Quick Time to Value: Deploy directly from the Azure Marketplace and start automating in minutes.
+. Simplified Billing: Unified billing through Azure and eligible for Microsoft Azure Consumption Commitment (MACC).
+
+==== When to Consider Self-Managed
+
+. Full Control Over Architecture and Security: Necessary for strict compliance or specialized configurations.
+. Custom Scaling and Sizing: Allows manual control over VM sizes and architecture.
+. Complete Management Responsibility: Installation, upgrades, scaling, and backups are owned entirely by the customer.
+
+In summary, choose the Managed Application if your priority is to accelerate automation and reduce operational overhead. Choose Self-Managed if your priority is full control and customization.
+
+== 2. Lab Setup: Prerequisites
+
+Before we begin deployment, ensure the following prerequisites are met:
+
+. Red Hat Account – Required to activate your AAP subscription entitlement after deployment.
+. Azure Subscription
+. Networking Plan – Prepare a dedicated VNET with a `/24` range that does not overlap with existing CIDRs.
+. Resource Quotas – Confirm at least 80 vCPUs available in the target Azure region for scaling.
+
+== 3. Step 1: Deploy AAP from Azure Marketplace
+
+=== Step 3.1: Launch the Marketplace Offer
+
+. Log in to https://portal.azure.com[Azure Portal].
+. In the Azure Portal, go to Marketplace and search for "Ansible Automation Platform".
+. Select Red Hat Ansible Automation Platform Managed Application.
+. Click Create.
+
+=== Step 3.2: Configure the Deployment
+
+Fill out the deployment form:
+
+. Subscription: Select your subscription you created earlier.
+. Resource Group: Create a new one (e.g., `rg-aap-lab-eastus`).
+. Region: Choose a region with available vCPU quota.
+. Networking: Provide your planned VNET and subnet ranges.
+. Access Mode: For lab purposes we’ll use Public access, but in production you should always plan for Private access with VNET peering.
+
+Click Review + Create, then Create. Provisioning may take ~30–40 minutes.
+
+== 4. Step 2: Validate Deployment
+
+=== Step 4.1: Locate Resource Groups
+
+After deployment, three resource groups will be created:
+
+. Customer Resource Group (RG) – You own this.
+. Managed Resource Group (MRG) – Red Hat SRE-managed (read-only).
+. Node Pool Resource Group (NPRG) – Holds AKS resources. Do not modify without Red Hat guidance.
+
+=== Step 4.2: Access the AAP Console
+
+. In the Customer RG, locate the Managed Application resource.
+. Click Outputs and find the AAP Console URL.
+. Open the URL in your browser.
+. Log in with the admin credentials created during deployment.
+
+== 5. Step 3: Run a Test Job in Automation Controller
+
+=== Step 5.1: Create a Project
+
+. In Automation Controller, open Projects and select Add.
+. Name it `Hello Ansible Project`.
+. Use the SCM type Git and link to a simple hello world git repo.
+. Save and Sync.
+
+=== Step 5.2: Create an Inventory
+
+. In Automation Controller, open Inventories and select Add Inventory.
+. Name it `Localhost Test`.
+. Add a host entry: `localhost`.
+
+=== Step 5.3: Create a Job Template
+
+. In Automation Controller, open Templates and select Add, then Job Template.
+. Name: `Hello World Job`.
+. Inventory: `Localhost Test`.
+. Project: `Hello Azure Project`.
+. Playbook: `hello_world.yml` (or whatever your hello world playbook is named).
+. Execution Environment: Use the default included EE.
+. Save.
+
+=== Step 5.4: Launch the Job
+
+Click the Rocket Icon next to the template.  
+Verify the job runs successfully.
+
+== 6. Explore Networking (Optional Advanced Lab)
+
+For automation beyond localhost, configure Azure VNET peering:
+
+. Public Access: Already works for internet-facing automation.
+. Private Access: Requires VNET peering or VWAN configuration.
+. Automation Mesh: Deploy execution nodes closer to your workloads for hybrid or edge use cases.
+  Assess the network conditions (latency, bandwidth) and security requirements for each location.
+
+. Decide on Node Roles:
+- Execution Nodes: Decide how many you need and where they'll be deployed. Each will require a separate server or VM.
+* Ensure the VM's Network Security Group (NSG) allows inbound traffic on port 27199 (the default receptor communication port) from your AAP controller.
+* If you're using a private automation hub, also ensure the VM can reach it.
+* Integrate with controller: Execute the installer playbook on the Azure VM. This playbook installs the receptor service and configures a secure, encrypted connection back to your main AAP controller.
+- Hop Nodes: Consider using these if you need to traverse firewalls or complex networks, they don't run jobs
+* Ensure the hop node can reach both the AAP controller and the execution nodes that will connect to it. Open port 27199 (the default receptor port) on the firewall to allow communication.
+
+ 
+== 7. Conclusion
+
+You have successfully:
+
+. Deployed Ansible Automation Platform as a managed service on Azure.
+. Validated the deployment by logging into Automation Controller.
+. Created and executed your first automation job.
+. Explored networking options for real-world automation.
+
+This foundation prepares you to scale AAP usage in enterprise environments while offloading operational overhead to Red Hat’s SRE team.
+
+== 8. Helpful Links
+
+For additional reference and deeper learning on AAP in Azure, review the following resources:
+
+. https://access.redhat.com/articles/6983528[Red Hat Ansible Automation Platform on Azure Articles].
+. https://access.redhat.com/articles/6973251[Networking and Prerequisites for AAP on Azure].
+. https://redhat.enterprise.slack.com/archives/C068PHHMF2T[Slack - Ansible Cloud Services].
