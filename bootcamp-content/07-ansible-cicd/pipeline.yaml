@@ -1,0 +1,128 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: ansible-collection-ci
+  namespace: aap
+spec:
+  params:
+    - default: 'https://github.com/binbashroot/binbashroot_provision_collection'
+      description: The URL of the Git repository to clone.
+      name: repo-url
+      type: string
+    - default: main
+      description: The Git branch to clone.
+      name: branch-name
+      type: string
+    - default: binbashroot
+      description: The collection namespace
+      name: namespace
+      type: string
+    - default: 5473f0820a21de63067eb67a33749ad21d156d4f
+      description: PAH galaxy token
+      name: token
+      type: string
+    - default: admin
+      description: PAH login
+      name: pah-username
+      type: string
+    - default: Xn2loH0G20xo
+      description: PAH password
+      name: pah-password
+      type: string
+    - default: 'https://aap-aap.apps.cluster-4vtms.dynamic.redhatworkshops.io'
+      description: AAP URL
+      name: pah-host
+      type: string
+  tasks:
+    - name: clone-collection-repo
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: ghcr.io/ansible/community-ansible-dev-tools
+            name: git-clone
+            script: |
+              git clone -vvv $(params.repo-url)
+              cd `echo $(params.repo-url) |awk -F "/" '{print $NF}'`
+              ls -ltr
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: build-collection
+      runAfter:
+        - clone-collection-repo
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: ghcr.io/ansible/community-ansible-dev-tools
+            name: ansible-galaxy-build
+            script: |
+              cd `echo $(params.repo-url) |awk -F "/" '{print $NF}'`
+              ansible-galaxy collection build
+              ls -ltr
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: create-namespace
+      runAfter:
+        - build-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: create-namespace
+            script: |
+              cat <<EOF > $(workspaces.source.path)/create_pah_namespace.yml
+              ---
+              - name: Create namespace in Private Automation Hub
+                hosts: localhost
+                gather_facts: false
+                tasks:
+                  - name: Create PAH namespace
+                    ansible.hub.ah_namespace:
+                      name: "$(params.namespace)"
+                      state: present
+                      ah_host: "$(params.pah-host)"
+                      ah_username: "$(params.pah-username)"
+                      ah_password: "$(params.pah-password)"          
+              EOF
+              cat $(workspaces.source.path)/create_pah_namespace.yml
+              ansible-playbook $(workspaces.source.path)/create_pah_namespace.yml
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: publish-collection
+      runAfter:
+        - create-namespace
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: ghcr.io/ansible/community-ansible-dev-tools
+            name: ansible-galaxy-build
+            script: |
+              cd `echo $(params.repo-url) |awk -F "/" '{print $NF}'`
+              ansible-galaxy collection publish -s $(params.pah-host)/api/galaxy/ binbashroot-provision-1.0.16.tar.gz --token $(params.token)
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+  workspaces:
+    - name: shared-workspace
