@@ -1,0 +1,46 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: ansible-collection-ci-mdidato
+  namespace: aap
+  finalizers:
+    - chains.tekton.dev/pipelinerun
+    - results.tekton.dev/pipelinerun
+  labels:
+    tekton.dev/pipeline: ansible-collection-ci
+spec:
+  params:
+    - name: repo-url
+      value: 'https://github.com/binbashroot/binbashroot_provision_collection'
+    - name: branch-name
+      value: main
+    - name: namespace
+      value: binbashroot
+    - name: token
+      value: 5b2af6fd078fc286e15b86e19ea60f76bef36396
+    - name: pah-username
+      value: admin
+    - name: pah-password
+      value: QbCT1tv8hTQi
+    - name: pah-host
+      value: 'https://aap-aap.apps.cluster-jcfjc.dynamic.redhatworkshops.io'
+  pipelineRef:
+    name: ansible-collection-ci
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  timeouts:
+    pipeline: 1h0m0s
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+          storageClassName: ocs-external-storagecluster-ceph-rbd
+          volumeMode: Filesystem
+        status: {}
