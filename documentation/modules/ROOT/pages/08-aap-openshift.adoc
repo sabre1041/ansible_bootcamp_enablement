@@ -1,3 +1,8 @@
 = Ansible on OpenShift
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+. View the AAP on OCP CRs and managed resources
+. Scale the task pods and view new instances appear in AAP
+. Modify the `AnsibleAutomationPlatform` CR to modify the deployment
+. Watch logs for operator manager pods as they reconcile
+. Modify the default AAP containergroup spec
+. Deploy EDA
