@@ -1,0 +1,53 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: trigger-template-ansible-collection-ci-r82khw
+  namespace: aap
+spec:
+  params:
+    - name: git-revision
+    - name: git-commit-message
+    - name: git-repo-url
+    - name: git-repo-name
+    - name: content-type
+    - name: pusher-name
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        annotations:
+          pipeline.openshift.io/started-by: admin
+        generateName: ansible-collection-ci-
+        labels:
+          tekton.dev/pipeline: ansible-collection-ci
+        namespace: aap
+      spec:
+        params:
+          - name: collection-url
+            value: 'https://github.com/binbashroot/binbashroot_provision_collection'
+          - name: playbook-repo
+            value: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
+          - name: branch-name
+            value: main
+          - name: FQCN
+            value: binbashroot.provision
+          - name: pah-username
+            value: admin
+          - name: pah-password
+            value: VVBBovDsWYby
+          - name: pah-host
+            value: 'https://aap-aap.apps.cluster-jx5m7.dynamic.redhatworkshops.io'
+        pipelineRef:
+          name: ansible-collection-ci
+        status: null
+        workspaces:
+          - name: shared-workspace
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
+                storageClassName: ocs-external-storagecluster-ceph-rbd
+                volumeMode: Filesystem
