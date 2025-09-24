@@ -89,6 +89,9 @@
       tags:
         - collection-publish
         - collection-approve
+    - debug: var=hub_collections
+      tags: 
+        - collection-publish
 
     - name: Publish Collections
       ansible.hub.ah_collection:
