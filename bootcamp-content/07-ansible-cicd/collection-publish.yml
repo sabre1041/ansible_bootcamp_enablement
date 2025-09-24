@@ -77,7 +77,7 @@
 
     - name: Read in galaxy file
       ansible.builtin.slurp:
-        src: "{{ aap_configuration_working_dir }}/{{ __ah_collection_item.collection_name }}/galaxy.yml"
+        src: "{{ aap_configuration_working_dir }}/{{ hub_collections[0].collection_name }}/galaxy.yml"
       register: file_content
       tags:
         - collection-publish
@@ -89,9 +89,6 @@
       tags:
         - collection-publish
         - collection-approve
-    - debug: var=hub_collections
-      tags: 
-        - collection-publish
 
     - name: Publish Collections
       ansible.hub.ah_collection:
