@@ -1,29 +1,26 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  name: ansible-collection-ci-mdidato
+  name: ansible-collection-ci-testrun
   namespace: aap
-  finalizers:
-    - chains.tekton.dev/pipelinerun
-    - results.tekton.dev/pipelinerun
   labels:
     tekton.dev/pipeline: ansible-collection-ci
 spec:
   params:
-    - name: repo-url
-      value: 'https://github.com/binbashroot/binbashroot_provision_collection'
+    - name: collection-url
+      value: 'https://github.com/mdidato/ci-cd-collection.git'
+    - name: playbook-repo
+      value: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
     - name: branch-name
       value: main
-    - name: namespace
-      value: binbashroot
-    - name: token
-      value: 5b2af6fd078fc286e15b86e19ea60f76bef36396
+    - name: FQCN
+      value: automation_bootcamp.my_collection
     - name: pah-username
       value: admin
     - name: pah-password
-      value: QbCT1tv8hTQi
+      value: VVBBovDsWYby
     - name: pah-host
-      value: 'https://aap-aap.apps.cluster-jcfjc.dynamic.redhatworkshops.io'
+      value: 'https://aap-aap.apps.cluster-jx5m7.dynamic.redhatworkshops.io'
   pipelineRef:
     name: ansible-collection-ci
   taskRunTemplate:
