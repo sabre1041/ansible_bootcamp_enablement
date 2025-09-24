@@ -96,7 +96,6 @@
         name: "{{ (__ah_collection_item.collection_name | basename).split('.')[1] }}"
         version: "{{ collection_version }}"
         path: "{{aap_configuration_working_dir}}/{{__ah_collection_item.collection_name}}/{{ah_namespace}}-{{ah_collection_name}}-{{collection_version}}.tar.gz"
-        auto_approve: "{{ ah_auto_approve }}"
         overwrite_existing: "{{ ah_overwrite_existing }}"
         ah_host: "{{ aap_hostname | default(omit) }}"
         ah_username: "{{ aap_username | default(omit) }}"
