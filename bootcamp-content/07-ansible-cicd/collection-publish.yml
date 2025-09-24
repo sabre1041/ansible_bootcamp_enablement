@@ -8,17 +8,10 @@
     hub_configuration_publish_loop_delay: 5
     hub_configuration_publish_async_timeout: 10
     aap_request_timeout: 300
-    aap_hostname: https://aap-aap.apps.cluster-bmgbv.dynamic.redhatworkshops.io
-    aap_username: admin
-    aap_password: "{{ lookup('ansible.builtin.env', 'AAP_PASSWORD') }}"
     aap_validate_certs: false
-    ah_auto_approve: false
     ah_overwrite_existing: true
     ah_namespace: "{{ (hub_collections[0].collection_name | basename).split('.')[0] }}"
     ah_collection_name: "{{ (hub_collections[0].collection_name | basename).split('.')[1] }}"
-    hub_collections:
-      - collection_name: binbashroot.provision
-        git_url: https://github.com/binbashroot/binbashroot_provision_collection
   no_log: "{{ hub_configuration_publish_secure_logging | default('false') }}"
   tasks:
     - name: Git checkout
@@ -133,8 +126,6 @@
       loop: "{{ hub_collections }}"
       loop_control:
         loop_var: __ah_collection_item
-      when:
-        - not ah_auto_approve
       register: approval
       retries: 3
       delay: 2

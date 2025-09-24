@@ -1,0 +1,165 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: ansible-collection-ci
+  namespace: aap
+spec:
+  params:
+    - default: 'https://github.com/binbashroot/binbashroot_provision_collection'
+      description: The URL of the Git repository to clone.
+      name: collection-url
+      type: string
+    - default: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
+      description: The URL of the Git repository to clone.
+      name: playbook-repo
+      type: string
+    - default: main
+      description: The Git branch to clone.
+      name: branch-name
+      type: string
+    - default: binbashroot.provision
+      description: Ansible collection FQCN
+      name: FQCN
+      type: string
+    - default: admin
+      description: PAH login
+      name: pah-username
+      type: string
+    - default: Xn2loH0G20xo
+      description: PAH password
+      name: pah-password
+      type: string
+    - default: 'https://aap-aap.apps.cluster-4vtms.dynamic.redhatworkshops.io'
+      description: AAP URL
+      name: pah-host
+      type: string
+  tasks:
+    - name: clone-playbook
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: playbook-install
+            script: |
+              git clone -vvv $(params.playbook-repo)
+              echo "change into playbook dir"
+              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              echo "create vars file"
+              cat <<EOF > params.yml
+              ---
+              aap_hostname: "$(params.pah-host)"
+              aap_username: "$(params.pah-username)"
+              aap_password: "$(params.pah-password)"
+              hub_collections:
+                - collection_name: "$(params.FQCN)"
+                  git_url: "$(params.collection-url)"
+                  version: "$(params.branch-name)"
+              EOF
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: clone-collection
+      runAfter:
+        - clone-playbook
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: collection-clone
+            script: |
+              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              ansible-playbook collection-publish --tags git-checkout
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: build-collection
+      runAfter:
+        - clone-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: build-collection
+            script: |
+              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              ansible-playbook collection-publish --tags collection-build
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: create-namespace
+      runAfter:
+        - clone-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: create-namespace
+            script: |
+              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              ansible-playbook collection-publish --tags pah-namespace 
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: publish-collection
+      runAfter:
+        - create-namespace
+        - build-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: publish-collection
+            script: |
+              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              ansible-playbook collection-publish --tags collection-publish
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: approve-collection
+      runAfter:
+        - publish-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: approve-collection
+            script: |
+              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              ansible-playbook collection-publish --tags collection-approve
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+  workspaces:
+    - name: shared-workspace
+
+    
