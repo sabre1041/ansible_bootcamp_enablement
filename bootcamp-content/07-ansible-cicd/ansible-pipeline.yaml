@@ -25,12 +25,10 @@ spec:
       description: PAH login
       name: pah-username
       type: string
-    - default: Xn2loH0G20xo
-      description: PAH password
+    - description: PAH password
       name: pah-password
       type: string
-    - default: 'https://aap-aap.apps.cluster-4vtms.dynamic.redhatworkshops.io'
-      description: AAP URL
+    - description: AAP URL
       name: pah-host
       type: string
   tasks:
