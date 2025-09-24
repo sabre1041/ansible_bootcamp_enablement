@@ -75,7 +75,7 @@ spec:
             name: collection-clone
             script: |
               cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
-              ansible-playbook collection-publish --tags git-checkout
+              ansible-playbook collection-publish.yml --tags git-checkout
             workingDir: $(workspaces.source.path)
         workspaces:
           - name: source
@@ -94,7 +94,7 @@ spec:
             name: build-collection
             script: |
               cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
-              ansible-playbook collection-publish --tags collection-build
+              ansible-playbook collection-publish.yml --tags collection-build
             workingDir: $(workspaces.source.path)
         workspaces:
           - name: source
@@ -113,7 +113,7 @@ spec:
             name: create-namespace
             script: |
               cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
-              ansible-playbook collection-publish --tags pah-namespace 
+              ansible-playbook collection-publish.yml --tags pah-namespace 
             workingDir: $(workspaces.source.path)
         workspaces:
           - name: source
@@ -133,7 +133,7 @@ spec:
             name: publish-collection
             script: |
               cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
-              ansible-playbook collection-publish --tags collection-publish
+              ansible-playbook collection-publish.yml --tags collection-publish
             workingDir: $(workspaces.source.path)
         workspaces:
           - name: source
@@ -152,7 +152,7 @@ spec:
             name: approve-collection
             script: |
               cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
-              ansible-playbook collection-publish --tags collection-approve
+              ansible-playbook collection-publish.yml --tags collection-approve
             workingDir: $(workspaces.source.path)
         workspaces:
           - name: source
