@@ -5,24 +5,19 @@ metadata:
   namespace: aap
 spec:
   params:
-    - default: 'https://github.com/binbashroot/binbashroot_provision_collection'
-      description: The URL of the Git repository to clone.
+    - description: The URL of the Git repository to clone.
       name: collection-url
       type: string
-    - default: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
-      description: The URL of the Git repository to clone.
+    - description: The URL of the Git repository to clone.
       name: playbook-repo
       type: string
-    - default: main
-      description: The Git branch to clone.
+    - description: The Git branch to clone.
       name: branch-name
       type: string
-    - default: binbashroot.provision
-      description: Ansible collection FQCN
+    - description: Ansible collection FQCN
       name: FQCN
       type: string
-    - default: admin
-      description: PAH login
+    - description: PAH login
       name: pah-username
       type: string
     - description: PAH password
