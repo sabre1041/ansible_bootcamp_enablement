@@ -54,54 +54,36 @@
 
     - name: Create PAH namespace
       ansible.hub.ah_namespace:
-        name: "{{ (__ah_collection_item.collection_name | basename).split('.')[0] }}"
+        name: "{{ namespace }}"
         state: present
         ah_host: "{{ aap_hostname | default(omit) }}"
         ah_username: "{{ aap_username | default(omit) }}"
         ah_password: "{{ aap_password | default(omit) }}"
         validate_certs: "{{ aap_validate_certs | default(omit) }}"
-      loop: "{{ hub_collections }}"
-      loop_control:
-        loop_var: __ah_collection_item
       tags:
         - pah-namespace
 
-    - name: Get token
-      ansible.hub.ah_token:
-        ah_host: "{{ aap_hostname | default(omit) }}"
-        ah_username: "{{ aap_username | default(omit) }}"
-        ah_password: "{{ aap_password | default(omit) }}"
-        ah_path_prefix: "{{ hub_path_prefix | default(ah_path_prefix | default(omit)) }}"
-        validate_certs: "{{ aap_validate_certs | default(omit) }}"
-        request_timeout: "{{ aap_request_timeout | default(omit) }}"
-      when:
-        - hub_token is not defined
-        - lookup("ansible.builtin.env", "AH_API_TOKEN") == ""
-      tags:
-        - collection-publish
-        - collection-approve
-
-    - name: Read in galaxy file
-      ansible.builtin.slurp:
-        src: "{{ aap_configuration_working_dir }}/{{ hub_collections[0].collection_name }}/galaxy.yml"
-      register: file_content
-      tags:
-        - collection-publish
-        - collection-approve
-
-    - name: Get collection Version
-      ansible.builtin.set_fact:
-        collection_version: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'version') | first |split() | last }}"
-      tags:
-        - collection-publish
-        - collection-approve
+#    - name: Get token
+#      ansible.hub.ah_token:
+#        ah_host: "{{ aap_hostname | default(omit) }}"
+#        ah_username: "{{ aap_username | default(omit) }}"
+#        ah_password: "{{ aap_password | default(omit) }}"
+#        ah_path_prefix: "{{ hub_path_prefix | default(ah_path_prefix | default(omit)) }}"
+#        validate_certs: "{{ aap_validate_certs | default(omit) }}"
+#        request_timeout: "{{ aap_request_timeout | default(omit) }}"
+#      when:
+#        - hub_token is not defined
+#        - lookup("ansible.builtin.env", "AH_API_TOKEN") == ""
+#      tags:
+#        - collection-publish
+#        - collection-approve
 
     - name: Publish Collections
       ansible.hub.ah_collection:
-        namespace: "{{ (__ah_collection_item.collection_name | basename).split('.')[0] }}"
-        name: "{{ (__ah_collection_item.collection_name | basename).split('.')[1] }}"
+        namespace: "{{ namespace }}"
+        name: "{{ collection_name }}"
         version: "{{ collection_version }}"
-        path: "{{aap_configuration_working_dir}}/{{__ah_collection_item.collection_name}}/{{ah_namespace}}-{{ah_collection_name}}-{{collection_version}}.tar.gz"
+        path: "{{ aap_configuration_working_dir }}/collection_repo/{{ namespace }}-{{ collection_name }}-{{ collection_version }}.tar.gz"
         overwrite_existing: "{{ ah_overwrite_existing }}"
         ah_host: "{{ aap_hostname | default(omit) }}"
         ah_username: "{{ aap_username | default(omit) }}"
@@ -109,20 +91,13 @@
         ah_token: "{{ hub_token | default(omit) }}"
         validate_certs: "{{ aap_validate_certs | default(omit) }}"
         request_timeout: "{{ aap_request_timeout | default(omit) }}"
-      loop: "{{ hub_collections }}"
-      loop_control:
-        loop_var: __ah_collection_item
-      register: publish
-      retries: 3
-      delay: 2
-      until: not publish is failed
       tags:
         - collection-publish
 
     - name: Approve Collections
       ansible.hub.ah_approval:
-        namespace: "{{ (__ah_collection_item.collection_name | basename).split('.')[0] }}"
-        name: "{{ (__ah_collection_item.collection_name | basename).split('.')[1] }}"
+        namespace: "{{ namespace }}"
+        name: "{{ collection_name }}"
         version: "{{ collection_version }}"
         ah_username: "{{ aap_username | default(omit) }}"
         ah_password: "{{ aap_password | default(omit) }}"
@@ -130,12 +105,5 @@
         ah_host: "{{ aap_hostname | default(omit) }}"
         validate_certs: "{{ aap_validate_certs | default(omit) }}"
         request_timeout: "{{ aap_request_timeout | default(omit) }}"
-      loop: "{{ hub_collections }}"
-      loop_control:
-        loop_var: __ah_collection_item
-      register: approval
-      retries: 3
-      delay: 2
-      until: not approval is failed
       tags:
         - collection-approve
