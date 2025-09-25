@@ -24,13 +24,13 @@ spec:
       spec:
         params:
           - name: collection-url
-            value: 'https://github.com/binbashroot/binbashroot_provision_collection'
+            value: $(params.git-repo-url)
           - name: playbook-repo
             value: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
           - name: branch-name
             value: main
           - name: FQCN
-            value: binbashroot.provision
+            value: automation_bootcamp.my_collection
           - name: pah-username
             value: admin
           - name: pah-password
