@@ -1,3 +1,39 @@
-= CI/CD for Ansible Content
+= Lab: Creating a CI/CD Pipeline
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+[abstract]
+This template outlines the steps and considerations for a lab focused on developing and implementing a Continuous Integration/Continuous Delivery (CI/CD) pipeline using Tekton to automate the Ansible collection build and publish process into Automation Hub.
+
+== 1. Prerequisites
+
+.Particpants should have
+
+. Completed the Ansible Bootcamp Lab: xref:./06-managing-content-automation.adoc[Managing Ansible Content with Private Automation Hub]
+
+== 2. Introduction: INSERT INTRO NAME
+
+
+== 3. Lab Setup: Configuring Your Environment
+
+
+.Prior to starting the lab, ensure the following tools and services are set up:
+
+. Create a Gitea repository for the collection you previously created
+. Make sure repository is public
+. Commit the collection code you created previously in the Managing Ansible Content with Private Automation Hub lab
+
+
+== 4. Lab: CI/CD Pipeline
+
+=== 4.1: Build Tekton pipeline on OpenShift Container Platform
+
+=== 4.2: Create Cluster Trigger Binding
+
+=== 4.3: Create Trigger Binding
+
+=== 4.4: Create Event Listener
+
+=== 4.5: Configiure Gitea Webhook
+
+=== 4.6: Update and Push New Version of Ansible Collection to Gitea
+
+=== 4.7: Test New Version of Collection
