@@ -12,6 +12,9 @@ spec:
       description: The URL of the Git repository to clone.
       name: playbook-repo
       type: string
+    - description: Collection Branch name
+      name: collection-repo-version
+      type: string
   tasks:
     - name: clone-playbook
       taskSpec:
@@ -32,6 +35,7 @@ spec:
               aap_username: "admin"
               aap_password: "`oc get secret aap-admin-password -n aap -o=jsonpath='{.data.password}' |base64 -d`"
               collection_url: "$(params.collection-url)"
+              branch: "$(params.collection-repo-version)"
               EOF
             workingDir: $(workspaces.source.path)
         workspaces:

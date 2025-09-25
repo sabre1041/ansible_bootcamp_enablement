@@ -24,6 +24,8 @@ spec:
         params:
           - name: collection-url
             value: $(tt.params.git-repo-url)
+          - name: collection-repo-version
+            value: $(tt.params.git-revision)
           - name: playbook-repo
             value: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
         pipelineRef:
