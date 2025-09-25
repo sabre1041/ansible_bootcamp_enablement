@@ -17,22 +17,230 @@ This template outlines the steps and considerations for a lab focused on develop
 
 .Prior to starting the lab, ensure the following tools and services are set up:
 
-. Create a Gitea repository for the collection you previously created
+. Repository for the ansible_bootcamp_my_collection is created
 . Make sure repository is public
-. Commit the collection code you created previously in the Managing Ansible Content with Private Automation Hub lab
+. Commit the collection code you created previously in the xref:06-managing-content-automation-hub.adoc[Managing Ansible Content with Private Automation Hub]
 
 
 == 4. Lab: CI/CD Pipeline
 
 === 4.1: Build Tekton pipeline on OpenShift Container Platform
 
+.collection-pipeline.yml
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: ansible-collection-ci
+  namespace: aap
+spec:
+  params:
+    - name: collection-url
+      description: The URL of the Git repository to clone.
+      type: string
+    - name: playbook-repo
+      description: The URL of the Git repository to clone.
+      type: string
+    - default: main
+      description: The Git branch to clone.
+      name: branch-name
+      type: string
+    - name: FQCN
+      description: Ansible collection FQCN
+      type: string
+    - name: pah-username
+      description: PAH login      
+      type: string
+    - name: pah-password
+      description: PAH password
+      type: string
+    - name: pah-host
+      description: AAP URL
+      type: string
+  tasks:
+    - name: clone-playbook
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: playbook-install
+            script: |
+              git clone -vvv $(params.playbook-repo)
+              echo "change into playbook dir"
+              cd ci_cd_pipeline
+              echo "create vars file"
+              cat <<EOF > params.yml
+              ---
+              aap_hostname: "$(params.pah-host)"
+              aap_username: "$(params.pah-username)"
+              aap_password: "$(params.pah-password)"
+              hub_collections:
+                - collection_name: "$(params.FQCN)"
+                  git_url: "$(params.collection-url)"
+                  version: "$(params.branch-name)"
+              EOF
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: clone-collection
+      runAfter:
+        - clone-playbook
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: collection-clone
+            script: |
+              cd ci_cd_pipeline
+              ansible-playbook collection-publish.yml --tags git-checkout
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: build-collection
+      runAfter:
+        - clone-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: build-collection
+            script: |
+              cd ci_cd_pipeline
+              ansible-playbook collection-publish.yml --tags collection-build
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: create-namespace
+      runAfter:
+        - clone-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: create-namespace
+            script: |
+              cd ci_cd_pipeline
+              ansible-playbook collection-publish.yml --tags pah-namespace 
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: publish-collection
+      runAfter:
+        - create-namespace
+        - build-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: publish-collection
+            script: |
+              cd ci_cd_pipeline
+              ansible-playbook collection-publish.yml --tags collection-publish
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: approve-collection
+      runAfter:
+        - publish-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
+            name: approve-collection
+            script: |
+              cd ci_cd_pipeline
+              ansible-playbook collection-publish.yml --tags collection-approve
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+  workspaces:
+    - name: shared-workspace
+
+----
+====
+
 === 4.2: Create Cluster Trigger Binding
+
+.collection-cluster-trigger-binding.yml
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: triggers.tekton.dev/v1beta1
+kind: ClusterTriggerBinding
+metadata:
+  labels:
+    operator.tekton.dev/operand-name: openshift-pipelines-addons
+  name: gitea-push
+spec:
+  params:
+    - name: git-revision
+      value: $(body.head_commit.id)
+    - name: git-commit-message
+      value: $(body.head_commit.message)
+    - name: git-repo-url
+      value: $(body.repository.clone_url)
+    - name: git-repo-name
+      value: $(body.repository.name)
+    - name: content-type
+      value: $(header.Content-Type)
+----
+====
 
 === 4.3: Create Trigger Binding
 
+.collection-trigger-binding.yml
+[%collapsible]
+====
+[source,yaml]
+----
+----
+====
+
 === 4.4: Create Event Listener
 
-=== 4.5: Configiure Gitea Webhook
+.collection-event-listener.yml
+[%collapsible]
+====
+[source,yaml]
+----
+----
+====
+
+=== 4.5: Configure Gitea Webhook
 
 === 4.6: Update and Push New Version of Ansible Collection to Gitea
 
