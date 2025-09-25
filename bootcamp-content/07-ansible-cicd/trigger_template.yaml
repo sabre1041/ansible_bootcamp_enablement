@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: trigger-template-ansible-collection-ci-fajo9g
+  name: trigger-template-ansible-collection-ci-68twsu
   namespace: aap
 spec:
   params:
@@ -26,16 +26,6 @@ spec:
             value: $(tt.params.git-repo-url)
           - name: playbook-repo
             value: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
-          - name: branch-name
-            value: main
-          - name: FQCN
-            value: mdidato.hotpiss
-          - name: pah-username
-            value: admin
-          - name: pah-password
-            value: VVBBovDsWYby
-          - name: pah-host
-            value: 'https://aap-aap.apps.cluster-jx5m7.dynamic.redhatworkshops.io'
         pipelineRef:
           name: ansible-collection-ci
         status: null
