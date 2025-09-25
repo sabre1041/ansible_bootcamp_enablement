@@ -5,15 +5,10 @@
   vars_files:
     - params.yml
   vars:
-    ansible_async_dir: "{{ aap_configuration_async_dir | default('/tmp/ansible') }}"
     aap_configuration_working_dir: "/workspace/source"
-    hub_configuration_publish_loop_delay: 5
-    hub_configuration_publish_async_timeout: 10
     aap_request_timeout: 300
     aap_validate_certs: false
     ah_overwrite_existing: true
-    ah_namespace: "{{ (hub_collections[0].collection_name | basename).split('.')[0] }}"
-    ah_collection_name: "{{ (hub_collections[0].collection_name | basename).split('.')[1] }}"
   no_log: "{{ hub_configuration_publish_secure_logging | default('false') }}"
   tasks:
 
