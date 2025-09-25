@@ -37,8 +37,8 @@
     - name: Get collection Version
       ansible.builtin.set_fact:
         collection_version: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'version') | first |split() | last }}"
-        namespace: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'namespace') | first |split() | last | regex_replace('[\\\"\\\']', '') }}"
-        collection_name: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'name:') | first |split() | last | regex_replace('[\\\"\\\']', '') }}"
+        namespace: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'namespace') | first |split() | last | replace('\"', '')  }}"
+        collection_name: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'name:') | first |split() | last | replace('\"', '')  }}"
       tags:
         - collection-publish
         - collection-approve
