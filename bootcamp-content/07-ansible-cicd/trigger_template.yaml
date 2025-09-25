@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: trigger-template-ansible-collection-ci-r82khw
+  name: trigger-template-ansible-collection-ci-fajo9g
   namespace: aap
 spec:
   params:
@@ -10,7 +10,6 @@ spec:
     - name: git-repo-url
     - name: git-repo-name
     - name: content-type
-    - name: pusher-name
   resourcetemplates:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
@@ -24,13 +23,13 @@ spec:
       spec:
         params:
           - name: collection-url
-            value: $(params.git-repo-url)
+            value: $(tt.params.git-repo-url)
           - name: playbook-repo
             value: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
           - name: branch-name
             value: main
           - name: FQCN
-            value: automation_bootcamp.my_collection
+            value: mdidato.hotpiss
           - name: pah-username
             value: admin
           - name: pah-password

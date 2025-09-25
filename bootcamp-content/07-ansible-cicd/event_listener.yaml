@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: event-listener-cpvj5k
+  name: event-listener-lvlkyp
   namespace: aap
 spec:
   namespaceSelector: {}
@@ -10,6 +10,6 @@ spec:
   triggers:
     - bindings:
         - kind: ClusterTriggerBinding
-          ref: github-push
+          ref: gitea-push
       template:
-        ref: trigger-template-ansible-collection-ci-r82khw
+        ref: trigger-template-ansible-collection-ci-fajo9g
