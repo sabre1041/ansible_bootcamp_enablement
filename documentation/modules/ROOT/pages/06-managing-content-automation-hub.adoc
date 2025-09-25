@@ -25,7 +25,7 @@ Instead of creating a configuration file with your secret token, we will set env
 ==== Step 2.1.1: Obtaining Your PAH API Token
 . Log in to your Private Automation Hub web interface.
 . From the navigation menu on the left, click on API Token.
-. On the API Token page, click the Load token button.
+. On the API Token page, click the 'Generate token' button.
 . Your API token will be displayed. Click the Copy to clipboard icon to copy it. You will use this in the next step.
 
 ==== Step 2.1.2: Set Environment Variables
