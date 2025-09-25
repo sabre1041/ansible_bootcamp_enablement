@@ -38,7 +38,7 @@
       ansible.builtin.set_fact:
         collection_version: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'version') | first |split() | last }}"
         namespace: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'namespace') | first |split() | last }}"
-        collection_name: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'name') | first |split() | last }}"
+        collection_name: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'name:') | first |split() | last }}"
       tags:
         - collection-publish
         - collection-approve
