@@ -19,31 +19,36 @@
 
     - name: Git checkout
       ansible.builtin.git:
-        repo: "{{ collection_url  }}"
+        repo: "{{ collection_url }}"
         dest: "{{ aap_configuration_working_dir }}/collection_repo"
-#        version: "{{ __ah_collection_item.version | default(omit) }}"
-#        key_file: "{{ __ah_collection_item.key_path | default(omit) }}"
-#        ssh_opts: "{{ __ah_collection_item.ssh_opts | default(omit) }}"
-#      loop: "{{ hub_collections }}"
-#      loop_control:
-#        loop_var: __ah_collection_item
-#        pause: "{{ hub_configuration_publish_loop_delay }}"
-#      when:
-#        - ah_collection_list is not defined
-#        - __ah_collection_item.collection_local_path is not defined
       tags:
         - git-checkout
 
+    - name: Read in galaxy file
+      ansible.builtin.slurp:
+        src: "{{ aap_configuration_working_dir }}/collection_repo/galaxy.yml"
+      register: file_content
+      tags:
+        - collection-publish
+        - collection-approve
+        - collection-build
+
+    - name: Get collection Version
+      ansible.builtin.set_fact:
+        collection_version: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'version') | first |split() | last }}"
+        namespace: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'namespace') | first |split() | last }}"
+        collection_name: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'name') | first |split() | last }}"
+      tags:
+        - collection-publish
+        - collection-approve
+        - collection-build
+
     - name: Build Collections
       ansible.hub.ah_build:
-        path: "{{ aap_configuration_working_dir }}/{{ __ah_collection_item.collection_name }}"
-        output_path: "{{ aap_configuration_working_dir }}/{{ __ah_collection_item.collection_name }}"
+        path: "{{ aap_configuration_working_dir }}/collection_repo"
+        output_path: "{{ aap_configuration_working_dir }}/collection_repo"
         force: true
       register: ah_build_results
-      loop: "{{ hub_collections }}"
-      loop_control:
-        loop_var: __ah_collection_item
-      when: ah_collection_list is not defined
       tags:
         - collection-build
 
