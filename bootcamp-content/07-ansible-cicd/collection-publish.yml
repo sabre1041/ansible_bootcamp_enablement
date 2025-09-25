@@ -16,6 +16,7 @@
       ansible.builtin.git:
         repo: "{{ collection_url }}"
         dest: "{{ aap_configuration_working_dir }}/collection_repo"
+        version: "{{ branch }}"
       tags:
         - git-checkout
 
