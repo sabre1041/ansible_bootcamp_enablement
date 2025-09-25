@@ -32,6 +32,7 @@
         - collection-publish
         - collection-approve
         - collection-build
+        - pah-namespace
 
     - name: Get collection Version
       ansible.builtin.set_fact:
@@ -42,6 +43,7 @@
         - collection-publish
         - collection-approve
         - collection-build
+        - pah-namespace
 
     - name: Build Collections
       ansible.hub.ah_build:
