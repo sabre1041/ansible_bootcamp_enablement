@@ -16,7 +16,7 @@ A Private Automation Hub acts as a central repository for your organization's cu
 
 == 2. Lab Setup: Configuring Your Environment
 
-First, let's configure your local machine to communicate with your Private Automation Hub.
+First, let's configure everything to communicate with your Private Automation Hub.
 
 === Step 2.1: Configure Ansible to Use PAH via Environment Variables
 
