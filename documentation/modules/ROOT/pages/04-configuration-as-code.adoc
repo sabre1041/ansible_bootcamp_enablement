@@ -3,19 +3,49 @@
 == Building out the basics for config as code
 
 [#setup]
-=== Task 1 - Setting up the project
+== 1. Lab Setup: Configuring Your Environment
 
-- In this lab, you will be creating configuration files in order to set a state on the Ansible Automation Platform.
-This requires several prerequisites.
+First, let's configure everything to communicate with your Private Automation Hub.
 
-- Open up the terminal in the window on the right by going to the menu, use the Terminal > New Terminal
+=== Step 1.1: Configure Ansible to Use PAH via Environment Variables
 
-- In the terminal, install the collections and containers.podman using `ansible-galaxy` command. Make sure the versions are correct and you are running command from the path `/home/lab-user/casc_lab/`.
-+
-[source,bash,role=execute]
+Instead of creating a configuration file with your secret token, we will set environment variables. This is a more secure practice for local development as it prevents tokens from being accidentally committed to source control.
+
+==== Step 1.1.1: Obtaining Your PAH API Token
+. Log in to your Private Automation Hub web interface.
+. From the navigation menu on the left, click on API Token.
+. On the API Token page, click the Load token button.
+. Your API token will be displayed. Click the Copy to clipboard icon to copy it. You will use this in the next step.
+
+==== Step 1.1.2: Set Environment Variables
+In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
+
+[source,bash]
 ----
-cd /home/lab-user/casc_lab/
+# Set the list of servers Ansible should know about
+export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+
+# Configure the 'published' repository
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://pah.example.com/pulp_ansible/galaxy/published/'
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='YOUR_API_TOKEN_HERE'
+
+# Configure the 'certified' repository
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://pah.example.com/pulp_ansible/galaxy/rh-certified/'
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='YOUR_API_TOKEN_HERE'
+
+# Configure the 'validated' repository
+export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://pah.example.com/pulp_ansible/galaxy/validated/'
+export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='YOUR_API_TOKEN_HERE'
+
+# Configure the 'community' repository
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://pah.example.com/pulp_ansible/galaxy/community/'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 ----
+
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+
+==== Step 1.2: Install required collections
+- Next install the collections and containers.podman using `ansible-galaxy` command.
 +
 [source,bash,role=execute]
 ----
@@ -26,8 +56,6 @@ ansible-galaxy collection install infra.ee_utilities:4.0.0 infra.aap_configurati
 +
 * https://docs.ansible.com/ansible/devel/user_guide/collections_using.html#collections[Installing collections using cli,window=_blank]
 * https://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html#collections-support[Using collections in AAP,window=_blank]
-
-
 
 [#variable_files]
 === Task 2 - Creating Variable Files
