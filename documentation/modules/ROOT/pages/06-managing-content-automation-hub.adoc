@@ -90,38 +90,7 @@ NOTE: Replace the following values `pah.example.com` With the URL of your Privat
 
 NOTE: Make sure to Approve collection in the hub UI
 
-== 4. Push Collection to Repository
-
-After we've published our collection to your Private Automation Hub, we need to save our work your lab's Gitea.
-
-=== 4.1 Create Gitea Repository
-
-. Log in to your Gitea web interface, with the provided login credentials.
-. In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
-. On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
-. Leave everything else as default and click on the button at the bottom, 'Create Repository'.
-
-=== 4.2 Push collection to new repository
-
-After an empty repository is created on your Gitea, we need to push the collection to the repository.
-
-. In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
-. Now, follow these steps in the root directory of 'my_pah_project'
-
-[source,bash]
-----
-touch README.md
-git init
-git checkout -b main
-git add --all
-git commit -m "Uploading collection on initial commit"
-git remote add origin <PASTE GIT URL FROM GITEA HERE>
-git push -u origin main
-----
-
-Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:07-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
-
-== 5. Syncing a Base EE from the Red Hat Registry
+== 4. Syncing a Base EE from the Red Hat Registry
 
 Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
 
@@ -131,11 +100,11 @@ Before building our own EE, we'll configure PAH to pull in a certified base imag
 . Save and Sync the registry.
 . After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
 
-== 6. Building a Custom Execution Environment
+== 5. Building a Custom Execution Environment
 
 Now, we'll define and build an EE that uses our synced minimal image and our custom collection.
 
-=== Step 6.1: Define the Execution Environment
+=== Step 5.1: Define the Execution Environment
 
 Create a file named execution-environment.yml.
 
@@ -174,7 +143,7 @@ additional_build_steps: prepend_galaxy:
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
 
-=== Step 6.2: Build and Publish the Execution Environment
+=== Step 5.2: Build and Publish the Execution Environment
 
 [source,bash]
 ----
@@ -191,11 +160,11 @@ podman push pah.example.com/my-pah-ee:1.0
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
-== 7. Adding a Custom Filter Plugin
+== 6. Adding a Custom Filter Plugin
 
 Now that we have a working EE, let's iterate by adding a custom filter plugin to our collection.
 
-=== Step 7.1: Create the Custom Filter Plugin
+=== Step 6.1: Create the Custom Filter Plugin
 
 Create the file with the following content:
 
@@ -231,7 +200,7 @@ class FilterModule(object):
         }
 ----
 
-=== Step 7.2: Update the EE Definition for the Plugin Dependency
+=== Step 6.2: Update the EE Definition for the Plugin Dependency
 
 Our new plugin requires the cowsay Python library, and we need to ensure our EE is pulling the new version of our collection. Modify execution-environment.yml to include both changes.
 
@@ -272,7 +241,7 @@ additional_build_steps:
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
 
-=== Step 7.3: Increment Version and Republish
+=== Step 6.3: Increment Version and Republish
 
 Now, we publish a new version of the collection and a new version of the EE that includes the updated collection and dependency.
 
@@ -302,11 +271,11 @@ podman push pah.example.com/my-pah-ee:1.1
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
 
-== 8. Preparing the Project for Automation Controller
+== 7. Preparing the Project for Automation Controller
 
 Now we'll update our playbook to use the new filter.
 
-=== Step 8.1: Create a Playbook
+=== Step 7.1: Create a Playbook
 
 Create a playbook named test_pah_ee.yml. This playbook uses the debug module to print a message that has been formatted by our custom cowsay filter.
 
@@ -325,41 +294,41 @@ Create a playbook named test_pah_ee.yml. This playbook uses the debug module to 
 ...
 ----
 
-=== Step 8.2: Push Project Files to Git
+=== Step 7.2: Push Project Files to Git
 
 Push the `test_pah_ee.yml` playbook to your Git repository
 
-== 9. Integrating with Automation Controller
+== 8. Integrating with Automation Controller
 
 Now, let's configure Controller to use our custom content.
 
-=== Step 9.1: Add the Execution Environment to Controller
+=== Step 8.1: Add the Execution Environment to Controller
 . In the Controller UI, navigate to Administration -> Execution Environments.
 . Click Add, name it My Custom PAH EE, and use the image path pah.example.com/my-pah-ee:1.2.
 . Select your Private Automation Hub as the Container registry and Save.
 
-=== Step 9.2: Create a Credential for PAH Collections
+=== Step 8.2: Create a Credential for PAH Collections
 . Navigate to Resources -> Credentials and click Add.
 . Name it PAH Galaxy Credential, select the type Ansible Galaxy/Automation Hub API Token, and paste in your PAH token.
 
-=== Step 9.3: Create a Project
+=== Step 8.3: Create a Project
 . Navigate to Resources -> Projects and click Add.
 . Name it Custom Content Test Project and point it to your Git repository URL.
 . Under Ansible Galaxy Credentials, select the PAH Galaxy Credential you just created.
 . Click Save and Sync the project.
 
-=== Step 9.4: Create a Job Template
+=== Step 8.4: Create a Job Template
 . Navigate to Resources -> Templates and click Add -> Add job template.
 . Name it Test Custom Cowsay Filter.
 . Select an Inventory, the Custom Content Test Project, and the test_pah_ee.yml playbook.
 . For the Execution Environment, select My Custom PAH EE.
 . Click Save.
 
-=== Step 9.5: Launch the Job Template and Verify
+=== Step 8.5: Launch the Job Template and Verify
 . From the Job Templates view, click the rocket icon 🚀 to Launch your template.
 . In the job output view, look for the output of the "Print a message" task. You should see your message printed inside a cowsay bubble within the JSON output of the debug task.
 
-== 10. Conclusion
+== 9. Conclusion
 
 Congratulations! You have successfully completed this workflow for managing custom Ansible content:
 
