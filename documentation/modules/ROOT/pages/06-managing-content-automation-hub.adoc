@@ -25,7 +25,7 @@ Instead of creating a configuration file with your secret token, we will set env
 ==== Step 2.1.1: Obtaining Your PAH API Token
 . Log in to your Private Automation Hub web interface.
 . From the navigation menu on the left, click on API Token.
-. On the API Token page, click the 'Generate token' button.
+. On the API Token page, click the Load token button.
 . Your API token will be displayed. Click the Copy to clipboard icon to copy it. You will use this in the next step.
 
 ==== Step 2.1.2: Set Environment Variables
@@ -68,7 +68,7 @@ mkdir my_pah_project
 cd my_pah_project
 
 # Initialize the collection structure using ansible-creator
-ansible-creator init ansible_bootcamp.my_collection --init-path ./
+ansible-creator init automation_bootcamp.my_collection --init-path ./
 ----
 
 WARNING: Remove ansible.utils from deps list
@@ -83,14 +83,45 @@ NOTE: Create namespace in Hub
 ansible-galaxy collection build
 
 # Publish the collection to PAH
-ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token <token>
+ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ automation_bootcamp-my_collection-1.0.0.tar.gz --token <token>
 ----
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub
 
 NOTE: Make sure to Approve collection in the hub UI
 
-== 4. Syncing a Base EE from the Red Hat Registry
+== 4. Push Collection to Repository
+
+After we've published our collection to your Private Automation Hub, we need to save our work your lab's Gitea.
+
+=== 4.1 Create Gitea Repository
+
+. Log in to your Gitea web interface, with the provided login credentials.
+. In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
+. On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
+. Leave everything else as default and click on the button at the bottom, 'Create Repository'.
+
+=== 4.2 Push collection to new repository
+
+After an empty repository is created on your Gitea, we need to push the collection to the repository.
+
+. In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
+. Now, follow these steps in the root directory of 'my_pah_project'
+
+[source,bash]
+----
+touch README.md
+git init
+git checkout -b main
+git add --all
+git commit -m "Uploading collection on initial commit"
+git remote add origin <PASTE GIT URL FROM GITEA HERE>
+git push -u origin main
+----
+
+Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:07-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
+
+== 5. Syncing a Base EE from the Red Hat Registry
 
 Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
 
@@ -100,11 +131,11 @@ Before building our own EE, we'll configure PAH to pull in a certified base imag
 . Save and Sync the registry.
 . After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
 
-== 5. Building a Custom Execution Environment
+== 6. Building a Custom Execution Environment
 
 Now, we'll define and build an EE that uses our synced minimal image and our custom collection.
 
-=== Step 5.1: Define the Execution Environment
+=== Step 6.1: Define the Execution Environment
 
 Create a file named execution-environment.yml.
 
@@ -122,29 +153,28 @@ dependencies:
     package_pip: ansible-core==2.16.14
   galaxy:
     collections:
-      - name: ansible_bootcamp.my_collection
+      - name: automation_bootcamp.my_collection
         version: 1.0.0
 options:
   package_manager_path: /usr/bin/microdnf
 
-additional_build_steps:
-  prepend_galaxy:
-    - ARG TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
-    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
-    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
-    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
-    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
-    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
+additional_build_steps: prepend_galaxy:
+  - ARG TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+  - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+  - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+  - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+  - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
+  - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+  - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 
 ----
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
 
-=== Step 5.2: Build and Publish the Execution Environment
+=== Step 6.2: Build and Publish the Execution Environment
 
 [source,bash]
 ----
@@ -161,17 +191,17 @@ podman push pah.example.com/my-pah-ee:1.0
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
-== 6. Adding a Custom Filter Plugin
+== 7. Adding a Custom Filter Plugin
 
 Now that we have a working EE, let's iterate by adding a custom filter plugin to our collection.
 
-=== Step 6.1: Create the Custom Filter Plugin
+=== Step 7.1: Create the Custom Filter Plugin
 
 Create the file with the following content:
 
-[source,python,title="ansible_bootcamp/my_collection/plugins/filter/cowsay_filter.py"]
+[source,python,title="automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py"]
 ----
-# ansible_bootcamp/my_collection/plugins/filter/cowsay_filter.py
+# automation_bootcamp/my_collection/plugins/filter/cowsay_filter.py
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -201,7 +231,7 @@ class FilterModule(object):
         }
 ----
 
-=== Step 6.2: Update the EE Definition for the Plugin Dependency
+=== Step 7.2: Update the EE Definition for the Plugin Dependency
 
 Our new plugin requires the cowsay Python library, and we need to ensure our EE is pulling the new version of our collection. Modify execution-environment.yml to include both changes.
 
@@ -219,7 +249,7 @@ dependencies:
    package_pip: ansible-core==2.16.14
  galaxy:
    collections:
-     - name: ansible_bootcamp.my_collection
+     - name: automation_bootcamp.my_collection
        version: 1.0.1
  python:
    - cowsay
@@ -242,20 +272,20 @@ additional_build_steps:
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
 
-=== Step 6.3: Increment Version and Republish
+=== Step 7.3: Increment Version and Republish
 
 Now, we publish a new version of the collection and a new version of the EE that includes the updated collection and dependency.
 
-First, edit `ansible_bootcamp/my_collection/galaxy.yml` and change the version from `1.0.0` to `1.0.1`.
+First, edit `automation_bootcamp/my_collection/galaxy.yml` and change the version from `1.0.0` to `1.0.1`.
 
 Then, run the following commands:
 
 [source,bash]
 ----
 # Rebuild and republish the collection
-cd ansible_bootcamp/my_collection
+cd automation_bootcamp/my_collection
 ansible-galaxy collection build
-ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
+ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ automation_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
@@ -272,11 +302,11 @@ podman push pah.example.com/my-pah-ee:1.1
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
 
-== 7. Preparing the Project for Automation Controller
+== 8. Preparing the Project for Automation Controller
 
 Now we'll update our playbook to use the new filter.
 
-=== Step 7.1: Create a Playbook
+=== Step 8.1: Create a Playbook
 
 Create a playbook named test_pah_ee.yml. This playbook uses the debug module to print a message that has been formatted by our custom cowsay filter.
 
@@ -291,45 +321,45 @@ Create a playbook named test_pah_ee.yml. This playbook uses the debug module to 
   tasks:
     - name: Print a message using the cowsay filter
       ansible.builtin.debug:
-        msg: "{{ 'Hello from my custom filter!' | ansible_bootcamp.my_collection.cowsay }}"
+        msg: "{{ 'Hello from my custom filter!' | automation_bootcamp.my_collection.cowsay }}"
 ...
 ----
 
-=== Step 7.2: Push Project Files to Git
+=== Step 8.2: Push Project Files to Git
 
 Push the `test_pah_ee.yml` playbook to your Git repository
 
-== 8. Integrating with Automation Controller
+== 9. Integrating with Automation Controller
 
 Now, let's configure Controller to use our custom content.
 
-=== Step 8.1: Add the Execution Environment to Controller
+=== Step 9.1: Add the Execution Environment to Controller
 . In the Controller UI, navigate to Administration -> Execution Environments.
 . Click Add, name it My Custom PAH EE, and use the image path pah.example.com/my-pah-ee:1.2.
 . Select your Private Automation Hub as the Container registry and Save.
 
-=== Step 8.2: Create a Credential for PAH Collections
+=== Step 9.2: Create a Credential for PAH Collections
 . Navigate to Resources -> Credentials and click Add.
 . Name it PAH Galaxy Credential, select the type Ansible Galaxy/Automation Hub API Token, and paste in your PAH token.
 
-=== Step 8.3: Create a Project
+=== Step 9.3: Create a Project
 . Navigate to Resources -> Projects and click Add.
 . Name it Custom Content Test Project and point it to your Git repository URL.
 . Under Ansible Galaxy Credentials, select the PAH Galaxy Credential you just created.
 . Click Save and Sync the project.
 
-=== Step 8.4: Create a Job Template
+=== Step 9.4: Create a Job Template
 . Navigate to Resources -> Templates and click Add -> Add job template.
 . Name it Test Custom Cowsay Filter.
 . Select an Inventory, the Custom Content Test Project, and the test_pah_ee.yml playbook.
 . For the Execution Environment, select My Custom PAH EE.
 . Click Save.
 
-=== Step 8.5: Launch the Job Template and Verify
+=== Step 9.5: Launch the Job Template and Verify
 . From the Job Templates view, click the rocket icon 🚀 to Launch your template.
 . In the job output view, look for the output of the "Print a message" task. You should see your message printed inside a cowsay bubble within the JSON output of the debug task.
 
-== 9. Conclusion
+== 10. Conclusion
 
 Congratulations! You have successfully completed this workflow for managing custom Ansible content:
 
