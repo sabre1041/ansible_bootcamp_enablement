@@ -75,7 +75,7 @@ podman push pah.example.com/config_as_code_ee:1.0
 
 [source,yaml,role=execute,title="config/dev/auth.yml"]
 ----
-aap_hostname: <GATEWAY URL>
+aap_hostname: <GATEWAY_HOST>
 aap_username: "{{ student_account }}"
 aap_password: "{{ aap_password }}"
 aap_validate_certs: false
@@ -94,9 +94,7 @@ ee_base_registry_password: "{{ aap_password }}"
 ee_validate_certs: false
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
-
-* https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#organizing-host-and-group-variables[more about group_vars,window=_blank]
+WARNING: Do not include https:// in the GATEWAY_HOST value
 
 [#vault]
 === Task 4 - Create our Vault
@@ -140,7 +138,7 @@ Encrypt vault with the password in the .password file
 +
 [source,bash,role=execute]
 ----
-ansible-vault encrypt vault.yml
+ansible-vault encrypt config/dev/vault.yml
 ----
 
 - Further documentation are provided below for those who are interested to learn more:
@@ -261,10 +259,8 @@ hub_configuration_collection_repository_sync_async_retries: 150
 ----
 ---
 - name: Playbook to configure ansible controller post installation
-  hosts: all
+  hosts: localhost
   gather_facts: false
-  vars_files:
-    - ../vault.yml
   connection: local
   tasks:
     - name: Call dispatch role
@@ -285,6 +281,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 ----
 .
 ├── ansible.cfg
+├── ansible-navigator.yml
 ├── config
 │   ├── all
 │   │   ├── hub_repositories.yml
@@ -300,15 +297,68 @@ hub_configuration_collection_repository_sync_async_retries: 150
 4 directories, 8 files
 ----
 
+=== Task 11 Push repo to new repository
+
+We need to save our work your lab's Gitea.
+
+==== 11.1 Create Gitea Repository
+
+. Log in to your Gitea web interface, with the provided login credentials.
+. In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
+. On the New Repository page, enter 'ansible_bootcamp_config_as_code' in the Repository Name field.
+. Leave everything else as default and click on the button at the bottom, 'Create Repository'.
+
+==== 11.2 Create `.gitignore` file
+
+[source,bash,role=execute,title=".gitignore"]
+----
+context/
+.password
+ansible.cfg
+.ansible/
+.vscode/
+
+----
+
+==== 11.3 Push code to repository
+
+After an empty repository is created on your Gitea, we need to push the collection to the repository.
+
+. In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
+. Now, follow these steps in the root directory of 'my_pah_project'
+
+[source,bash,role=execute]
+----
+git config --global user.email "gitea@opentlc.com"
+git config --global user.name <YOUR NAME>
+git init
+git checkout -b main
+git add --all
+git commit -m "Uploading collection on initial commit"
+git remote add origin <PASTE GIT URL FROM GITEA HERE>
+git push -u origin main
+----
+
+=== Task 12 - Create ansible-navigator configuration file
+
+[source,yaml,role=execute,title="ansible-navigator.yml"]
+----
+---
+ansible-navigator:
+  execution-environment:
+    image: aap-aap.apps.cluster-f2vhl.dynamic.redhatworkshops.io/config_as_code_ee:1.0
+
+----
+
 
 [#playbook_run]
-=== Task 11 - Put the playbook into action
+=== Task 13 - Put the playbook into action
 
 - The next step is to run this playbook, this kicks off the initial setup for everything we've just created for the Ansible Automation Platform.
 +
 [source,bash,role=execute]
 ----
-ansible-navigator run --stout playbooks/aap_config.yml
+ansible-navigator run -m stdout playbooks/aap_config.yml
 ----
 
 - While the playbook is running you can go to the Automation Hub tab and peak at the Task Management to see the repository syncing process
