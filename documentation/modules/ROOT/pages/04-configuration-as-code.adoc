@@ -19,8 +19,10 @@ images:
     name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
-  ansible_core:
-    package_pip: ansible-core==2.16.14
+  system:
+    - gcc [platform:rpm]
+    - systemd-devel [platform:rpm]
+    - python3.11-devel [platform:rpm]
   galaxy:
     collections:
       - name: ansible.platform
