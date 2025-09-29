@@ -34,6 +34,16 @@ Instead of creating a configuration file with your secret token, we will set env
 . On the API Token page, click the Load token button.
 . Your API token will be displayed. Click the Copy to clipboard icon to copy it. You will use this in the next step.
 
+==== Step 2.1.3: Sync collections
+. Log in to your Private Automation Hub web interface.
+. From the navigation menu on the left, click on Remotes.
+. Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
+. From the navigation menu on the left, click on Repositories.
+. Edit validated and for the `Remote` field choose validated from the drop down and save.
+. Click on the triple dots for rh-certified and validated and select `Sync repository` and click sync on the popup.
+
+NOTE: Syncing the certified collections will take some time, it is needed for another section so continue on and do not wait for it to finish.
+
 ==== Step 2.1.3: Set Environment Variables
 In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 
