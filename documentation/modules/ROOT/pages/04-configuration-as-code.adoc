@@ -3,54 +3,83 @@
 == Building out the basics for config as code
 
 [#setup]
-=== Task 1 - Setting up the project
+== 1. Lab Setup: Configuring Your Environment
 
-- In this lab, you will be creating configuration files in order to set a state on the Ansible Automation Platform.
-This requires several prerequisites.
+First, let's build a new EE with all our required collections.
 
-- Open up the terminal in the window on the right by going to the menu, use the Terminal > New Terminal
+=== Step 1.1: Build new EE
 
-- In the terminal, install the collections and containers.podman using `ansible-galaxy` command. Make sure the versions are correct and you are running command from the path `/home/lab-user/casc_lab/`.
-+
+[source,bash,role=execute,title="execution-environment.yml"]
+----
+---
+version: 3
+
+images:
+  base_image:
+    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+
+dependencies:
+  ansible_core:
+    package_pip: ansible-core==2.16.14
+  galaxy:
+    collections:
+      - name: ansible.platform
+      - name: ansible.controller
+      - name: ansible.hub
+      - name: ansible.eda
+      - name: infra.aap_configuration
+options:
+  package_manager_path: /usr/bin/microdnf
+
+additional_build_steps:
+  prepend_galaxy:
+    - ARG TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
+----
+
+NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+
+=== Task 2: Build and Publish the Execution Environment
+
 [source,bash,role=execute]
 ----
-cd /home/lab-user/casc_lab/
-----
-+
-[source,bash,role=execute]
-----
-ansible-galaxy collection install infra.ee_utilities:4.0.0 infra.aap_configuration:3.1.0 containers.podman:1.16.3 community.general:10.4.0 ansible.hub:1.0.0 ansible.platform:2.5.20250213 ansible.controller:4.6.8
-----
+# Log in to your PAH container registry
+podman login pah.example.com
 
-- Further documentation for those who are interested to learn more see:
-+
-* https://docs.ansible.com/ansible/devel/user_guide/collections_using.html#collections[Installing collections using cli,window=_blank]
-* https://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html#collections-support[Using collections in AAP,window=_blank]
+# Build the EE. It will pull the base from PAH, then add our content.
+ansible-builder build --tag config_as_code_ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
 
-
+# Tag and push the image to your PAH registry
+podman tag localhost/config_as_code_ee:1.0 pah.example.com/config_as_code_ee:1.0
+podman push pah.example.com/config_as_code_ee:1.0
+----
 
 [#variable_files]
-=== Task 2 - Creating Variable Files
+=== Task 3 - Creating Variable Files
 
 **In the next few steps pay attention to the folder paths and make sure to put the files in the correct folders you can either use vscode editor or the ssh terminal to do the below changes** 
 
 - Set the `variables` to be used in the collections for use. These include hosts, usernames, and other variables that are reused in each role.
 
-- The variables are defined in the file `group_vars/all/auth.yml`. 
-+
-[source,yaml,role=execute]
-group_vars/all/auth.yml
+- The variables are defined in the file `config/dev/auth.yml`. 
 
-With the following content:
-
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="config/dev/auth.yml"]
 ----
+aap_hostname: <GATEWAY URL>
 aap_username: "{{ student_account }}"
 aap_password: "{{ aap_password }}"
 aap_validate_certs: false
 aap_request_timeout: 60
 
-ee_pull_collections_from_hub: false
+ee_pull_collections_from_hub: true
 aap_service_account_username: aap_service_account
 
 ee_registry_username: "{{ aap_username }} "
@@ -63,49 +92,18 @@ ee_base_registry_password: "{{ aap_password }}"
 ee_validate_certs: false
 ----
 
-WARNING: Do not replace the content that is already in this file but append/paste below it.
-
 - Further documentation are provided below for those who are interested to learn more:
 
 * https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#organizing-host-and-group-variables[more about group_vars,window=_blank]
 
-
-[#inventory]
-=== Task 3 - Creating our inventory file
-
-- Create your inventory file `inventory.yml`, copy the content below to the file.
-+
-[source,yaml,role=execute]
-----
----
-all:
-  children:
-    automationcontroller:
-      hosts:
-        control:
-          ansible_host: "{{ aap_hostname | regex_replace('^https://', '')  }}"
-    execution:
-      hosts:
-        localhost:
-          ansible_connection: local
-...
-----
-+
-WARNING: These are hostnames and should not have 'https://', otherwise things will fail
-
-- Further documentation are provided below for those who are interested to learn more:
-+
-* https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups[More about inventories,window=_blank]
-* https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#add-source[How to use this source in AAP,window=_blank]
-
 [#vault]
 === Task 4 - Create our Vault
 
-- A `vault.yml` has been prepoulated, please review this as it provides a source for most of the passwords and secrets used in the lab.
+- The secrets are defined in the file `config/dev/vault.yml`. 
 - Your username should be: {ssh_username}
 - Your password should be: {ssh_password}
 +
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="config/dev/vault.yml"]
 ----
 ---
 aap_password: ### Insert Password here
@@ -121,18 +119,16 @@ NOTE: For good configuration as code we recommend retrieving passwords from secu
 
 - Create a `.password` file and put a password in it. This is the password vault uses to encrypt secrets.
 +
-[source,bash,role=execute]
+[source,bash,role=execute,title=".password"]
 ----
-cat <<EOF > .password
 cascLB2193
-EOF
 ----
 +
 IMPORTANT: **We do not recommend using .password files outside of lab environment** This process is just to simplify/speed up the lab.
 
 - The `ansible.cfg` file points to the `.password` file. This has been preopulated, but please review the ansible.cfg file to see how this lab is connected to hub and uses the password file.
 +
-[source,bash,role=execute]
+[source,bash,role=execute,title="ansible.config"]
 ----
 [defaults]
 vault_password_file=.password
@@ -153,12 +149,12 @@ ansible-vault encrypt vault.yml
 [#organizations]
 === Task 5 - Create organizations
 
-- Create a file `group_vars/all/organizations.yml`
+- Create a file `config/all/organizations.yml`
 +
 [source,yaml,role=execute]
 ----
 ---
-aap_organizations:
+aap_organizations_all:
   - name: config_as_code
 ...
 ----
@@ -172,12 +168,12 @@ aap_organizations:
 [#team setup]
 === Task 6 - Create a Team
 
-- Create a file `group_vars/all/teams.yml`
+- Create a file `config/all/teams.yml`
 +
 [source,yaml,role=execute]
 ----
 ---
-aap_teams:
+aap_teams_all:
   - name: config as code team
     description: config as code team
     organization: config_as_code
@@ -191,12 +187,12 @@ aap_teams:
 [#service_account]
 === Task 7 - Create a local service account user
 
-- Create a file `group_vars/all/users.yml` with the below information:
+- Create a file `config/all/users.yml` with the below information:
 +
 [source,yaml,role=execute]
 ----
 ---
-aap_user_accounts:
+aap_user_accounts_all:
   - username: "{{ aap_service_account_username }}"
     password: "{{ aap_service_account_password }}"
     is_superuser: true
@@ -211,34 +207,39 @@ aap_user_accounts:
 [#repositories]
 === Task 8 - Create Collection Repositories and Remotes
 
-- Create a file `group_vars/all/hub_repositories.yml` to create the list of community repositories and their remote counterpart.
+- Create a file `config/all/hub_repositories.yml` to create the list of community repositories and their remote counterpart.
 +
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="config/all/hub_repositories.yml"]
 ----
 ---
-hub_collection_remotes:
-  - name: community-infra
-    url: 'https://galaxy.ansible.com/'
-    sync_dependencies: false
+hub_collection_remotes_all:
+  - name: rh-certified
+    token: "{{ console_token }}"
+    url: https://console.redhat.com/api/automation-hub/content/published/
+    auth_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+  - name: validated
+    token: "{{ console_token }}"
+    url: https://console.redhat.com/api/automation-hub/content/validated/
+    auth_url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+  - name: community
+    url: https://galaxy.ansible.com/api/
     requirements:
-      - name: infra.ee_utilities
-        version: '>=4.0.0'
-      - name: infra.aap_utilities
-        version: '>=2.5.2'
-      - name: containers.podman
-        version: '>=1.13.0'
-      - name: community.general
-        version: '>=10.4.0'
-      - name: infra.aap_configuration
-        version: '>=3.1.0'
+      - community.docker
+      - community.general
+      - community.crypto
+      - cloud.terraform
+      - containers.podman
+
 hub_collection_repositories:
-  - name: community-infra-repo
-    description: description of community-infra repository
-    pulp_labels:
-      pipeline: approved
-    distribution:
-      state: present
-    remote: community-infra
+  - name: rh-certified
+    remote: rh-certified
+    sync: false
+  - name: validated
+    remote: validated
+    sync: false
+  - name: community
+    remote: community
+    sync: false
 hub_configuration_collection_repository_sync_async_delay: 5
 hub_configuration_collection_repository_sync_async_retries: 150
 ...
@@ -276,25 +277,25 @@ hub_configuration_collection_repository_sync_async_retries: 150
 
 === Task 10 - Check your paths
 
-- Here's the desired layout for your folders from the `/home/lab-user/casc_lab`. Please examine the file organization to confirm that each file resides in its correct location within this structure. Run the `+tree+` command to verify. 
+- Here's the desired layout for your folders from the root of the repo. Please examine the file organization to confirm that each file resides in its correct location within this structure. Run the `+tree+` command to verify. 
 +
 [source,bash]
 ----
 .
 ├── ansible.cfg
-├── group_vars
-│   └── all
+├── config
+│   ├── all
+│   │   ├── hub_repositories.yml
+│   │   ├── organizations.yml
+│   │   ├── teams.yml
+│   │   └── users.yml
+│   └── dev
 │       ├── auth.yml
-│       ├── hub_repositories.yml
-│       ├── organizations.yml
-│       ├── teams.yml
-│       └── users.yml
-├── inventory.yml
-├── playbooks
-│   └── aap_config.yml
-└── vault.yml
+│       └── vault.yml
+└── playbooks
+    └── aap_config.yml
 
-3 directories, 9 files
+4 directories, 8 files
 ----
 
 
@@ -305,7 +306,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 +
 [source,bash,role=execute]
 ----
-ansible-playbook playbooks/aap_config.yml -i inventory.yml -l execution
+ansible-navigator run --stout playbooks/aap_config.yml
 ----
 
 - While the playbook is running you can go to the Automation Hub tab and peak at the Task Management to see the repository syncing process
@@ -323,10 +324,6 @@ Check that the following objects have been correctly created on AAP and are alig
 . User
 . Team
 
-=== ✅ Next Challenge
-
-Once you’ve completed the above tasks we will move towards doing the Controller configuration. 
-
 == Configuring the Automation controller
 
 In this section, you will only be given a summary of the objects you
@@ -337,12 +334,12 @@ help you complete this task.
 
 === Task 1 - Configure settings
 
-- Create a file `group_vars/all/settings.yml` with the below content.
+- Create a file `config/all/settings.yml` with the below content.
 + 
 [source,yaml,role=execute]
 ----
 ---
-controller_settings:
+controller_settings_all:
   settings:
     GALAXY_IGNORE_CERTS: true
 ...
@@ -354,7 +351,7 @@ controller_settings:
 
 === Task 2 - Configure Execution Environments
 
-- Create a file `group_vars/all/execution_environments.yml` and add the required information to the list `controller_execution_environments`
+- Create a file `config/all/execution_environments.yml` and add the required information to the list `controller_execution_environments`
 to include a new EE (that we will show how to create with code in the next module) called `config_as_code` with image path `{{ aap_hostname }}/config_as_code` that is pull `always` and uses the credential `cr_ah`.
 +
 image::04-configuration-as-code/config_ee.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
@@ -364,7 +361,7 @@ image::04-configuration-as-code/supported_ee.png[title="Supported Execution Envi
 [source,yaml,role=execute]
 ----
 ---
-controller_execution_environments:
+controller_execution_environments_all:
   - name: "supported"
     image: "{{ aap_hostname }}/ee-supported-rhel8"
     pull: always
@@ -386,7 +383,7 @@ NOTE: While you have not created this EE yet it, we have already added a version
 
 === Task 3 - Create credential types
 
-- Create a file `group_vars/all/credential_types.yml` where we will create a list called `controller_credential_types` that has 5 variables per item defined below:
+- Create a file `config/all/credential_types.yml` where we will create a list called `controller_credential_types` that has 5 variables per item defined below:
 
 * `name` this is required and will be what the credential type will be
 called
@@ -405,7 +402,7 @@ The role will iterate through this list and for each item in this list it will c
 [source,yaml,role=execute]
 ----
 ---
-controller_credential_types:
+controller_credential_types_all:
   - name: automation_hub
     description: automation hub
     kind: cloud
@@ -469,13 +466,13 @@ controller_credential_types:
 
 === Task 4 - Create credentials
 
-- Create a file `group_vars/all/credentials.yml` and add the required information to the list `controller_credentials` to configure the UI to look like the screenshot. Make it to look like the screenshot, but make sure to use parameters for the values.
+- Create a file `config/all/credentials.yml` and add the required information to the list `controller_credentials` to configure the UI to look like the screenshot. Make it to look like the screenshot, but make sure to use parameters for the values.
 *DO NOT PASTE YOUR PASSWORD IN CLEARTEXT FOR CREDENTIALS!*
 +
 [source,yaml,role=execute]
 ----
 ---
-controller_credentials:
+controller_credentials_all:
   - name: aap_admin
     credential_type: Red Hat Ansible Automation Platform
     organization: config_as_code
@@ -517,13 +514,6 @@ controller_credentials:
       url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/community/"
       token: "{{ hub_token }}"
 
-  - name: hub_community_infra_repo
-    credential_type:  "Ansible Galaxy/Automation Hub API Token"
-    organization: config_as_code
-    inputs:
-      url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/community-infra-repo/"
-      token: "{{ hub_token }}"
-
   - name: cr_ah
     credential_type: Container Registry
     organization: config_as_code
@@ -550,14 +540,14 @@ image::04-configuration-as-code/credential.png[title="Credential",125%,125%, lin
 
 === Task 5 - Create organizations
 
-- Update the file `group_vars/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the credentials that we created above to the Organization so we can pull collections from Automation Hub.
+- Update the file `config/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the credentials that we created above to the Organization so we can pull collections from Automation Hub.
 +
 image::04-configuration-as-code/orgs.png[title="Config as Code Organization",125%,125%, link=self, window=blank]
 +
 [source,yaml,role=execute]
 ----
 ---
-aap_organizations:
+aap_organizations_all:
 ...
 ----
 
@@ -567,7 +557,7 @@ aap_organizations:
 
 === Task 6 - Create projects
 
-- Create a file `group_vars/all/projects.yml` and add the required
+- Create a file `config/all/projects.yml` and add the required
 information to the list `controller_projects` to configure the UI to
 look like the screenshot. The project you want to use is
 +
@@ -584,7 +574,7 @@ NOTE: You will want to refer to the role documentation to determine which option
 ----
 ---
 controller_configuration_projects_async_delay: 5
-controller_projects:
+controller_projects_all:
 
 ...
 ----
@@ -598,14 +588,14 @@ image::04-configuration-as-code/project.png[title="Project",125%,125%, link=self
 
 === Task 7 - Create inventories
 
-- Create a file `group_vars/all/inventories.yml` and add the required
+- Create a file `config/all/inventories.yml` and add the required
 information to the list `controller_inventories` to configure the UI
 to look like the screenshot
 +
 [source,yaml,role=execute]
 ----
 ---
-controller_inventories:
+controller_inventories_all:
 ...
 ----
 +
@@ -617,12 +607,12 @@ image::04-configuration-as-code/inventories.png[title="Inventory",125%,125%, lin
 
 === Task 8 - Create inventory sources
 
-- Add to file `group_vars/all/inventory_sources.yml` and a new variable with the required information to the list `controller_inventory_sources` to configure the UI to look like the screenshot
+- Add to file `config/all/inventory_sources.yml` and a new variable with the required information to the list `controller_inventory_sources` to configure the UI to look like the screenshot
 +
 [source,yaml,role=execute]
 ----
 ---
-controller_inventory_sources:
+controller_inventory_sources_all:
 ...
 ----
 +
@@ -634,7 +624,7 @@ image::04-configuration-as-code/inventory_sources.png[title="Inventory Sources",
 
 === Task 9 - Create job_templates
 
-- Create a file `group_vars/all/job_templates.yml` and add the required
+- Create a file `config/all/job_templates.yml` and add the required
 information to the list `controller_templates` to configure the UI to like the screenshot. 
 +
 Pay attention to the credentials attached to each job template.
@@ -642,7 +632,7 @@ Pay attention to the credentials attached to each job template.
 [source,yaml,role=execute]
 ----
 ---
-controller_templates:
+controller_templates_all:
 
 ...
 ----
