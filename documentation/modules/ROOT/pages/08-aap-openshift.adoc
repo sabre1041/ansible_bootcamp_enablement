@@ -1,8 +1,37 @@
-= Ansible on OpenShift
+= Ansible Automation Platform on OpenShift
 
-. View the AAP on OCP CRs and managed resources
-. Scale the task pods and view new instances appear in AAP
-. Modify the `AnsibleAutomationPlatform` CR to modify the deployment
-. Watch logs for operator manager pods as they reconcile
-. Modify the default AAP containergroup spec
-. Deploy EDA
+[abstract]
+We will take look around a working installation of the Red Hat Ansible Automation Platform on Openshift Container Platform.
+
+[abstract]
+The goal will be to help to student familiarize themselves with what a working installation looks like, how to customize the deployed operator, and how to troublshoot certain aspects of the operator.
+
+== 1. Introduction: Why AAP on OCP?
+
+The Ansible Automation Platform Operator provides cloud-native, push-button deployment of new Ansible Automation Platform instances in your OpenShift environment. The Ansible Automation Platform Operator includes resource types to deploy and manage instances of automation controller and private automation hub. It also includes automation controller job resources for defining and launching jobs inside your automation controller deployments.
+
+Deploying Ansible Automation Platform instances with a Kubernetes native operator offers several advantages over launching instances from a playbook deployed on Red Hat OpenShift Container Platform, including upgrades and full lifecycle support for your Red Hat Ansible Automation Platform deployments.
+
+== 2. Lab Setup: Configuring Your Environment
+
+lorem ipsum
+
+== 3.  Viewing the AAP on OCP managed resources
+
+lorem ipsum
+
+== 4. Scale the task pods and view new instances appear in AAP
+
+lorem ipsum
+
+== 5. Modify the `AnsibleAutomationPlatform` CR to modify the deployment
+
+lorem ipsum
+
+== 6. Watch logs for operator manager pods as they reconcile
+
+lorem ipsum
+
+== 7. Modify the default AAP containergroup spec
+
+lorem ipsum
