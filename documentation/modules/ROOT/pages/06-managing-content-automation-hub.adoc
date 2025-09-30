@@ -115,7 +115,20 @@ After we've published our collection to your Private Automation Hub, we need to 
 . On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
 . Leave everything else as default and click on the button at the bottom, 'Create Repository'.
 
-=== 4.2 Push collection to new repository
+==== 4.2 Create `.gitignore` file
+
+[source,bash,role=execute,title=".gitignore"]
+----
+context/
+.password
+ansible.cfg
+.ansible/
+.vscode/
+*.tar.gz
+
+----
+
+=== 4.3 Push collection to new repository
 
 After an empty repository is created on your Gitea, we need to push the collection to the repository.
 
