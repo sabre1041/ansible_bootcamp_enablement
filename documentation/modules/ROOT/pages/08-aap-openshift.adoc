@@ -14,7 +14,9 @@ Deploying Ansible Automation Platform instances with a Kubernetes native operato
 
 == 2. Lab Setup: Configuring Your Environment
 
-lorem ipsum
+The demo.redhat.com lab environment provisioned for you is a working OpenShift 4.19 environment with the AAP operator pre-installed and deployed.
+
+The deployment has two components, the Ansible Automation Controller,
 
 == 3.  Viewing the AAP on OCP managed resources
 
