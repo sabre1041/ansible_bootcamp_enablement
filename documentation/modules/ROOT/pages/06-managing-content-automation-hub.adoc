@@ -114,6 +114,7 @@ context/
 ansible.cfg
 .vscode/
 *.tar.gz
+*.json
 
 ----
 
@@ -299,7 +300,6 @@ Then, run the following commands:
 [source,bash,role=execute]
 ----
 # Rebuild and republish the collection
-cd my_pah_project
 ansible-galaxy collection build
 ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
 ----
