@@ -34,16 +34,6 @@ Instead of creating a configuration file with your secret token, we will set env
 . On the API Token page, click the Load token button.
 . Your API token will be displayed. Click the Copy to clipboard icon to copy it. You will use this in the next step.
 
-==== Step 2.1.3: Sync collections
-. Log in to your Private Automation Hub web interface.
-. From the navigation menu on the left, click on Remotes.
-. Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
-. From the navigation menu on the left, click on Repositories.
-. Edit validated and for the `Remote` field choose validated from the drop down and save.
-. Click on the triple dots for rh-certified and validated and select `Sync repository` and click sync on the popup.
-
-NOTE: Syncing the certified collections will take some time, it is needed for another section so continue on and do not wait for it to finish.
-
 ==== Step 2.1.3: Set Environment Variables
 In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 
@@ -115,14 +105,13 @@ After we've published our collection to your Private Automation Hub, we need to 
 . On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
 . Leave everything else as default and click on the button at the bottom, 'Create Repository'.
 
-==== 4.2 Create `.gitignore` file
+==== 4.2 Append to the `.gitignore` file
 
 [source,bash,role=execute,title=".gitignore"]
 ----
 context/
 .password
 ansible.cfg
-.ansible/
 .vscode/
 *.tar.gz
 
@@ -385,6 +374,16 @@ Now, let's configure Controller to use our custom content.
 === Step 9.5: Launch the Job Template and Verify
 . From the Job Templates view, click the rocket icon 🚀 to Launch your template.
 . In the job output view, look for the output of the "Print a message" task. You should see your message printed inside a cowsay bubble within the JSON output of the debug task.
+
+==== Step 9.6: Sync collections
+. Log in to your Private Automation Hub web interface.
+. From the navigation menu on the left, click on Remotes.
+. Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
+. From the navigation menu on the left, click on Repositories.
+. Edit validated and for the `Remote` field choose validated from the drop down and save.
+. Click on the triple dots for rh-certified and validated and select `Sync repository` and click sync on the popup.
+
+NOTE: Syncing the certified collections will take some time, it is needed for another section so continue on and do not wait for it to finish.
 
 == 10. Conclusion
 
