@@ -257,33 +257,33 @@ Our new plugin requires the cowsay Python library, and we need to ensure our EE 
 version: 3
 
 images:
- base_image:
-   name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+  base_image:
+    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
- ansible_core:
-   package_pip: ansible-core==2.16.14
- galaxy:
-   collections:
-     - name: ansible_bootcamp.my_collection
-       version: 1.0.1
- python:
-   - cowsay
+  ansible_core:
+    package_pip: ansible-core==2.16.14
+  galaxy:
+    collections:
+      - name: ansible_bootcamp.my_collection
+        version: 1.0.1
+  python:
+    - cowsay
 options:
- package_manager_path: /usr/bin/microdnf
+  package_manager_path: /usr/bin/microdnf
 
 additional_build_steps:
- prepend_galaxy:
-   - ARG TOKEN
-   - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
-   - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
-   - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
-   - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
-   - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
-   - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
-   - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
-   - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
-   - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
+  prepend_galaxy:
+    - ARG TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
 NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
