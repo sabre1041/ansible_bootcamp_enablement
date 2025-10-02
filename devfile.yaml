@@ -53,6 +53,21 @@ commands:
       component: prep-workspace
       label: Pre Start Prep
     id: prep-workspace
+  - id: launch-antora
+    exec:
+      component: dev-tools
+      commandLine: "podman run --rm --name antora -v .:/antora:z -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer"
+      workingDir: "${PROJECTS_SOURCE}"
+  - id: restart-antora
+    exec:
+      component: dev-tools
+      commandLine: "podman restart antora"
+      workingDir: "${PROJECTS_SOURCE}"
+  - id: stop-antora
+    exec:
+      component: dev-tools
+      commandLine: "podman stop antora"
+      workingDir: "${PROJECTS_SOURCE}"
 events:
   preStart:
     - prep-workspace
