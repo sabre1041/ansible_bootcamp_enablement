@@ -25,13 +25,13 @@ Site content for the Ansible Bootcamp Enablement.
     └── example_partial.adoc
 ----
 
-=== Using ETX-Ansible DevSpaces
+=== Using Red Hat OpenShift Dev Spaces
 
-Once you have a lab environment set up, you can use DevSpaces to develop additional content. To do this you should first access your devspace environment by clicking the 9 square icon in the top right of the console and clicking, "Red Hat OpenShift DevSpaces".
+Once you have a lab environment set up, you can use Red Hat OpenShift Dev Spaces to develop additional content. To do this you should first access your Red Hat OpenShift Dev Spaces environment by clicking the 9 square icon in the top right of the console and clicking, "Red Hat OpenShift Dev Spaces".
 
-If it is your first time using this cluster's devspaces you will need to authorize oauth for DevSpaces. Then in the top right drop down next to your username and icon and select, "User Preferences". In the User Preferences page you will want to select "Personal Access Tokens" and add a Github Accerss token. See creating a Github Personal Access Token section below.
+If it is your first time using this cluster's Red Hat OpenShift Dev Spaces you will need to authorize oauth. Then in the top right drop down next to your username and icon and select, "User Preferences". In the User Preferences page you will want to select "Personal Access Tokens" and add a Github Access token. See creating a Github Personal Access Token section below.
 
-Once you re-authenticate to devspaces you can paste in the repository for this repo under the "Import from Git" section into the "Git repo URL" box. Then click the "Create & Open" button. This will launch your developer workspace.
+Once you re-authenticate to Red Hat OpenShift Dev Spaces you can paste in the repository for this repo under the "Import from Git" section into the "Git repo URL" box. Then click the "Create & Open" button. This will launch your developer workspace.
 
 ==== Launching antora to view content
 
@@ -45,12 +45,12 @@ You will see a terminal start and launch antora using podman. A pop-up will show
 
 There are additional devfile tasks available to stop and restart the pandora container.
 
-==== Creating a github Personal Access Token
+==== Creating a Github Personal Access Token
 
 . Log into your GitHub account
 . Click on your profile avatar, and select "Settings."
 . In the left sidebar, scroll down and click on "Developer settings."
-. Click on "Personal access tokens" and then choose "Tokens (classic)" or "Fine-grained tokens" depending on your needs. For most Dev Spaces integrations, classic tokens are sufficient.
+. Click on "Personal access tokens" and then choose "Tokens (classic)" or "Fine-grained tokens" depending on your needs. For most Red Hat OpenShift Dev Spaces integrations, classic tokens are sufficient.
 . Click on "Generate new token" (or "Generate new token (classic)" if you selected classic tokens).
 . Configure Token Details
 
