@@ -53,10 +53,10 @@ commands:
       component: prep-workspace
       label: Pre Start Prep
     id: prep-workspace
-  - id: launch-antora
+  - id: start-antora
     exec:
       component: dev-tools
-      commandLine: "podman run --rm --name antora -v .:/antora:z -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer"
+      commandLine: "podman run --rm --name antora -v /projects/ansible-bootcamp-enablement:/antora:z -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer"
       workingDir: "${PROJECTS_SOURCE}"
   - id: restart-antora
     exec:
