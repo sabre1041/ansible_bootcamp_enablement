@@ -31,6 +31,7 @@ components:
         - name: antora-public
           targetPort: 8080
           exposure: public
+          protocol: https
       env:
         - name: VSCODE_DEFAULT_WORKSPACE
           value: /projects/ansible-bootcamp-enablement/devspaces.code-workspace
