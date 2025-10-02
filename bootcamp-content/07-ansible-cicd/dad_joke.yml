@@ -9,22 +9,10 @@
       ansible.builtin.uri:
         url: https://icanhazdadjoke.com/
         method: GET
-        # Tell the API we want the response in JSON format
         headers:
           Accept: application/json
-        # Store the API response in a variable called 'joke_api_response'
       register: joke_api_response
 
     - name: Display the Setup and Punchline
-      # The debug module will output the message to the terminal
       ansible.builtin.debug:
-        msg: |
-          =============================================
-                  ANSIBLE'S JOKE OF THE DAY
-          =============================================
-
-          {{ joke_api_response.json.joke }}
-
-          =============================================
-
-          (Joke ID: {{ joke_api_response.json.id }})
+        msg: "{{ joke_api_response.json.joke }}"
