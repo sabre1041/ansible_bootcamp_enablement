@@ -66,7 +66,7 @@ commands:
   - id: restart-antora
     exec:
       component: dev-tools
-      commandLine: "podman restart antora"
+      commandLine: "podman stop antora && podman run --rm --name antora -v /projects/ansible-bootcamp-enablement:/antora:z -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer"
       workingDir: "${PROJECTS_SOURCE}"
   - id: stop-antora
     exec:
