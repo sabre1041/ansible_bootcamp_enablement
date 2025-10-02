@@ -27,6 +27,10 @@ components:
       cpuRequest: 250m
       memoryLimit: 4Gi
       memoryRequest: 128Mi
+      endpoints:
+        - name: antora-public
+          targetPort: 8080
+          exposure: public
       env:
         - name: VSCODE_DEFAULT_WORKSPACE
           value: /projects/ansible-bootcamp-enablement/devspaces.code-workspace
