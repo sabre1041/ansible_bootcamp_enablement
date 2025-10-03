@@ -363,11 +363,115 @@ Validate the _collection-cluster-trigger-binding.yml_ has been successfully crea
 
 === 4.5: Create collection-publish.yml Ansible Playbook
 
+[abstract]
+The _collection-pipeline.yml_ configuration file will refrence the _collection-publish.yml_ Ansible playbook several times during execution.
 
+. Add the _collection-publish.yml_ Ansible playbook to _ansible_bootcamp_ci_cd_pipeline_ Gitea repository
+
+.collection-publish.yml
+[%collapsible]
+====
+[source,yaml]
+----
+---
+- name: Publish collections to Hub
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - params.yml
+  vars:
+    aap_configuration_working_dir: "/workspace/source"
+    aap_request_timeout: 300
+    aap_validate_certs: false
+    ah_overwrite_existing: true
+  no_log: "{{ hub_configuration_publish_secure_logging | default('false') }}"
+  tasks:
+
+    - name: Git checkout
+      ansible.builtin.git:
+        repo: "{{ collection_url }}"
+        dest: "{{ aap_configuration_working_dir }}/collection_repo"
+        version: "{{ branch }}"
+      tags:
+        - git-checkout
+
+    - name: Read in galaxy file
+      ansible.builtin.slurp:
+        src: "{{ aap_configuration_working_dir }}/collection_repo/galaxy.yml"
+      register: file_content
+      tags:
+        - collection-publish
+        - collection-approve
+        - collection-build
+        - pah-namespace
+
+    - name: Get collection Version
+      ansible.builtin.set_fact:
+        collection_version: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'version') | first |split() | last }}"
+        namespace: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'namespace') | first |split() | last | replace('\"', '')  }}"
+        collection_name: "{{ file_content['content'] | b64decode |split('\n') |select('match', 'name:') | first |split() | last | replace('\"', '')  }}"
+      tags:
+        - collection-publish
+        - collection-approve
+        - collection-build
+        - pah-namespace
+
+    - name: Build Collections
+      ansible.hub.ah_build:
+        path: "{{ aap_configuration_working_dir }}/collection_repo"
+        output_path: "{{ aap_configuration_working_dir }}/collection_repo"
+        force: true
+      register: ah_build_results
+      tags:
+        - collection-build
+
+    - name: Create PAH namespace
+      ansible.hub.ah_namespace:
+        name: "{{ namespace }}"
+        state: present
+        ah_host: "{{ aap_hostname | default(omit) }}"
+        ah_username: "{{ aap_username | default(omit) }}"
+        ah_password: "{{ aap_password | default(omit) }}"
+        validate_certs: "{{ aap_validate_certs | default(omit) }}"
+      tags:
+        - pah-namespace
+
+    - name: Publish Collections
+      ansible.hub.ah_collection:
+        namespace: "{{ namespace }}"
+        name: "{{ collection_name }}"
+        version: "{{ collection_version }}"
+        path: "{{ aap_configuration_working_dir }}/collection_repo/{{ namespace }}-{{ collection_name }}-{{ collection_version }}.tar.gz"
+        overwrite_existing: "{{ ah_overwrite_existing }}"
+        ah_host: "{{ aap_hostname | default(omit) }}"
+        ah_username: "{{ aap_username | default(omit) }}"
+        ah_password: "{{ aap_password | default(omit) }}"
+        ah_token: "{{ hub_token | default(omit) }}"
+        validate_certs: "{{ aap_validate_certs | default(omit) }}"
+        request_timeout: "{{ aap_request_timeout | default(omit) }}"
+      tags:
+        - collection-publish
+
+    - name: Approve Collections
+      ansible.hub.ah_approval:
+        namespace: "{{ namespace }}"
+        name: "{{ collection_name }}"
+        version: "{{ collection_version }}"
+        ah_username: "{{ aap_username | default(omit) }}"
+        ah_password: "{{ aap_password | default(omit) }}"
+        ah_token: "{{ hub_token | default(omit) }}"
+        ah_host: "{{ aap_hostname | default(omit) }}"
+        validate_certs: "{{ aap_validate_certs | default(omit) }}"
+        request_timeout: "{{ aap_request_timeout | default(omit) }}"
+      tags:
+        - collection-approve
+...
+----
+====
 
 === 4.6: Create and configure Webhook
 
-==== 4.6.1: Copy Event Listener URL
+==== 4.6.1: Create Event Listener
 . Open your OpenShift Container Platform GUI, in the left menu, goto the _Pipelines_ section of the menu and select *Pipelines*
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Open the _Actions_ drop-down button on the right side of the window and select *Add Trigger*
@@ -387,7 +491,7 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Under the _TriggerTemplates_ section, copy the Event Listener URL
 
-==== 4.6.3: Create Webhook
+==== 4.6.3: Create Webhook on _ansible_bootcamp_ci_cd_pipeline_ Gitea repository
 
 . Goto the _ansible_bootcamp_ci_cd_pipeline_ Gitea repository page and select the *Settings* tab on the right side of the window
 . Click on the _Webhooks_ section under the _Settings_ box on the left side of the window and then click the green *Add Webhook* button on the right side of the window
@@ -401,7 +505,6 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 . Click on the _Webhooks_ section under the _Settings_ box on the left side of the window
 . Click the webhook link that we just created (the event listener URL)
 . At the bottom of the page, click the *Test Delivery* button to trigger the pipeline
-
 
 === 4.7: Update and Push New Version of Ansible Collection to Gitea
 
