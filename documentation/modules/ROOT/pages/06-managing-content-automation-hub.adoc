@@ -96,13 +96,15 @@ NOTE: Make sure to Approve collection in the hub UI
 
 == 4. Push Collection to Repository
 
-After we've published our collection to your Private Automation Hub, we need to save our work your lab's Gitea.
+After we've published our collection to your Private Automation Hub, we need to save our work into your lab's Gitea.
+
+NOTE: Make sure to set your Git Config user parameters, 'git config --global user.email "gitea@ansible_bootcamp"' and 'git config --global user.name "gitea"
 
 === 4.1 Create Gitea Repository
 
 . Log in to your Gitea web interface, with the provided login credentials.
 . In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
-. On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
+. On the New Repository page, enter 'ansible_bootcamp_my_collection' in the Repository Name field.
 . Leave everything else as default and click on the button at the bottom, 'Create Repository'.
 
 ==== 4.2 Append to the `.gitignore` file
@@ -123,7 +125,9 @@ ansible.cfg
 After an empty repository is created on your Gitea, we need to push the collection to the repository.
 
 . In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
-. Now, follow these steps in the root directory of 'my_pah_project'
+. Now, follow these steps in the root directory of 'my_pah_project' collection.
+
+NOTE: The Copy URL button on the far right of the 'Clone this repository' section will be used to copy Gitea repository URL in this set of instructions
 
 [source,bash,role=execute]
 ----
