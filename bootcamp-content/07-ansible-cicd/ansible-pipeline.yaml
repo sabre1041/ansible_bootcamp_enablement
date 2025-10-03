@@ -8,8 +8,7 @@ spec:
     - description: The URL of the Git repository to clone.
       name: collection-url
       type: string
-    - default: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
-      description: The URL of the Git repository to clone.
+    - description: The URL of the Git repository to clone.
       name: playbook-repo
       type: string
     - description: Collection Branch name
