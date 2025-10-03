@@ -271,7 +271,6 @@ hub_configuration_collection_repository_sync_async_retries: 150
 [source,yaml,role=execute]
 ----
 ---
----
 - name: Playbook to configure ansible controller
   hosts: localhost
   connection: local
@@ -376,7 +375,7 @@ git push -u origin main
 ---
 ansible-navigator:
   execution-environment:
-    image: aap-aap.apps.cluster-f2vhl.dynamic.redhatworkshops.io/config_as_code_ee:1.0
+    image: <AAP HOST>>/config_as_code_ee:1.0
 
 ----
 
@@ -436,7 +435,7 @@ controller_settings_all:
 - Create a file `config/all/execution_environments.yml` and add the required information to the list `controller_execution_environments`
 to include a new EE (that we will show how to create with code in the next module) called `config_as_code` with image path `{{ aap_hostname }}/config_as_code_ee` that is pull `always` and uses the credential `cr_ah`.
 +
-image::04-configuration-as-code/config_ee.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
+image::04-configuration-as-code/config_ee_v2.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
 
 [source,yaml,role=execute]
 ----
@@ -586,6 +585,13 @@ controller_credentials_all:
       url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/published/"
       token: "{{ hub_token }}"
 
+  - name: hub_validated
+    credential_type: "Ansible Galaxy/Automation Hub API Token"
+    organization: config_as_code
+    inputs:
+      url: "https://{{ aap_hostname }}/pulp_ansible/galaxy/validated/"
+      token: "{{ hub_token }}"
+
   - name: hub_community
     credential_type: "Ansible Galaxy/Automation Hub API Token"
     organization: config_as_code
@@ -609,9 +615,11 @@ controller_credentials_all:
     inputs:
       vault_password: "{{ vault_pass }}"
 ...
+
 ----
 +
-image::04-configuration-as-code/credential.png[title="Credential",125%,125%, link=self, window=blank]
+image::04-configuration-as-code/credential_hub.png[title="Credential",125%,125%, link=self, window=blank]
+image::04-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,125%, link=self, window=blank]
 
 - Further documentation for those who are interested to learn more see:
 +
@@ -655,7 +663,7 @@ controller_projects_all:
 ...
 ----
 
-image::04-configuration-as-code/project.png[title="Project",125%,125%, link=self, window=_blank]
+image::04-configuration-as-code/project_v2.png[title="Project",125%,125%, link=self, window=_blank]
 
 - Further documentation for those who are interested to learn more see:
 +
@@ -674,7 +682,7 @@ controller_inventories_all:
 ...
 ----
 +
-image::04-configuration-as-code/inventories.png[title="Inventory",125%,125%, link=self, window=_blank]
+image::04-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, link=self, window=_blank]
 
 - Further documentation for those who are interested to learn more see:
 
@@ -691,7 +699,7 @@ controller_inventory_sources_all:
 ...
 ----
 +
-image::04-configuration-as-code/inventory_sources.png[title="Inventory Sources",125%,125%, link=self, window=_blank]
+image::04-configuration-as-code/inventory_sources_v2.png[title="Inventory Sources",125%,125%, link=self, window=_blank]
 
 - Further documentation for those who are interested to learn more see:
 +
@@ -712,8 +720,7 @@ controller_templates_all:
 ...
 ----
 +
-image::04-configuration-as-code/aap_config_template_v2.png[title="AAP Config Template",125%,125%, link=self, window=_blank]
-image::04-configuration-as-code/build_ee_template_v2.png[title="Build EE Template",125%,125%, link=self, window=_blank]
+image::04-configuration-as-code/aap_config_template_v3.png[title="AAP Config Template",125%,125%, link=self, window=_blank]
 
 - Further documentation for those who are interested to learn more see:
 +
@@ -748,17 +755,20 @@ The next step is to create a playbook/file `playbooks/aap_config.yml` that will 
         extensions:
           - 'yml'
 
-    - name: Authenticate and get an API token from Automation Hub
-      ansible.hub.ah_token:
-        ah_host: "{{ aap_hostname }}"
-        ah_username: "{{ aap_username }}"
-        ah_password: "{{ aap_password }}"
-        ah_path_prefix: 'galaxy'  # this is for private automation hub
-        ah_verify_ssl: false
+    - name: Tasks to run if hub_token not defined
+      when: hub_token is not defined
+      block:
+        - name: Authenticate and get an API token from Automation Hub
+          ansible.hub.ah_token:
+            ah_host: "{{ aap_hostname }}"
+            ah_username: "{{ aap_username }}"
+            ah_password: "{{ aap_password }}"
+            ah_path_prefix: 'galaxy'  # this is for private automation hub
+            ah_verify_ssl: false
 
-    - name: Fixing format
-      ansible.builtin.set_fact:
-        hub_token: "{{ ah_token['token'] }}"
+        - name: Fixing format
+          ansible.builtin.set_fact:
+            hub_token: "{{ ah_token['token'] }}"
 
     - name: Call dispatch role
       ansible.builtin.include_role:
@@ -770,11 +780,11 @@ The next step is to create a playbook/file `playbooks/aap_config.yml` that will 
 
 === Task 11 - Run the playbook
 
-- Run `/home/lab-user/casc_lab/playbooks/aap_config` playbook.
+- Run `playbooks/aap_config` playbook.
 +
 [source,console]
 ----
-ansible-playbook playbooks/aap_config.yml -i inventory.yml -l execution
+ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 ----
 
 - If you run into problems, look back at the section that failed, and check the documentation for that role that was linked. If the output was hidden, look for 'Secure logging variables' on the https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credentials[controller_credentials role documentation].
