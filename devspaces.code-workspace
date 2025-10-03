@@ -8,11 +8,9 @@
 	"extensions": {
 		"recommendations": [
 			"redhat.vscode-yaml",
-			"ms-python.python",
-			"redhat.ansible",
 			"redhat.vscode-openshift-connector",
-			"ms-python.black-formatter",
-			"asciidoctor.asciidoctor-vscode"
+			"asciidoctor.asciidoctor-vscode",
+			"streetsidesoftware.code-spell-checker"
 		]
 	},
 	"settings": {
