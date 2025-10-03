@@ -1,8 +1,7 @@
 = Lab: Creating a CI/CD Pipeline
 
 [abstract]
-This template outlines the steps and considerations for a lab focused on developing and implementing a Continuous Integration/Continuous Delivery (CI/CD) pipeline using Tekton to automate the Ansible collection build and publish process into Automation Hub.
-
+Create a CI/CD pipeline using Ansible and Tekton to automate the collection build and publish process.  
 == 1. Prerequisites
 
 .Particpants should have
