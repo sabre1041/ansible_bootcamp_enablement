@@ -618,7 +618,7 @@ controller_credentials_all:
 
 ----
 +
-image::04-configuration-as-code/credential_hub.png[title="Credential",125%,125%, link=self, window=blank]
+image::04-configuration-as-code/credential_hub_v2.png[title="Credential",125%,125%, link=self, window=blank]
 image::04-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,125%, link=self, window=blank]
 
 - Further documentation for those who are interested to learn more see:
