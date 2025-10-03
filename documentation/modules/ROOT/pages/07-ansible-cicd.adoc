@@ -1,7 +1,8 @@
 = Lab: Creating a CI/CD Pipeline
 
 [abstract]
-Create a CI/CD pipeline using Ansible and Tekton to automate the collection build and publish process.  
+This template outlines the steps and considerations for a lab focused on developing and implementing a Continuous Integration/Continuous Delivery (CI/CD) pipeline using Tekton to automate the Ansible collection build and publish process into Automation Hub.
+
 == 1. Prerequisites
 
 .Particpants should have
@@ -26,10 +27,46 @@ NOTE: Lab setup should have been previously completed in xref:06-managing-conten
 
 == 4. Lab: CI/CD Pipeline
 
-In this section, we'll share how to apply the *collection-pipeline.yml* in your OpenShift environment. 
+In this section, we'll share how to apply the *collection-pipeline.yml* in your OpenShift environment. Also, creating a Cluster Trigger Binding, and then setting up your Ansible Collection repository webhook. 
 
+=== 4.1: Create CI/CD Pipeline Repository
 
-=== 4.1: Build Tekton pipeline on OpenShift Container Platform
+[abstract]
+Create another repository separate from the _ansible_bootcamp_my_collection_ repository that is created in xref:06-managing-content-automation-hub.adoc[Managing Ansible Content with Private Automation Hub], as this repository will serve as a working CI/CD pipeline development repository.
+
+. Log in to your Gitea web interface, with the provided login credentials.
+. In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
+. On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
+. Leave everything else as default and click on the button at the bottom, 'Create Repository'.
+
+=== 4.1.1: Clone CI/CD Pipeline Repository into DevSpaces Workspace
+
+After an empty repository is created on your Gitea, we need to clone the repository into the workspace to begin creating lab files.
+
+. In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL.
+. Paste the copied Gitea repository URL into the terminal in DevSpaces Workspace
+
+.Example
+[source,bash]
+----
+git clone https://gitea.apps.cluster-ABC123.dynamic.redhatworkshops.io/gitea/ansible_bootcamp_ci_cd_pipeline.git
+----
+
+NOTE: Once the repository is cloned into your DevSpaces Workspace, make sure you change directories into that cloned directory
+
+=== 4.2: Login into OpenShift Console
+
+[abstract]
+Login into your OpenShift Container Platform to collect the console login credentials
+
+. To copy the login command for OpenShift Console, in the top-right of OpenShift Container Platform GUI, click on your profile (admin), and select *Copy login command*
+. After logging in again with the admin credentials of the OpenShift Container Platform, click on the *Display Token* link
+. Now, copy the line in the section _Log in with this token_, that begins with *oc login --token*
+. Paste the oc login command into your terminal, that is located in DevSpaces Workspace
+
+NOTE: Your terminal should now be logged into the OpenShift environment
+
+=== 4.3: Build Tekton pipeline on OpenShift Container Platform
 
 . In the DevSpaces Workspace, create a new file called *collection-pipeline.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
 
@@ -50,8 +87,7 @@ spec:
     - description: The URL of the Git repository to clone.
       name: collection-url
       type: string
-    - default: 'https://github.com/mdidato/ansible_bootcamp_enablement.git'
-      description: The URL of the Git repository to clone.
+    - description: The URL of the Git repository to clone.
       name: playbook-repo
       type: string
     - description: Collection Branch name
@@ -69,7 +105,7 @@ spec:
             script: |
               git clone -vvv $(params.playbook-repo)
               echo "change into playbook dir"
-              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              cd ansible_bootcamp_ci_cd_pipeline
               echo "create vars file"
               cat <<EOF > params.yml
               ---
@@ -96,7 +132,7 @@ spec:
             image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
             name: collection-clone
             script: |
-              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              cd ansible_bootcamp_ci_cd_pipeline
               ansible-playbook collection-publish.yml --tags git-checkout
             workingDir: $(workspaces.source.path)
         workspaces:
@@ -115,7 +151,7 @@ spec:
             image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
             name: build-collection
             script: |
-              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              cd ansible_bootcamp_ci_cd_pipeline
               ansible-playbook collection-publish.yml --tags collection-build
             workingDir: $(workspaces.source.path)
         workspaces:
@@ -154,7 +190,7 @@ spec:
             image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
             name: create-namespace
             script: |
-              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              cd ansible_bootcamp_ci_cd_pipeline
               ansible-playbook collection-publish.yml --tags pah-namespace
             workingDir: $(workspaces.source.path)
         workspaces:
@@ -173,7 +209,7 @@ spec:
             image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
             name: publish-collection
             script: |
-              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              cd ansible_bootcamp_ci_cd_pipeline
               ansible-playbook collection-publish.yml --tags collection-publish
             workingDir: $(workspaces.source.path)
         workspaces:
@@ -192,7 +228,7 @@ spec:
             image: 'registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest'
             name: approve-collection
             script: |
-              cd ansible_bootcamp_enablement/bootcamp-content/07-ansible-cicd
+              cd ansible_bootcamp_ci_cd_pipeline
               ansible-playbook collection-publish.yml --tags collection-approve
             workingDir: $(workspaces.source.path)
         workspaces:
@@ -205,9 +241,9 @@ spec:
 ----
 ====
 
-==== 4.1.1: OpenShift Console
+==== 4.3.1: OpenShift Console
 
-===== 4.1.1.1: Login into OpenShift Console (skip if already logged into console)
+===== 4.3.1.1: Login into OpenShift Console (skip if already logged into console)
 
 . Copy login command from the OpenShift Container Platform GUI, in top-right, click on your profile (admin), and select *Copy login command*
 . After logging in again with the admin credentials, click on the *Display Token* link
@@ -216,7 +252,7 @@ spec:
 
 NOTE: Your terminal should now be logged into the OpenShift environment
 
-===== 4.1.1.2: Applying collection-pipeline.yml config
+===== 4.3.1.2: Applying collection-pipeline.yml config
 
 [abstract]
 After logging into your cluster from the console, proceed with the next steps to apply the *collection-pipeline.yml* to the OCP environment.
@@ -224,7 +260,7 @@ After logging into your cluster from the console, proceed with the next steps to
 . In the terminal of your DevSpaces Workspace, change into the _ansible_bootcamp_ci_cd_pipeline_ directory
 . *oc apply -f collection-pipeline.yml* with the previously created _collection-pipeline.yml_
 
-===== 4.1.1.3: Validate collection-pipeline.yml config has been applied
+===== 4.3.1.3: Validate collection-pipeline.yml config has been applied
 
 [abstract]
 Validate the _collection-pipeline.yml_ has been successfully created in the OpenShift Container Platform GUI
@@ -233,18 +269,18 @@ Validate the _collection-pipeline.yml_ has been successfully created in the Open
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Compare the steps/stages in the GUI to the _collection-pipeline.yml_ that was applied, to get a better understanding of the pipeline
 
-==== 4.1.2: OpenShift Container Platform GUI (review only)
+==== 4.3.2: OpenShift Container Platform GUI (review only)
 
 [abstract]
 Sharing how to add a pipeline through the GUI instead applying the _collection-pipeline.yml_ with the console commands.
 
-===== 4.1.2.1 Import collection-pipeline.yml config into OpenShift Container Platform GUI
+===== 4.3.2.1 Import collection-pipeline.yml config into OpenShift Container Platform GUI
 
 . Copy the contents from _collection-pipeline.yml_ in xref:07-ansible-cicd.adoc#section-4.1[4.1 - Build Tekton pipeline on OpenShift Container Platform]
 . In the OpenShift Container Platform GUI, in the top-right of the window, click the _+_ icon and select *Import YAML*
 . Paste the contents from _collection-pipeline.yml_ and then click on the *Create* button below
 
-===== 4.1.2.2 Validate collection-pipeline.yml config has been applied
+===== 4.3.2.2 Validate collection-pipeline.yml config has been applied
 
 [abstract]
 Validate the _collection-pipeline.yml_ has been successfully created in the OpenShift Container Platform GUI
@@ -253,7 +289,7 @@ Validate the _collection-pipeline.yml_ has been successfully created in the Open
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Compare the steps/stages in the GUI to the _collection-pipeline.yml_ that was applied, to get a better understanding of the pipeline
 
-=== 4.2: Create Cluster Trigger Binding
+=== 4.4: Create Cluster Trigger Binding
 
 . In the DevSpaces Workspace, create a new file called *collection-cluster-trigger-binding.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
 
@@ -285,18 +321,9 @@ spec:
 ----
 ====
 
-==== 4.2.1: OpenShift Console
+==== 4.4.1: OpenShift Console
 
-===== 4.2.1.1: Login into OpenShift Console (skip if already logged into console)
-
-. Copy login command from the OpenShift Container Platform GUI, in top-right, click on your profile (admin), and select *Copy login command*
-. After logging in again with the admin credentials, click on the *Display Token* link
-. Now, copy the line in the section _Log in with this token_, that begins with *oc login --token*
-. Paste the oc login command into your terminal, that is located in DevSpaces Workspace
-
-NOTE: Your terminal should now be logged into the OpenShift environment
-
-===== 4.2.1.2: Applying collection-cluster-trigger-binding.yml config
+===== 4.4.1.1: Applying collection-cluster-trigger-binding.yml config
 
 [abstract]
 After logging into your cluster from the console, proceed with the next steps to apply the *collection-cluster-trigger-binding.yml* to the OCP environment.
@@ -304,7 +331,7 @@ After logging into your cluster from the console, proceed with the next steps to
 . In the terminal of your DevSpaces Workspace, change into the _ansible_bootcamp_ci_cd_pipeline_ directory
 . *oc apply -f collection-cluster-trigger-binding.yml* with the previously created _collection-cluster-trigger-binding.yml_
 
-===== 4.2.1.3: Validate collection-cluster-trigger-binding.yml config has been applied
+===== 4.4.1.3: Validate collection-cluster-trigger-binding.yml config has been applied
 
 [abstract]
 Validate the _collection-cluster-trigger-binding.yml_ has been successfully created in the OpenShift Container Platform GUI
@@ -313,18 +340,18 @@ Validate the _collection-cluster-trigger-binding.yml_ has been successfully crea
 . Select the *ClusterTriggerBindings* tab on the Triggers page
 . Verify that _gitea-push_ trigger is now created
 
-==== 4.2.2: OpenShift Container Platform GUI (review only)
+==== 4.4.2: OpenShift Container Platform GUI (review only)
 
 [abstract]
 Sharing how to add a cluster trigger binding through the GUI instead applying the _collection-cluster-trigger-binding.yml_ with the console commands.
 
-===== 4.2.2.1 Import collection-cluster-trigger-binding.yml config into OpenShift Container Platform GUI
+===== 4.4.2.1 Import collection-cluster-trigger-binding.yml config into OpenShift Container Platform GUI
 
 . Copy the contents from _collection-cluster-trigger-binding.yml_ in xref:07-ansible-cicd.adoc#section-4.1[4.1 - Build Tekton pipeline on OpenShift Container Platform]
 . In the OpenShift Container Platform GUI, in the top-right of the window, click the _+_ icon and select *Import YAML*
 . Paste the contents from _collection-cluster-trigger-binding.yml_ and then click on the *Create* button below
 
-===== 4.2.2.2 Validate collection-cluster-trigger-binding.yml config has been applied
+===== 4.4.2.2 Validate collection-cluster-trigger-binding.yml config has been applied
 
 [abstract]
 Validate the _collection-cluster-trigger-binding.yml_ has been successfully created in the OpenShift Container Platform GUI
@@ -333,18 +360,14 @@ Validate the _collection-cluster-trigger-binding.yml_ has been successfully crea
 . Select the *ClusterTriggerBindings* tab on the Triggers page
 . Verify that _gitea-push_ trigger is now created
 
-// === 4.3: Create Trigger Binding
 
-// .collection-trigger-binding.yml
-// [%collapsible]
-// ====
-// [source,yaml]
-// ----
-// ----
-// ====
+=== 4.5: Create collection-publish.yml Ansible Playbook
 
-=== 4.3: Create Event Listener
 
+
+=== 4.6: Create and configure Webhook
+
+==== 4.6.1: Copy Event Listener URL
 . Open your OpenShift Container Platform GUI, in the left menu, goto the _Pipelines_ section of the menu and select *Pipelines*
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Open the _Actions_ drop-down button on the right side of the window and select *Add Trigger*
@@ -358,23 +381,13 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 - collection-repo-version: *$(tt.params.git-revision)*
 - shared-workspace: *VolumeClaimTemplate*
 
-// .collection-event-listener.yml
-// [%collapsible]
-// ====
-// [source,yaml]
-// ----
-// ----
-// ====
-
-=== 4.4: Configure Gitea Webhook
-
-==== 4.4.1: Copy Event Listener URL
+==== 4.6.2: Copy Event Listener URL
 
 . Open your OpenShift Container Platform GUI, in the left menu, goto the _Pipelines_ section of the menu and select *Pipelines*
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Under the _TriggerTemplates_ section, copy the Event Listener URL
 
-==== 4.4.2: Create Webhook
+==== 4.6.3: Create Webhook
 
 . Goto the _ansible_bootcamp_ci_cd_pipeline_ Gitea repository page and select the *Settings* tab on the right side of the window
 . Click on the _Webhooks_ section under the _Settings_ box on the left side of the window and then click the green *Add Webhook* button on the right side of the window
@@ -382,7 +395,7 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 . Paste the event listener URL in the _Target URL_ field and leave everything else default settings
 . Click on the green *Add Webhook* button at the bottom of the page
 
-==== 4.4.3: Test Webhook
+==== 4.6.4: Test Webhook
 
 . Goto the _ansible_bootcamp_ci_cd_pipeline_ Gitea repository page and select the *Settings* tab on the right side of the window
 . Click on the _Webhooks_ section under the _Settings_ box on the left side of the window
@@ -390,11 +403,10 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 . At the bottom of the page, click the *Test Delivery* button to trigger the pipeline
 
 
-
-=== 4.5: Update and Push New Version of Ansible Collection to Gitea
+=== 4.7: Update and Push New Version of Ansible Collection to Gitea
 
 Update collection and commit to repo
 
-=== 4.6: Test New Version of Collection
+=== 4.8: Test New Version of Collection
 
 Create playbook using the new role.
