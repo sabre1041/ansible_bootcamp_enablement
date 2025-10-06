@@ -16,11 +16,122 @@ Deploying Ansible Automation Platform instances with a Kubernetes native operato
 
 The demo.redhat.com lab environment provisioned for you is a working OpenShift 4.19 environment with the AAP operator pre-installed and deployed.
 
-The deployment has two components, the Ansible Automation Controller,
+== 3. Viewing the AAP on OCP managed resources
 
-== 3.  Viewing the AAP on OCP managed resources
+Let's click around the OpenShift UI to see what's already installed and configured by the operator.
 
-lorem ipsum
+=== Step 3.1 The installed operator and CRDs
+
+* First let's make sure we're using the `aap` project. In the top left select `Project` -> `aap` if it's not already selected.
+* Navigate to `Operators` -> `Installed Operators` and we can see `Ansible Automation Platform`` operator listed and installed in the current project.
+* Click on the `Ansible Automation Platform` operator.
+* This will navigate to the details page of the operator and all the different components the operator can manage.
+* In the top tab click on `All Instances`.
+* 5 instances will be shown which are each each Custom Resource Definitions (CRDs) managed by the AAP operator:
+** `aap` which is an `AnsibleAutomationPlatform` that relates to the Gateway component of AAP.
+** `aap-controller` which is an `AnsibleController` that relates to the Automation Controller component of AAP.
+** `aap-eda` which is an `EDA` that relates to the Event-Driven Ansible component of AAP.
+** `aap-hub` which is an `AutomationHub` that relates to the Automation Hub component of AAP.
+** `aap-lightspeed` which is an `AnsibleLightspeed` CRD that relates to the Ansible Lightspeed component of AAP.
++
+NOTE: The `AnsibleAutomationPlatform` CRD deploys and manages the other CRDs listed above. This makes it simple to deploy all the components of AAP together. The `AnsibleAutomationPlatform` CRD simply needs to be configured to let the operator know which components of the platform are desired, and how to deploy them, and the operator takes care of the details.
+
+* Click the `aap` instance to navigate to the `Details` page for the `AnsibleAutomationPlatform` CRD.
+* On this page you can view some of the important resources managed by the `AnsibleAutomationPlatform` CRD. For instance, secrets, other CRDs, database configurations, etc.
+* Next to the `Details` tab click on `YAML`. This will show you the current YAML specification that defines the CRD.
+** For example, take a look at the `spec` key in the YAML definition:
++
+[source,yaml]
+----
+  controller:
+    disabled: false
+  eda:
+    disabled: false
+  hub:
+    content:
+      replicas: 1
+    disabled: false
+    file_storage_access_mode: ReadWriteMany
+    file_storage_size: 100Gi
+    file_storage_storage_class: ocs-external-storagecluster-cephfs
+    gunicorn_api_workers: 1
+    gunicorn_content_workers: 1
+    worker:
+      replicas: 1
+  image_pull_policy: IfNotPresent
+  lightspeed:
+    disabled: false
+  no_log: true
+  redis_mode: standalone
+  route_tls_termination_mechanism: Edge
+----
+** This `spec` definition shows us that the `controller`, `eda`, `hub`, and `lightspeed` components are all desired (`disabled: false`) and some customizations made to the `hub` component specifically.
+
+=== Step 3.2 Resources managed by the CRDs
+
+Each CRD manages it's own set of OCP resources that are needed for the component to integrate into the final AAP deployment.
+
+==== Step 3.2.1 Deployments
+
+Each CRD will create and manage a some `deployment` resources that in turn manage the pods and other resources listed below in section 3.2.1.
+
+* Navigate to `Workloads` -> `Deployments`. You'll see a list of created deployments, their pod counts, and other information.
+* Click on `aap-controller-task`. Under the `Details` tab you can see information about the deployment resource such as it's owner (Which CRD manages this deployment), associated containers, associated volumes, etc.
+* Feel free to click on the other tabs to view information about the deployment and it's associated metrics, YAML definition, pods, etc.
+
+==== Step 3.2.2 Pods
+
+Many pods will be up and running that correlate to the containers running the application pieces of AAP. These pods are ultimately be owned by the deployments viewed in the previous section.
+
+* Navigate to `Workloads` -> `Pods`. You'll see a long list of deployed pods and their status, restarts, etc.
+* Click on `aap-controller-task-<id>`. Under the `Details` tab you can see information related to this pod such as containers, volumes, conditions, etc.
+* Next to the `Details` tab, click on the `Logs` tab. Under the `Containers` drop down, make sure that the `aap-controller-task` container is selected. Observe how you can view the application logs related to the `awx.main.tasks` portion of the application. This may be important for troubleshooting while the application is having trouble launching or managing tasks!
+* Under the `Containers` drop down, select the `aap-controller-rsyslog` container. Observe how you now see the logs pertaining to the logging of the application pod. If there are any issues with the `awx-rsyslogd` or external logging, you may see them here.
+* Next to the `Details` tab, click on the `Terminal` tab. Under the `Containers` drop down, make sure that the `aap-controller-task` container is selected. You now have a direct terminal connection to the running container. Here you can view files, and interact with the running AWX application by running commands such as `awx-manage`. For example run `awx-manage --help`:
++
+[source,bash]
+----
+sh-4.4$ awx-manage --help
+
+Type 'awx-manage help <subcommand>' for help on a specific subcommand.
+
+Available subcommands:
+
+[auth]
+    changepassword
+...
+----
++
+TIP: You could also get access to the container terminal using the `oc` CLI tool via `oc rsh aap-controller-task-<id> -c aap-controller-task` as well.
+
+Let's do a similar exercise, but this time taking a look at the AAP web pods.
+
+* Navigate to `Workloads` -> `Pods`.
+* Click on `aap-controller-web-<id>`
+* Next to the `Details` tab, click on the `Logs` tab. Under the `Containers` drop down, make sure that the `aap-controller-web` container is selected. Observe how you can view the application logs related to the AAP web API. This may be important for troubleshooting while the application is having receiving web application requests!
+* Next to the `Details` tab, click on the `Terminal` tab. Under the `Containers` drop down, make sure that the `aap-controller-web` container is selected. You now have a direct terminal connection to the running container. Just like in the task pod example before, here you can view files, and interact with the running AWX application by running commands such as `awx-manage`.
+
+==== Step 3.2.3 PersistentVolumeClaims
+
+==== Step 3.2.4 Secrets
+
+==== Step 3.2.5 ConfigMaps
+
+==== Step 3.2.6 Routes
+
+==== Step 3.2.7 Others
+
+Examples of other OCP resources that are managed by the operator include, but are not limited to:
+
+* StatefulSets
+* Jobs
+* ReplicaSets
+* HorizontalPodAutoscalers
+* Services
+* Roles
+* RoleBindings
+* ServiceAccounts
+* etc
 
 == 4. Scale the task pods and view new instances appear in AAP
 
