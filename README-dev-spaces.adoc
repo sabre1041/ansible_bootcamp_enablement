@@ -1,14 +1,14 @@
 = Using Red Hat OpenShift Dev Spaces
 
-Once you have a lab environment set up, you can use Red Hat OpenShift Dev Spaces to develop additional content. To do this you should first access your Red Hat OpenShift Dev Spaces environment by clicking the 9 square icon in the top right of the console and clicking, "Red Hat OpenShift Dev Spaces".
+Once you have a lab environment set up, you can use Red Hat OpenShift Dev Spaces to develop additional content. To do so, you should first access your Red Hat OpenShift Dev Spaces environment by clicking the 9 square icon in the top right of the console and clicking, "Red Hat OpenShift Dev Spaces".
 
-If it is your first time using this cluster's Red Hat OpenShift Dev Spaces you will need to authorize oauth. Then in the top right drop down next to your username and icon and select, "User Preferences". In the User Preferences page you will want to select "Personal Access Tokens" and add a Github Access token. See creating a Github Personal Access Token section below.
+If it is your first time using this cluster's Red Hat OpenShift Dev Spaces instance, you will need to authorize oauth. Then, in the top right drop down next to your username and icon and select, "User Preferences". In the User Preferences page, you will want to select "Personal Access Tokens" and add a GitHub Access token. See creating a Github Personal Access Token section below.
 
-Once you re-authenticate to Red Hat OpenShift Dev Spaces you can paste in the repository for this repo under the "Import from Git" section into the "Git repo URL" box. Then click the "Create & Open" button. This will launch your developer workspace.
+Once you re-authenticate to Red Hat OpenShift Dev Spaces, you can paste in the repository for this repo under the "Import from Git" section into the "Git repo URL" box. Then, click the "Create & Open" button. This will launch your developer workspace.
 
 == Launching antora to view content
 
-. Inside your Developer Workspace (browser based vscode) click the hamburger icon in the top left
+. Inside your Developer Workspace (browser based vscode), click the hamburger icon in the top left
 . Hover over "Terminal" in the menu that pops up
 . Click on "Run Task..."
 . Select 'devfile' from the menu that pops up
@@ -18,7 +18,7 @@ You will see a terminal start and launch antora using podman. A pop-up will show
 
 There are additional devfile tasks available to stop and restart the pandora container.
 
-== Creating a Github Personal Access Token
+== Creating a GitHub Personal Access Token
 
 . Log into your GitHub account
 . Click on your profile avatar, and select "Settings."
