@@ -513,3 +513,5 @@ Commit and push your code you should now see your pipeline start to run
 
 === 4.8: Verify that your updated collection is available in Private Automation Hub
 
+image::../assets/images/07-ansible-cicd/PAH-verify.png[]
+
