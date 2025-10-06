@@ -273,9 +273,6 @@ spec:
 
 ===== 4.3.1.2: Applying collection-pipeline.yml config
 
-[abstract]
-After logging into your cluster from the console, proceed with the next steps to apply the *collection-pipeline.yml* to the OCP environment.
-
 . In the terminal of your DevSpaces Workspace, change into the _ansible_bootcamp_ci_cd_pipeline_ directory
 . *oc apply -f collection-pipeline.yml* with the previously created _collection-pipeline.yml_
 . *oc apply -f collection-cluster-trigger-binding.yml* with the previously created _collection-cluster-trigger-binding.yml_
