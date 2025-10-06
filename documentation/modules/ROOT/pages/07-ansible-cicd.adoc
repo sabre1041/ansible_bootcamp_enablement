@@ -55,6 +55,14 @@ After an empty repository is created on your Gitea, we need to clone the reposit
 . Open up a new Ansible Dev Space and clone your repos into it.
 . Clone the ansible_bootcamp_ci_cd_pipeline repo you just created into your workspace
 . Clone your collection repo from the previous lab into this workspace
+. Open the integrated terminal
+. Configure your git username and email
+
+[source,bash]
+----
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+----
 
 image::../assets/images/07-ansible-cicd/devspaces.png[]
 
