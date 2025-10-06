@@ -8,8 +8,13 @@
 
 == 2. Introduction
 
-One of the core goals of automation is automating some end-to-end, in this case it's creating a CI/CD pipeline for Ansible collection building. This lab will further the development of one of the previous labs, by automating the build and publishing of the development lifecycle of an Ansible collection.
+One of the core goals of automation is automating a process end-to-end, in this case it's creating a CI/CD pipeline for Ansible collection builds and updates. This lab will further the development of one of the previous labs, by automating the build and publishing of the development lifecycle of an Ansible collection.
 
+Upon completion of this lab you will have 
+
+. A Tekton pipeline running in OpenShift
+. The pipeline can be triggered from a push to the collection repo
+. The pipeline will lint, build, publish and approve the collection into Private Automation Hub
 
 == 3. Lab Setup: Configuring Your Environment
 
