@@ -499,19 +499,15 @@ Create the following playbook in the dad_joke role test directory.  Name the fil
 ====
 [source,yaml]
 ----
-- name: Fetch a Random Joke from the API
- ansible.builtin.uri:
-   url: https://icanhazdadjoke.com/
-   method: GET
-   headers:
-     Accept: application/json
- register: dad_joke_joke_api_response
+---
+- name: Random Dad Joke Generator
+  hosts: localhost
+  connection: local
+  gather_facts: false
 
-
-- name: Display the Setup and Punchline
- ansible.builtin.debug:
-   msg: "{{ dad_joke_joke_api_response.json.joke }}"
-----
+  roles:
+    - automation_bootcamp.my_collection.dad_joke
+----   
 ====
 
 Open the galaxy.yml file at the root of the collection repo and increment the version number
