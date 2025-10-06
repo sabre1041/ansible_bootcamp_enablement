@@ -1,3 +1,39 @@
-= Developer Tools
+= Automation Developer Experience 
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+This lab walks through the various aspects of launching, configuring and using DevSpaces on OpenShift as your primary development environment for Ansible.
+
+== DevSpaces console
+
+Steps to get to the console
+
+== DevSpaces Workspace
+
+Steps on accessing the Workspace
+
+== User Credentials in Workspaces
+
+Steps on adding custom user credentials
+
+== Launching a Workspace from a git repo
+
+Steps to launch Workspace from git
+
+== Configuring Extensions
+
+Configuring useful extentions
+
+== Enabling Lightspeed
+
+Steps to enable lightspeed
+
+== Accessing a Terminal
+
+. Open a new terminal from the 
+
+== Configuring ansible-navigator
+
+Steps for ansible-navigator
+
+== Run a playbook through ansible-navigator
+
+Steps to launch a playbook
