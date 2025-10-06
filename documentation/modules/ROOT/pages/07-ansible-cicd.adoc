@@ -521,3 +521,20 @@ Commit and push your code you should now see your pipeline start to run
 
 image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 
+=== 4.9: Install and Use the update collection from PAH
+
+. Log into AAP and go to the Automation Content Section
+. Click on Repositories
+. Click on the published repository
+. Click on the Distrubutions tab and copy the cli configuration
+. Create a file in the base of your repo called ansible.cfg and past the cli configuration into it
+. Update the cli configuration with the token you created in the previous lab
+
+[source,bash]
+----
+[galaxy] 
+ server_list = published 
+ [galaxy_server.published] 
+ url = https://aap-aap.apps.cluster-8q965.dynamic.redhatworkshops.io/pulp_ansible/galaxy/published/ 
+ token=<put your token here>
+----
