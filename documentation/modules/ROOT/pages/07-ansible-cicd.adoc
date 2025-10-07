@@ -412,6 +412,8 @@ The _collection-pipeline.yml_ configuration file will refrence the _collection-p
 ----
 ====
 
+. Commit all files you have created and push them to the main branch of the ansible_bootcamp_ci_cd_pipeline repo
+
 === 4.6: Create and configure Webhook
 
 ==== 4.6.1: Add Pipeline Trigger
