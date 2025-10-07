@@ -16,7 +16,7 @@ Deploying Ansible Automation Platform instances with a Kubernetes native operato
 
 The demo.redhat.com lab environment provisioned for you is a working OpenShift 4.19 environment with the AAP operator pre-installed and deployed.
 
-== 3. Viewing the AAP on OCP managed resources
+== 3. Exercise: Viewing the AAP on OCP managed resources
 
 Let's click around the OpenShift UI to see what's already installed and configured by the operator.
 
@@ -171,11 +171,73 @@ Examples of other OCP resources that are managed by the operator include, but ma
 
 === Step 3.3 Operator manager pods
 
-lorem ipsum
+Another aspect of the AAP operator is the operator controller manager pods. These pods belong to the Operator Lifecycle Manager of the AAP operator.
 
-== 4. Exercise: Scale the task pods and view new instances appear in AAP
+The purpose of these pods is to automate the process of installing, updating, and managing operators and their associated operands within a Kubernetes cluster.
 
-lorem ipsum
+These pods are installed when the operator is installed.
+
+There are two ways to install the AAP operator.
+
+1. Cluster scoped installation.
+
+2. Namespace scoped installation.
+
+==== 3.3.1 Cluster scoped installation
+
+With a cluster scoped installation, one set of operator controller manager pods are installed into a specific namespace on the OpenShift cluster.
+
+This set of pods is reponsible for managing one or more set of AAP deployments in separate namespaces.
+
+In essence, this single set of operator controller manager pods watches all the namespaces on the cluster for any of the customer CRDs mentioned in step 3.1 above and for managing their desired state.
+
+The benefit of this approach is a single set of operator controller manager pods can manage many AAP deployments on a single cluster thus less resources consumed by the operator manager controller pods.
+
+The downside is that each deployed instance of AAP on the OpenShift cluster must be on the same exact version.
+
+==== 3.3.2 Namespace scoped installation
+
+With a namespace scoped installation,  one or more sets of operator controller manager pods are installed into specific namespaces on the OpenShift cluster.
+
+Each set of pods is responsible for managing *only* only one AAP deployment in the same namespace into which the operator is installed.
+
+In essence, there can be as many deployments of the operator controller manager pods each watching and managing a single namespace on the cluster.
+
+The benefit of this approach is a each operator controller manager pods can be on separate AAP versions and thus every AAP deployment can be on a separate version and lifecycle.
+
+The down side each set of operator controller manager pods consumes resources and ultimately this approach will consume more total resources when deploying many AAP deployments on a single OCP cluster.
+
+==== 3.3.3 What does this lab use?
+
+The OCP demonstration environment provided in this lab utilizes namespace scoped operator installations. This will allow the student to deploy another working AAP operator onto the same cluster as viewed in the previous section without mixing resources.
+
+== 4. Exercise: Deploy another AAP instance using the AAP Operator
+
+Now that you're familiar with different components that are managed by the AAP operator, let's try to deploy another instance onto the same OCP cluster.
+
+This will demonstrate the steps needed to deploy an instance of the AAP operator and how to make some customizations to the deployment.
+
+=== Step 4.1: Create a new namespace
+
+First, lets create a new project in which the AAP operator can be installed into.
+
+- Navigate to `Home` -> `Projects`.
+- Click on the `Create Project` button.
+- Fill out the name field with `my-aap` and hit `Create`.
+- You are now redirected to the `Project details` page of the newly created project.
+
+=== Step 4.2: Install the operator
+
+Now that we have a project to work in, let's install another instance of the AAP operator into this namespace.
+
+=== Step 4.3: Create a custom admin secret
+
+=== Step 4.4: Deploy the operator
+
+=== Step 4.5: Monitor the installation progress
+
+=== Step 4.6: Access the deployed instance
+
 
 == 5. Exercise: Modify the `AnsibleAutomationPlatform` CR to modify the deployment
 
