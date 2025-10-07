@@ -545,7 +545,7 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
   gather_facts: false
 
   roles:
-    - automation_bootcamp.my_collection.dad_joke
+    - ansible_bootcamp.my_collection.dad_joke
 ----   
 ====
 
