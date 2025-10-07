@@ -1,10 +1,10 @@
 = Ansible Automation Platform on OpenShift
 
 [abstract]
-We will take look around a working installation of the Red Hat Ansible Automation Platform on Openshift Container Platform.
+We will take look around a working installation of the Red Hat Ansible Automation Platform on Openshift Container Platform using the AAP operator.
 
 [abstract]
-The goal will be to help to student familiarize themselves with what a working installation looks like, how to customize the deployed operator, and how to troublshoot certain aspects of the operator.
+The goal will be to help to student familiarize themselves with what a working installation looks like, how to deploy their own instance of the operator, and how to customize and troubleshoot certain aspects of the AAP operator.
 
 == 1. Introduction: Why AAP on OCP?
 
@@ -224,7 +224,8 @@ First, lets create a new project in which the AAP operator can be installed into
 * Navigate to `Home` -> `Projects`.
 * Click on the `Create Project` button.
 * Fill out the name field with `my-aap` and hit `Create`.
-* You are now redirected to the `Project details` page of the newly created project.
+
+You are now redirected to the `Project details` page of the newly created project.
 
 === Step 4.2: Install the operator
 
@@ -252,6 +253,19 @@ Under the list of installed operators you should now see `Ansible Automation Pla
 The operator is now successfully installed into the `my-aap` namespace using a namespace scoped installation method.
 
 === Step 4.3: Create a custom admin secret
+
+By default the AAP operator will create a secret containing a random value for the initial admin password used to log into the deployed AAP instance.
+
+Let's deviate from that a bit and create our own secret and value that we will tell the operator to use instead.
+
+* Navigate to `Workloads` -> `Secrets`.
+* Click on the `Create` button and select `Key/value secret`.
+* For `Secret name` enter `my-aap-admin-secret`.
+* For `Key` enter `password`, this is the name of the key that the operator will look for in this secret and *must* be named `password`.
+* For value enter `supersecret` or any other value you'd like.
+* Click the `Create` button.
+
+You are now redirected to the `Secret details` page of the newly created secret. We'll reference the newly created secret in the following section.
 
 === Step 4.4: Deploy the operator
 
