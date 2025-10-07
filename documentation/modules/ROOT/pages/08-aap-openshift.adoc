@@ -221,14 +221,35 @@ This will demonstrate the steps needed to deploy an instance of the AAP operator
 
 First, lets create a new project in which the AAP operator can be installed into.
 
-- Navigate to `Home` -> `Projects`.
-- Click on the `Create Project` button.
-- Fill out the name field with `my-aap` and hit `Create`.
-- You are now redirected to the `Project details` page of the newly created project.
+* Navigate to `Home` -> `Projects`.
+* Click on the `Create Project` button.
+* Fill out the name field with `my-aap` and hit `Create`.
+* You are now redirected to the `Project details` page of the newly created project.
 
 === Step 4.2: Install the operator
 
 Now that we have a project to work in, let's install another instance of the AAP operator into this namespace.
+
+* Navigate to `Operators` -> `OperatorHub`.
+* Underneath `All Items` use the `Filter by keyword...` input and enter `ansible`.
+* Click on the `Ansible Automation Platform` box shown.
+* A dialog box with information about the operator will be shown. Feel free to read details and information about the operator.
+* Underneath `Channel` select `stable-2.5`.
+* Click the `Install` button.
+
+Another dialog box will be shown with more options.
+
+* The only change that needs to be made is under `Installed Namespace` select the `Select a Namespace` radio. Ensure the namespace that was created in the previous step is shown in the dropdown: `my-aap`.
+* Click the `Install` button.
+
+The operator will take a short moment to install itself into the selected namespace.
+
+* Navigate to `Operators` -> `Installed Operators`.
+* Next to `Project:` in the top left ensure `my-aap` is the project shown.
+
+Under the list of installed operators you should now see `Ansible Automation Platform` with a version of `2.5.+0.1...`.
+
+The operator is now successfully installed into the `my-aap` namespace using a namespace scoped installation method.
 
 === Step 4.3: Create a custom admin secret
 
