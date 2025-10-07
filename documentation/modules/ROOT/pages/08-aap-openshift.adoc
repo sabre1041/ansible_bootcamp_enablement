@@ -20,7 +20,7 @@ The demo.redhat.com lab environment provisioned for you is a working OpenShift 4
 
 Let's click around the OpenShift UI to see what's already installed and configured by the operator.
 
-=== Step 3.1 The installed operator and CRDs
+=== Step 3.1. The installed operator and CRDs
 
 * First let's make sure we're using the `aap` project. In the top left select `Project` -> `aap` if it's not already selected.
 * Navigate to `Operators` -> `Installed Operators` and we can see `Ansible Automation Platform`` operator listed and installed in the current project.
@@ -113,15 +113,51 @@ Let's do a similar exercise, but this time taking a look at the AAP web pods.
 
 ==== Step 3.2.3 PersistentVolumeClaims
 
-==== Step 3.2.4 Secrets
+Some of the deployed components of the AAP operator may require Persistent Volume Claims to store persistent data.
 
-==== Step 3.2.5 ConfigMaps
+* Navigate to `Storage` -> `PersistentVolumeClaims`. Here you can view any PVCs and their status, associated PVs, capacity, etc.
+* Click on `aap-hub-file-storage`. Under the details tab you can see more information about the PVC such as it's storageClass, capacity, used capacity, access mode, etc.
+
+==== Step 3.2.4 ConfigMaps
+
+The AAP operator will create and manage ConfigMaps the are used by the application components for storing application settings.
+
+Let's view the configmap that stores the nginx configuration used by the Automation Controller.
+
+* Navigate to `Workloads` -> `ConfigMaps`. Here you can view all configmaps and their size, etc.
+* Click on `aap-controller-automationcontroller-configmap`. Under `Details` we can see information about the configmap such as it's owner and it's data.
+* Under `Data` take a look at the different objects that belong to this particular configmap.
+* Look at the `nginx_conf` object, this is the nginx configuration used the the Automation Controller application.
+* Look at the `settings` object, this is the `settings.py` file for the Automation Controller application that is mounted at `/etc/tower/settings.py`.
+
+NOTE: The data for each configmap is handled by the AAP operator, any changes wanted to these configmaps should not be done manually by editing the configmaps, the operator may override any changes applied. If changes to the values of these configmaps are wanted, they should be applied by modifying the correct keys underneat the CRD `spec`.
+
+==== Step 3.2.5 Secrets
+
+The AAP operator will create and manage sensitive secrets needed by the AAP application. These can range from database configuration details, application login password, database encryption keys, application SSL certificates, and others.
+
+For instance, when the AAP operator does it's initial deployment, by default it will create a password for the `admin` user that can be used to login to the AAP platform once it's fully deployed. Let's take a look at it now.
+
+* Navigate to `Workloads` -> `Secrets`. Here you can view any secrets and their type, size, etc.
+* Click on `aap-admin-password`. Under `Details` we can see information about the secret and it's data.
+* Under `Data` click the `Reveal values` button to show the hidden password. Go ahead and copy the password and we'll use it in the next section.
 
 ==== Step 3.2.6 Routes
 
+The AAP operator also handles creating the services needed for the application to route traffic internally among it's components, and the routes needed for external access to the web application itself.
+
+Let's look at the routes that are created.
+
+* Navigate to `Networking` -> `Routes`. Here you can view each created route and their status, location, etc.
+* Click on `aap`. Under `Details` we can see information about the route and such as it's service, certificates, wilcard policies, etc. This route happens to belong to the Gateway component of the AAP deployment. This is where all API requests get routed through and also where we can access the UI from.
+* Under `Details` and `Location` you can see the externall accessible URL which we can use to access to deployed Ansible Automation Platform instance. Click on the link which should look something like https://aap-aap.apps.cluster-5xd6d.dynamic.redhatworkshops.io.
+* A new browser tab should open which will be a login page to AAP. For user type in `admin` and for the password paste the value copied from the `aap-admin-password` secret in the previous `3.2.5` section.
+
+Congratulations you're now logged into the Ansible Automation Platform application deployed and managed by the AAP on OCP operator!
+
 ==== Step 3.2.7 Others
 
-Examples of other OCP resources that are managed by the operator include, but are not limited to:
+Examples of other OCP resources that are managed by the operator include, but may not be limited to:
 
 * StatefulSets
 * Jobs
@@ -133,18 +169,22 @@ Examples of other OCP resources that are managed by the operator include, but ar
 * ServiceAccounts
 * etc
 
-== 4. Scale the task pods and view new instances appear in AAP
+=== Step 3.3 Operator manager pods
 
 lorem ipsum
 
-== 5. Modify the `AnsibleAutomationPlatform` CR to modify the deployment
+== 4. Exercise: Scale the task pods and view new instances appear in AAP
 
 lorem ipsum
 
-== 6. Watch logs for operator manager pods as they reconcile
+== 5. Exercise: Modify the `AnsibleAutomationPlatform` CR to modify the deployment
 
 lorem ipsum
 
-== 7. Modify the default AAP containergroup spec
+== 6. Exercise: Watch logs for operator manager pods as they reconcile
+
+lorem ipsum
+
+== 7. Exercise: Modify the default AAP containergroup spec
 
 lorem ipsum
