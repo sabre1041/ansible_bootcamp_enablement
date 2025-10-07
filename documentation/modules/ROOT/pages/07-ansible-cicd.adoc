@@ -492,24 +492,6 @@ Place the following lines in the roles/dad_joke/tasks/main.yml
 ----
 ====
 
-Create the following playbook in the dad_joke role test directory.  Name the file test.yml
-
-.test.yml
-[%collapsible]
-====
-[source,yaml]
-----
----
-- name: Random Dad Joke Generator
-  hosts: localhost
-  connection: local
-  gather_facts: false
-
-  roles:
-    - automation_bootcamp.my_collection.dad_joke
-----   
-====
-
 Open the galaxy.yml file at the root of the collection repo and increment the version number
 Commit and push your code you should now see your pipeline start to run
 
@@ -538,3 +520,29 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
  url = https://aap-aap.apps.cluster-8q965.dynamic.redhatworkshops.io/pulp_ansible/galaxy/published/ 
  token=<put your token here>
 ----
+
+. Use andile-galaxy to install the new version of your collection from Private Automation hub
+
+[source,bash]
+----
+[galaxy] 
+ ansible-galaxy collection install ansible_bootcamp.my_collection
+----
+
+. Create the following ansible playbook to test the new collection
+
+.test.yml
+[%collapsible]
+====
+[source,yaml]
+----
+---
+- name: Random Dad Joke Generator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - automation_bootcamp.my_collection.dad_joke
+----   
+====
