@@ -481,17 +481,17 @@ Place the following lines in the roles/dad_joke/tasks/main.yml
 [source,yaml]
 ----
 - name: Fetch a Random Joke from the API
- ansible.builtin.uri:
-   url: https://icanhazdadjoke.com/
-   method: GET
-   headers:
-     Accept: application/json
- register: dad_joke_joke_api_response
+  ansible.builtin.uri:
+    url: https://icanhazdadjoke.com/
+    method: GET
+    headers:
+      Accept: application/json
+  register: dad_joke_joke_api_response
 
 
 - name: Display the Setup and Punchline
- ansible.builtin.debug:
-   msg: "{{ dad_joke_joke_api_response.json.joke }}"
+  ansible.builtin.debug:
+    msg: "{{ dad_joke_joke_api_response.json.joke }}"
 ----
 ====
 
