@@ -22,6 +22,7 @@ Upon completion of this lab you will have
 .Prior to starting the lab, ensure the following tools and services are set up:
 
 . Repository for the *ansible_bootcamp_my_collection* is created on Gitea
+. You have access to your dev-spaces workspace for your enviornment
 . Make sure the Gitea repository is *public*
 . Commit the collection 
 
@@ -525,7 +526,6 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 
 [source,bash]
 ----
-[galaxy] 
  ansible-galaxy collection install ansible_bootcamp.my_collection
 ----
 
@@ -546,3 +546,11 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
     - automation_bootcamp.my_collection.dad_joke
 ----   
 ====
+
+. Run the playbook and if successful it should return a dad Joke
+
+[source,bash]
+----
+ ansible-playbook test.yml
+----
+
