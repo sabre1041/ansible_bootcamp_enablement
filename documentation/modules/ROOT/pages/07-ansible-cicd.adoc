@@ -40,13 +40,13 @@ Create another repository separate from the _ansible_bootcamp_my_collection_ rep
 . Log in to your Gitea web interface, with the provided login credentials.
 . In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
 
-image::../assets/images/07-ansible-cicd/gitea-repo-create.png[]
+image::07-ansible-cicd/gitea-repo-create.png[]
 
 [start=3]
 . On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
 . Leave everything else as default and click on the button at the bottom, 'Create Repository'.
 
-image::../assets/images/07-ansible-cicd/gitea-reo-config.png[]
+image::07-ansible-cicd/gitea-reo-config.png[]
 
 
 === 4.1.1: Clone CI/CD Pipeline Repository into DevSpaces Workspace
@@ -65,7 +65,7 @@ After an empty repository is created on your Gitea, we need to clone the reposit
   git config --global user.name "Your Name"
 ----
 
-image::../assets/images/07-ansible-cicd/devspaces.png[]
+image::07-ansible-cicd/devspaces.png[]
 
 ==== 4.3: Build Tekton pipeline on OpenShift Container Platform
 
@@ -278,7 +278,7 @@ spec:
 . *oc apply -f collection-pipeline.yml* with the previously created _collection-pipeline.yml_
 . *oc apply -f collection-cluster-trigger-binding.yml* with the previously created _collection-cluster-trigger-binding.yml_
 
-mage:../assets/images/07-ansible-cicd/devspace-oc-apply.png[]
+mage:07-ansible-cicd/devspace-oc-apply.png[]
 
 ===== 4.4.1.3: Validate collection-cluster-trigger-binding.yml config has been applied
 
@@ -289,7 +289,7 @@ Validate the _collection-cluster-trigger-binding.yml_ has been successfully crea
 . Select the *ClusterTriggerBindings* tab on the Triggers page
 . Verify that _gitea-push_ trigger is now created
 
-image::../assets/images/07-ansible-cicd/clustertrigger.png[]
+image::07-ansible-cicd/clustertrigger.png[]
 
 
 ===== 4.3.1.3: Validate collection-pipeline.yml config has been applied
@@ -301,7 +301,7 @@ Validate the _collection-pipeline.yml_ has been successfully created in the Open
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Compare the steps/stages in the GUI to the _collection-pipeline.yml_ that was applied, to get a better understanding of the pipeline
 
-image:../assets/images/07-ansible-cicd/pipeline.png[]
+image:07-ansible-cicd/pipeline.png[]
 
 
 === 4.5: Create collection-publish.yml Ansible Playbook
@@ -430,7 +430,7 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 - collection-repo-version: *$(tt.params.git-revision)*
 - shared-workspace: *VolumeClaimTemplate*
 
-image:../assets/images/07-ansible-cicd/trigger-config.png[]
+image::07-ansible-cicd/trigger-config.png[]
 
 ==== 4.6.2: Copy Event Listener URL
 
@@ -438,7 +438,7 @@ image:../assets/images/07-ansible-cicd/trigger-config.png[]
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Under the _TriggerTemplates_ section, copy the Event Listener URL
 
-image::../assets/images/07-ansible-cicd/webhook-url.png[]
+image::07-ansible-cicd/webhook-url.png[]
 
 
 ==== 4.6.3: Create Webhook on _ansible_bootcamp_ci_cd_pipeline_ Gitea repository
@@ -449,7 +449,7 @@ image::../assets/images/07-ansible-cicd/webhook-url.png[]
 . Paste the event listener URL in the _Target URL_ field and leave everything else default settings
 . Click on the green *Add Webhook* button at the bottom of the page
 
-image::../assets/images/07-ansible-cicd/gitea-webhook-config.png[]
+image::07-ansible-cicd/gitea-webhook-config.png[]
 
 ==== 4.6.4: Test Webhook
 
@@ -458,7 +458,9 @@ image::../assets/images/07-ansible-cicd/gitea-webhook-config.png[]
 . Click the webhook link that we just created (the event listener URL)
 . At the bottom of the page, click the *Test Delivery* button to trigger the pipeline
 
-image::../assets/images/07-ansible-cicd/gitea-webhook-test.png[]
+image::07-ansible-cicd/gitea-webhook-test.png[]
+
+NOTE: You can see the status of the pipeline by going back into your OpenShift console and navigating to the pipeline you created and clicking on PipelineRuns
 
 === 4.7: Update and Push New Version of Ansible Collection to Gitea
 
@@ -469,7 +471,7 @@ Add the dad_joke role to your collection
 . Provide the path for your collection root directory
 . Name the role dad_joke
 
-image::../assets/images/07-ansible-cicd/devspace-role-create.png[]
+image::07-ansible-cicd/devspace-role-create.png[]
 
 ==== 4.7.1 Update the dad_joke role 
 
@@ -504,7 +506,7 @@ Commit and push your code you should now see your pipeline start to run
 . Log into AAP and go to the Automation Content Section
 . Click on the Collections link and verify that the new version of your collection is present
 
-image::../assets/images/07-ansible-cicd/PAH-verify.png[]
+image::07-ansible-cicd/PAH-verify.png[]
 
 === 4.9: Install and Use the update collection from PAH
 
@@ -520,7 +522,7 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 [galaxy] 
  server_list = published 
  [galaxy_server.published] 
- url = https://aap-aap.apps.cluster-8q965.dynamic.redhatworkshops.io/pulp_ansible/galaxy/published/ 
+ url = {aap_controller_web_url}/pulp_ansible/galaxy/published/ 
  token=<put your token here>
 ----
 
