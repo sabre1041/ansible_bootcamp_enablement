@@ -269,6 +269,53 @@ You are now redirected to the `Secret details` page of the newly created secret.
 
 === Step 4.4: Deploy the operator
 
+Now we'll deploy a new AAP instance using the operator.
+
+* Navigate to `Operators` -> `Installed Operators`.
+* Next to `Project:` in the top left ensure `my-aap` is the project shown.
+* Click on the `Ansible Automation Platform` operator.
+* In the toolbar click on `All instances`.
+* Click on the `Create new` button and select `Ansible Automation Platform`.
+
+This will bring up the form view to customize the values of the Ansible Automation Platform deployment.
+
+For this excercise we'll use the YAML view and paste a simple snippet in.
+
+* Click on the `YAML view` radio button.
+* In the code entry field paste the following YAML in:
++
+[source,yaml]
+----
+apiVersion: aap.ansible.com/v1alpha1
+kind: AnsibleAutomationPlatform
+metadata:
+  name: aap
+  namespace: my-aap
+spec:
+  admin_password_secret: my-aap-admin-secret
+  image_pull_policy: IfNotPresent
+  no_log: false
+  redis_mode: standalone
+  route_tls_termination_mechanism: Edge
+  controller:
+    disabled: false
+  eda:
+    disabled: true
+  hub:
+    disabled: true
+  lightspeed:
+    disabled: true
+----
+* Click the `Create` button.
+
+The snippet above is a YAML definition of the `AnsibleAutomationPlatform` we want the operator to deploy. It is asking for a Automation Controller to be created, but disabling deployment of Automation Hub, EDA, and Lightspeed for now.
+
+NOTE: Notice the value of `namespace: my-aap` in the snippet above is the name of our created project from earlier steps. As well, notice the value of `admin_password_secret: my-aap-admin-secret` is the name of the our secret created earlier.
+
+The operator will now recognize the newly created `AnsibleAutomationPlatform` CRD and begin creating and managing the components until the platform is fully deployed.
+
+In the next section we'll take a look at different ways to monitor the progress of the actions the operator is performing.
+
 === Step 4.5: Monitor the installation progress
 
 === Step 4.6: Access the deployed instance
