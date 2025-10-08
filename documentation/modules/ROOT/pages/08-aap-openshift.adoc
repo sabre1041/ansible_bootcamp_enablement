@@ -1,3 +1,287 @@
-= Ansible on OpenShift
+= Ansible Automation Platform on OpenShift
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+[abstract]
+We will take look around a working installation of the Red Hat Ansible Automation Platform on Openshift Container Platform using the AAP operator.
+
+[abstract]
+The goal will be to help to student familiarize themselves with what a working installation looks like, how to deploy their own instance of the operator, and how to customize and troubleshoot certain aspects of the AAP operator.
+
+== 1. Introduction: Why AAP on OCP?
+
+The Ansible Automation Platform Operator provides cloud-native, push-button deployment of new Ansible Automation Platform instances in your OpenShift environment. The Ansible Automation Platform Operator includes resource types to deploy and manage instances of automation controller and private automation hub. It also includes automation controller job resources for defining and launching jobs inside your automation controller deployments.
+
+Deploying Ansible Automation Platform instances with a Kubernetes native operator offers several advantages over launching instances from a playbook deployed on Red Hat OpenShift Container Platform, including upgrades and full lifecycle support for your Red Hat Ansible Automation Platform deployments.
+
+== 2. Lab Setup: Configuring Your Environment
+
+The demo.redhat.com lab environment provisioned for you is a working OpenShift 4.19 environment with the AAP operator pre-installed and deployed.
+
+== 3. Exercise: Viewing the AAP on OCP managed resources
+
+Let's click around the OpenShift UI to see what's already installed and configured by the operator.
+
+=== Step 3.1. The installed operator and CRDs
+
+* First let's make sure we're using the `aap` project. In the top left select `Project` -> `aap` if it's not already selected.
+* Navigate to `Operators` -> `Installed Operators` and we can see `Ansible Automation Platform`` operator listed and installed in the current project.
+* Click on the `Ansible Automation Platform` operator.
+* This will navigate to the details page of the operator and all the different components the operator can manage.
+* In the top tab click on `All Instances`.
+* 5 instances will be shown which are each each Custom Resource Definitions (CRDs) managed by the AAP operator:
+** `aap` which is an `AnsibleAutomationPlatform` that relates to the Gateway component of AAP.
+** `aap-controller` which is an `AnsibleController` that relates to the Automation Controller component of AAP.
+** `aap-eda` which is an `EDA` that relates to the Event-Driven Ansible component of AAP.
+** `aap-hub` which is an `AutomationHub` that relates to the Automation Hub component of AAP.
+** `aap-lightspeed` which is an `AnsibleLightspeed` CRD that relates to the Ansible Lightspeed component of AAP.
++
+NOTE: The `AnsibleAutomationPlatform` CRD deploys and manages the other CRDs listed above. This makes it simple to deploy all the components of AAP together. The `AnsibleAutomationPlatform` CRD simply needs to be configured to let the operator know which components of the platform are desired, and how to deploy them, and the operator takes care of the details.
+
+* Click the `aap` instance to navigate to the `Details` page for the `AnsibleAutomationPlatform` CRD.
+* On this page you can view some of the important resources managed by the `AnsibleAutomationPlatform` CRD. For instance, secrets, other CRDs, database configurations, etc.
+* Next to the `Details` tab click on `YAML`. This will show you the current YAML specification that defines the CRD.
+** For example, take a look at the `spec` key in the YAML definition:
++
+[source,yaml]
+----
+  controller:
+    disabled: false
+  eda:
+    disabled: false
+  hub:
+    content:
+      replicas: 1
+    disabled: false
+    file_storage_access_mode: ReadWriteMany
+    file_storage_size: 100Gi
+    file_storage_storage_class: ocs-external-storagecluster-cephfs
+    gunicorn_api_workers: 1
+    gunicorn_content_workers: 1
+    worker:
+      replicas: 1
+  image_pull_policy: IfNotPresent
+  lightspeed:
+    disabled: false
+  no_log: true
+  redis_mode: standalone
+  route_tls_termination_mechanism: Edge
+----
+** This `spec` definition shows us that the `controller`, `eda`, `hub`, and `lightspeed` components are all desired (`disabled: false`) and some customizations made to the `hub` component specifically.
+
+=== Step 3.2 Resources managed by the CRDs
+
+Each CRD manages it's own set of OCP resources that are needed for the component to integrate into the final AAP deployment.
+
+==== Step 3.2.1 Deployments
+
+Each CRD will create and manage a some `deployment` resources that in turn manage the pods and other resources listed below in section 3.2.1.
+
+* Navigate to `Workloads` -> `Deployments`. You'll see a list of created deployments, their pod counts, and other information.
+* Click on `aap-controller-task`. Under the `Details` tab you can see information about the deployment resource such as it's owner (Which CRD manages this deployment), associated containers, associated volumes, etc.
+* Feel free to click on the other tabs to view information about the deployment and it's associated metrics, YAML definition, pods, etc.
+
+==== Step 3.2.2 Pods
+
+Many pods will be up and running that correlate to the containers running the application pieces of AAP. These pods are ultimately be owned by the deployments viewed in the previous section.
+
+* Navigate to `Workloads` -> `Pods`. You'll see a long list of deployed pods and their status, restarts, etc.
+* Click on `aap-controller-task-<id>`. Under the `Details` tab you can see information related to this pod such as containers, volumes, conditions, etc.
+* Next to the `Details` tab, click on the `Logs` tab. Under the `Containers` drop down, make sure that the `aap-controller-task` container is selected. Observe how you can view the application logs related to the `awx.main.tasks` portion of the application. This may be important for troubleshooting while the application is having trouble launching or managing tasks!
+* Under the `Containers` drop down, select the `aap-controller-rsyslog` container. Observe how you now see the logs pertaining to the logging of the application pod. If there are any issues with the `awx-rsyslogd` or external logging, you may see them here.
+* Next to the `Details` tab, click on the `Terminal` tab. Under the `Containers` drop down, make sure that the `aap-controller-task` container is selected. You now have a direct terminal connection to the running container. Here you can view files, and interact with the running AWX application by running commands such as `awx-manage`. For example run `awx-manage --help`:
++
+[source,bash]
+----
+sh-4.4$ awx-manage --help
+
+Type 'awx-manage help <subcommand>' for help on a specific subcommand.
+
+Available subcommands:
+
+[auth]
+    changepassword
+...
+----
++
+TIP: You could also get access to the container terminal using the `oc` CLI tool via `oc rsh aap-controller-task-<id> -c aap-controller-task` as well.
+
+Let's do a similar exercise, but this time taking a look at the AAP web pods.
+
+* Navigate to `Workloads` -> `Pods`.
+* Click on `aap-controller-web-<id>`
+* Next to the `Details` tab, click on the `Logs` tab. Under the `Containers` drop down, make sure that the `aap-controller-web` container is selected. Observe how you can view the application logs related to the AAP web API. This may be important for troubleshooting while the application is having receiving web application requests!
+* Next to the `Details` tab, click on the `Terminal` tab. Under the `Containers` drop down, make sure that the `aap-controller-web` container is selected. You now have a direct terminal connection to the running container. Just like in the task pod example before, here you can view files, and interact with the running AWX application by running commands such as `awx-manage`.
+
+==== Step 3.2.3 PersistentVolumeClaims
+
+Some of the deployed components of the AAP operator may require Persistent Volume Claims to store persistent data.
+
+* Navigate to `Storage` -> `PersistentVolumeClaims`. Here you can view any PVCs and their status, associated PVs, capacity, etc.
+* Click on `aap-hub-file-storage`. Under the details tab you can see more information about the PVC such as it's storageClass, capacity, used capacity, access mode, etc.
+
+==== Step 3.2.4 ConfigMaps
+
+The AAP operator will create and manage ConfigMaps the are used by the application components for storing application settings.
+
+Let's view the configmap that stores the nginx configuration used by the Automation Controller.
+
+* Navigate to `Workloads` -> `ConfigMaps`. Here you can view all configmaps and their size, etc.
+* Click on `aap-controller-automationcontroller-configmap`. Under `Details` we can see information about the configmap such as it's owner and it's data.
+* Under `Data` take a look at the different objects that belong to this particular configmap.
+* Look at the `nginx_conf` object, this is the nginx configuration used the the Automation Controller application.
+* Look at the `settings` object, this is the `settings.py` file for the Automation Controller application that is mounted at `/etc/tower/settings.py`.
+
+NOTE: The data for each configmap is handled by the AAP operator, any changes wanted to these configmaps should not be done manually by editing the configmaps, the operator may override any changes applied. If changes to the values of these configmaps are wanted, they should be applied by modifying the correct keys underneat the CRD `spec`.
+
+==== Step 3.2.5 Secrets
+
+The AAP operator will create and manage sensitive secrets needed by the AAP application. These can range from database configuration details, application login password, database encryption keys, application SSL certificates, and others.
+
+For instance, when the AAP operator does it's initial deployment, by default it will create a password for the `admin` user that can be used to login to the AAP platform once it's fully deployed. Let's take a look at it now.
+
+* Navigate to `Workloads` -> `Secrets`. Here you can view any secrets and their type, size, etc.
+* Click on `aap-admin-password`. Under `Details` we can see information about the secret and it's data.
+* Under `Data` click the `Reveal values` button to show the hidden password. Go ahead and copy the password and we'll use it in the next section.
+
+==== Step 3.2.6 Routes
+
+The AAP operator also handles creating the services needed for the application to route traffic internally among it's components, and the routes needed for external access to the web application itself.
+
+Let's look at the routes that are created.
+
+* Navigate to `Networking` -> `Routes`. Here you can view each created route and their status, location, etc.
+* Click on `aap`. Under `Details` we can see information about the route and such as it's service, certificates, wilcard policies, etc. This route happens to belong to the Gateway component of the AAP deployment. This is where all API requests get routed through and also where we can access the UI from.
+* Under `Details` and `Location` you can see the externall accessible URL which we can use to access to deployed Ansible Automation Platform instance. Click on the link which should look something like https://aap-aap.apps.cluster-5xd6d.dynamic.redhatworkshops.io.
+* A new browser tab should open which will be a login page to AAP. For user type in `admin` and for the password paste the value copied from the `aap-admin-password` secret in the previous `3.2.5` section.
+
+Congratulations you're now logged into the Ansible Automation Platform application deployed and managed by the AAP on OCP operator!
+
+==== Step 3.2.7 Others
+
+Examples of other OCP resources that are managed by the operator include, but may not be limited to:
+
+* StatefulSets
+* Jobs
+* ReplicaSets
+* HorizontalPodAutoscalers
+* Services
+* Roles
+* RoleBindings
+* ServiceAccounts
+* etc
+
+=== Step 3.3 Operator manager pods
+
+Another aspect of the AAP operator is the operator controller manager pods. These pods belong to the Operator Lifecycle Manager of the AAP operator.
+
+The purpose of these pods is to automate the process of installing, updating, and managing operators and their associated operands within a Kubernetes cluster.
+
+These pods are installed when the operator is installed.
+
+There are two ways to install the AAP operator.
+
+1. Cluster scoped installation.
+
+2. Namespace scoped installation.
+
+==== 3.3.1 Cluster scoped installation
+
+With a cluster scoped installation, one set of operator controller manager pods are installed into a specific namespace on the OpenShift cluster.
+
+This set of pods is reponsible for managing one or more set of AAP deployments in separate namespaces.
+
+In essence, this single set of operator controller manager pods watches all the namespaces on the cluster for any of the customer CRDs mentioned in step 3.1 above and for managing their desired state.
+
+The benefit of this approach is a single set of operator controller manager pods can manage many AAP deployments on a single cluster thus less resources consumed by the operator manager controller pods.
+
+The downside is that each deployed instance of AAP on the OpenShift cluster must be on the same exact version.
+
+==== 3.3.2 Namespace scoped installation
+
+With a namespace scoped installation,  one or more sets of operator controller manager pods are installed into specific namespaces on the OpenShift cluster.
+
+Each set of pods is responsible for managing *only* only one AAP deployment in the same namespace into which the operator is installed.
+
+In essence, there can be as many deployments of the operator controller manager pods each watching and managing a single namespace on the cluster.
+
+The benefit of this approach is a each operator controller manager pods can be on separate AAP versions and thus every AAP deployment can be on a separate version and lifecycle.
+
+The down side each set of operator controller manager pods consumes resources and ultimately this approach will consume more total resources when deploying many AAP deployments on a single OCP cluster.
+
+==== 3.3.3 What does this lab use?
+
+The OCP demonstration environment provided in this lab utilizes namespace scoped operator installations. This will allow the student to deploy another working AAP operator onto the same cluster as viewed in the previous section without mixing resources.
+
+== 4. Exercise: Deploy another AAP instance using the AAP Operator
+
+Now that you're familiar with different components that are managed by the AAP operator, let's try to deploy another instance onto the same OCP cluster.
+
+This will demonstrate the steps needed to deploy an instance of the AAP operator and how to make some customizations to the deployment.
+
+=== Step 4.1: Create a new namespace
+
+First, lets create a new project in which the AAP operator can be installed into.
+
+* Navigate to `Home` -> `Projects`.
+* Click on the `Create Project` button.
+* Fill out the name field with `my-aap` and hit `Create`.
+
+You are now redirected to the `Project details` page of the newly created project.
+
+=== Step 4.2: Install the operator
+
+Now that we have a project to work in, let's install another instance of the AAP operator into this namespace.
+
+* Navigate to `Operators` -> `OperatorHub`.
+* Underneath `All Items` use the `Filter by keyword...` input and enter `ansible`.
+* Click on the `Ansible Automation Platform` box shown.
+* A dialog box with information about the operator will be shown. Feel free to read details and information about the operator.
+* Underneath `Channel` select `stable-2.5`.
+* Click the `Install` button.
+
+Another dialog box will be shown with more options.
+
+* The only change that needs to be made is under `Installed Namespace` select the `Select a Namespace` radio. Ensure the namespace that was created in the previous step is shown in the dropdown: `my-aap`.
+* Click the `Install` button.
+
+The operator will take a short moment to install itself into the selected namespace.
+
+* Navigate to `Operators` -> `Installed Operators`.
+* Next to `Project:` in the top left ensure `my-aap` is the project shown.
+
+Under the list of installed operators you should now see `Ansible Automation Platform` with a version of `2.5.+0.1...`.
+
+The operator is now successfully installed into the `my-aap` namespace using a namespace scoped installation method.
+
+=== Step 4.3: Create a custom admin secret
+
+By default the AAP operator will create a secret containing a random value for the initial admin password used to log into the deployed AAP instance.
+
+Let's deviate from that a bit and create our own secret and value that we will tell the operator to use instead.
+
+* Navigate to `Workloads` -> `Secrets`.
+* Click on the `Create` button and select `Key/value secret`.
+* For `Secret name` enter `my-aap-admin-secret`.
+* For `Key` enter `password`, this is the name of the key that the operator will look for in this secret and *must* be named `password`.
+* For value enter `supersecret` or any other value you'd like.
+* Click the `Create` button.
+
+You are now redirected to the `Secret details` page of the newly created secret. We'll reference the newly created secret in the following section.
+
+=== Step 4.4: Deploy the operator
+
+=== Step 4.5: Monitor the installation progress
+
+=== Step 4.6: Access the deployed instance
+
+
+== 5. Exercise: Modify the `AnsibleAutomationPlatform` CR to modify the deployment
+
+lorem ipsum
+
+== 6. Exercise: Watch logs for operator manager pods as they reconcile
+
+lorem ipsum
+
+== 7. Exercise: Modify the default AAP containergroup spec
+
+lorem ipsum
