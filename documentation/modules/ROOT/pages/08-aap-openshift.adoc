@@ -318,17 +318,28 @@ In the next section we'll take a look at different ways to monitor the progress 
 
 === Step 4.5: Monitor the installation progress
 
+* You can track the logs of the `<component<>-controller-operator-manager-<id>` logs.
+* You'll start noticing deployments, pods, secrets, etc start to be created and changing. Feel free to monitor their individual progress like in sections 3.2.
+* Resources start to get populated under the `Details` -> `Resources` page.
+* The status of the `AnsibleAutomationPlatform` and `AutomationController` instance should be `Conditions: Running, Successful` under `All instances`.
+
 === Step 4.6: Access the deployed instance
 
+Now that the operator is showing the AAP instance as successfully deployed, let's try to access it.
 
-== 5. Exercise: Modify the `AnsibleAutomationPlatform` CR to modify the deployment
+* Click on `Networking` -> `Routes`.
+* Click on the `Location` URL for the `aap` route.
+
+A new browser tab will be opened to the URL and you should see a login page for Ansible Automation Platform.
+
+* For the credentials enter username: `admin` and password: `supersecret`.
+
+You're now logged into the newly deployed AAP instance!
+
+== 5. Exercise: Modify the existing deployment
 
 lorem ipsum
 
-== 6. Exercise: Watch logs for operator manager pods as they reconcile
-
-lorem ipsum
-
-== 7. Exercise: Modify the default AAP containergroup spec
+== 6. Exercise: Modify the default AAP containergroup spec
 
 lorem ipsum
