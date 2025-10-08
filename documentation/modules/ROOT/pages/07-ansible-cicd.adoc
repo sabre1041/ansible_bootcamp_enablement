@@ -49,7 +49,7 @@ image::07-ansible-cicd/gitea-repo-create.png[]
 image::07-ansible-cicd/gitea-reo-config.png[]
 
 
-=== 4.1.1: Clone CI/CD Pipeline Repository into DevSpaces Workspace
+==== 4.1.1: Clone CI/CD Pipeline Repository into DevSpaces Workspace
 
 After an empty repository is created on your Gitea, we need to clone the repository into the workspace to begin creating lab files.
 
@@ -67,7 +67,7 @@ After an empty repository is created on your Gitea, we need to clone the reposit
 
 image::07-ansible-cicd/devspaces.png[]
 
-==== 4.3: Build Tekton pipeline on OpenShift Container Platform
+=== 4.2: Build Tekton pipeline on OpenShift Container Platform
 
 . In the DevSpaces Workspace, create a new file called *collection-pipeline.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
 
@@ -242,6 +242,7 @@ spec:
 ----
 ====
 
+[start=3]
 . In the DevSpaces Workspace, create a new file called *collection-cluster-trigger-binding.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
 
 . Open file _collection-cluster-trigger-binding.yml_ in the DevSpaces Workspace, and copy the contents *collection-cluster-trigger-binding.yml* from below into the _collection-cluster-trigger-binding.yml_ file
@@ -272,7 +273,7 @@ spec:
 ----
 ====
 
-===== 4.3.1.2: Applying collection-pipeline.yml config
+==== 4.2.1: Applying collection-pipeline.yml config
 
 . In the terminal of your DevSpaces Workspace, change into the _ansible_bootcamp_ci_cd_pipeline_ directory
 . *oc apply -f collection-pipeline.yml* with the previously created _collection-pipeline.yml_
@@ -280,7 +281,7 @@ spec:
 
 mage:07-ansible-cicd/devspace-oc-apply.png[]
 
-===== 4.4.1.3: Validate collection-cluster-trigger-binding.yml config has been applied
+==== 4.2.2: Validate collection-cluster-trigger-binding.yml config has been applied
 
 [abstract]
 Validate the _collection-cluster-trigger-binding.yml_ has been successfully created in the OpenShift Container Platform GUI
@@ -292,7 +293,7 @@ Validate the _collection-cluster-trigger-binding.yml_ has been successfully crea
 image::07-ansible-cicd/clustertrigger.png[]
 
 
-===== 4.3.1.3: Validate collection-pipeline.yml config has been applied
+==== 4.2.3: Validate collection-pipeline.yml config has been applied
 
 [abstract]
 Validate the _collection-pipeline.yml_ has been successfully created in the OpenShift Container Platform GUI
@@ -303,8 +304,7 @@ Validate the _collection-pipeline.yml_ has been successfully created in the Open
 
 image:07-ansible-cicd/pipeline.png[]
 
-
-=== 4.5: Create collection-publish.yml Ansible Playbook
+=== 4.3: Create collection-publish.yml Ansible Playbook
 
 [abstract]
 The _collection-pipeline.yml_ configuration file will refrence the _collection-publish.yml_ Ansible playbook several times during execution.
@@ -412,11 +412,13 @@ The _collection-pipeline.yml_ configuration file will refrence the _collection-p
 ----
 ====
 
+[start=2]
 . Commit all files you have created and push them to the main branch of the ansible_bootcamp_ci_cd_pipeline repo
 
-=== 4.6: Create and configure Webhook
+=== 4.4: Create and configure Webhook
 
-==== 4.6.1: Add Pipeline Trigger
+==== 4.4.1: Add Pipeline Trigger
+
 . Open your OpenShift Container Platform GUI, in the left menu, goto the _Pipelines_ section of the menu and select *Pipelines*
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
 . Open the _Actions_ drop-down button on the right side of the window and select *Add Trigger*
@@ -432,7 +434,7 @@ With the Add Trigger window open, enter these parameters to create the Event Lis
 
 image::07-ansible-cicd/trigger-config.png[]
 
-==== 4.6.2: Copy Event Listener URL
+==== 4.4.2: Copy Event Listener URL
 
 . Open your OpenShift Container Platform GUI, in the left menu, goto the _Pipelines_ section of the menu and select *Pipelines*
 . Click on the link of the _ansible-collection-ci_ pipeline that is now created
@@ -441,7 +443,7 @@ image::07-ansible-cicd/trigger-config.png[]
 image::07-ansible-cicd/webhook-url.png[]
 
 
-==== 4.6.3: Create Webhook on _ansible_bootcamp_ci_cd_pipeline_ Gitea repository
+==== 4.4.3: Create Webhook on _ansible_bootcamp_ci_cd_pipeline_ Gitea repository
 
 . Goto the _ansible_bootcamp_ci_cd_pipeline_ Gitea repository page and select the *Settings* tab on the right side of the window
 . Click on the _Webhooks_ section under the _Settings_ box on the left side of the window and then click the green *Add Webhook* button on the right side of the window
@@ -451,7 +453,7 @@ image::07-ansible-cicd/webhook-url.png[]
 
 image::07-ansible-cicd/gitea-webhook-config.png[]
 
-==== 4.6.4: Test Webhook
+==== 4.4.4: Test Webhook
 
 . Goto the _ansible_bootcamp_ci_cd_pipeline_ Gitea repository page and select the *Settings* tab on the right side of the window
 . Click on the _Webhooks_ section under the _Settings_ box on the left side of the window
@@ -462,7 +464,7 @@ image::07-ansible-cicd/gitea-webhook-test.png[]
 
 NOTE: You can see the status of the pipeline by going back into your OpenShift console and navigating to the pipeline you created and clicking on PipelineRuns
 
-=== 4.7: Update and Push New Version of Ansible Collection to Gitea
+=== 4.5: Update and Push New Version of Ansible Collection to Gitea
 
 Add the dad_joke role to your collection
 
@@ -473,7 +475,7 @@ Add the dad_joke role to your collection
 
 image::07-ansible-cicd/devspace-role-create.png[]
 
-==== 4.7.1 Update the dad_joke role 
+==== 4.5.1 Update the dad_joke role 
 
 Place the following lines in the roles/dad_joke/tasks/main.yml
 
@@ -501,14 +503,14 @@ Open the galaxy.yml file at the root of the collection repo and increment the ve
 Commit and push your code you should now see your pipeline start to run
 
 
-=== 4.8: Verify that your updated collection is available in Private Automation Hub
+=== 4.6: Verify that your updated collection is available in Private Automation Hub
 
 . Log into AAP and go to the Automation Content Section
 . Click on the Collections link and verify that the new version of your collection is present
 
 image::07-ansible-cicd/PAH-verify.png[]
 
-=== 4.9: Install and Use the update collection from PAH
+=== 4.7: Install and Use the update collection from PAH
 
 . Log into AAP and go to the Automation Content Section
 . Click on Repositories
