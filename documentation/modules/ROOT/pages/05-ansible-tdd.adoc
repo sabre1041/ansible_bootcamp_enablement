@@ -1,3 +1,225 @@
-= Test Driven Development (TDD) with Ansible
+= Lab: Functional Testing of a `db_server` Role with Molecule
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+'''
+
+== Objective
+
+You will add a new `db_server` role to an existing collection using `ansible-creator`. This role will install PostgreSQL, create a dedicated database and user, and grant the correct permissions. You'll then modify the collection's top-level Molecule scenario to run a functional test that connects to the database *as the new user* and successfully performs read/write operations, proving the entire configuration is correct. 🧪
+
+'''
+
+== Prerequisites
+
+* Ansible, Molecule, and Docker are installed.
+* You are in a development directory where you can create a new collection.
+
+'''
+
+== Step 1: Create the Collection Scaffolding
+
+First, you will use `ansible-creator` to generate a properly structured collection.
+
+. Generate the collection skeleton. This creates a new directory named `ansible_bootcamp.my_collection`.
++
+[source,bash]
+----
+ansible-creator collection init ansible_bootcamp.my_collection
+----
+
+. Change into the newly created collection directory. All subsequent commands and file edits will be relative to this `ansible_bootcamp.my_collection` directory.
++
+[source,bash]
+----
+cd ansible_bootcamp.my_collection
+----
+
+'''
+
+== Step 2: Add the `db_server` Role
+
+Instead of creating role directories manually, use the `ansible-creator` to add a new role resource to your collection. This ensures it follows the standard structure.
+
+. From the root of your collection, run the following command:
++
+[source,bash]
+----
+ansible-creator add resource role db_server
+----
+This command will create the `roles/db_server/` directory and populate it with the standard boilerplate files for a new role.
+
+'''
+
+== Step 3: Develop the `db_server` Role
+
+Modify the files inside `roles/db_server/` to install and configure PostgreSQL. You will replace the boilerplate content with your database logic.
+
+=== Define Default Variables (`roles/db_server/defaults/main.yml`)
+Open this file, delete the existing sample content, and add these variables.
+
+[source,yaml]
+----
+---
+# defaults file for db_server
+db_name: "webapp_prod"
+db_user: "webapp_user"
+
+# NOTE: In a real-world scenario, this should always be sourced from Ansible Vault.
+db_password: "SecurePassword123"
+----
+
+=== Write the Main Tasks (`roles/db_server/tasks/main.yml`)
+Open this file, delete the sample `debug` task, and replace it with the logic to set up the database.
+
+
+[source,yaml]
+----
+---
+# tasks file for db_server
+- name: Install PostgreSQL and dependencies
+  ansible.builtin.package:
+    name:
+      - postgresql-server
+      - python3-psycopg2 # Ansible requires this library to manage PostgreSQL
+    state: present
+  become: true
+
+- name: Initialize the PostgreSQL database
+  ansible.builtin.command: postgresql-setup --initdb
+  args:
+    creates: /var/lib/pgsql/data/postgresql.conf
+  become: true
+
+- name: Ensure the PostgreSQL service is started and enabled
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: Create the application database
+  community.postgresql.postgresql_db:
+    name: "{{ db_name }}"
+    state: present
+  become: true
+  become_user: postgres
+
+- name: Create the application database user
+  community.postgresql.postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    state: present
+  become: true
+  become_user: postgres
+
+- name: Grant the user full privileges on the new database
+  community.postgresql.postgresql_privs:
+    db: "{{ db_name }}"
+    privs: ALL
+    type: database
+    roles: "{{ db_user }}"
+    grant_option: false
+  become: true
+  become_user: postgres
+----
+
+'''
+
+== Step 4: Configure the Collection-Level Molecule Scenario
+
+You will now edit the files in the `extensions/molecule/default/` directory to test your new `db_server` role.
+
+=== Modify the `molecule.yml` file
+Open `extensions/molecule/default/molecule.yml`. Replace its contents with the following to use a **Red Hat UBI 9 image** and add the necessary PostgreSQL collection dependency.
+
+[source,yaml]
+----
+---
+dependency:
+  name: galaxy
+  collections:
+    - community.postgresql
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: "redhat/ubi9-init"
+    pre_build_image: true
+    privileged: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible
+----
+
+=== Modify the `converge.yml` Playbook
+Open `extensions/molecule/default/converge.yml`. This playbook applies roles to the test instance. Replace its contents so it calls your new role using its fully qualified collection name (FQCN).
+
+[source,yaml]
+----
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include the db_server role"
+      ansible.builtin.include_role:
+        name: "ansible_bootcamp.my_collection.db_server"
+----
+
+=== Create the `verify.yml` Playbook
+The default scaffold does not include a verification playbook. You must **create a new file** named `extensions/molecule/default/verify.yml` and add the following content. This test functionally verifies the role's actions.
+
+[source,yaml]
+----
+---
+- name: Verify
+  hosts: all
+  # Use the same variables the role uses to ensure consistency
+  vars:
+    db_name: "webapp_prod"
+    db_user: "webapp_user"
+    db_password: "SecurePassword123"
+  tasks:
+    - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
+      # This task fails if the connection is refused or permissions are denied.
+
+    - name: "FUNCTIONAL TEST: Write data to the new table"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "INSERT INTO molecule_verify (id) VALUES (1);"
+
+    - name: "FUNCTIONAL TEST: Read data back and verify the result"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "SELECT COUNT(*) FROM molecule_verify;"
+      register: query_result
+      changed_when: false
+
+    - name: "Assert that one record was found"
+      ansible.builtin.assert:
+        that:
+          - query_result.query_result[0].count == 1
+        fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
+        success_msg: "Verification successful! The DB user can connect, write, and read."
+----
+
+'''
+
+== Step 5: Run the Test!
+
+From the root of your `ansible_bootcamp.my_collection` directory, execute the full Molecule test lifecycle.
+
+[source,bash]
+----
+molecule test
+----
+
+When the test suite completes successfully, you haven't just proven that a package was installed. You have functionally *proven* that your role delivers a fully operational database service, ready for an application to connect and use it.
