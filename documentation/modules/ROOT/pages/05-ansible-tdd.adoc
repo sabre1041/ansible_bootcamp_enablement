@@ -1,24 +1,24 @@
 = Lab: Collection Role Testing with Molecule
 
-'''
+
 
 == Objective
 
 You will add a `db_server` role to an Ansible collection and configure Molecule testing to validate the role's functionality. This involves setting up a proper test scenario that installs PostgreSQL, configures the database, and verifies that the role works correctly through functional testing. 🧪
 
-'''
+
 
 == Prerequisites
 
 * Ansible, Molecule, and Podman are installed.
 * You are in a development directory where you can create a new collection.
 
-'''
+
 
 == Step 1: Create the Collection and Add a Role
 
 . Create the collection skeleton:
-+
+
 [source,bash,role=execute]
 ----
 ansible-creator init collection ansible_bootcamp.my_collection
@@ -26,13 +26,13 @@ cd ansible_bootcamp.my_collection
 ----
 
 . Add the `db_server` role:
-+
+
 [source,bash,role=execute]
 ----
 ansible-creator add resource role db_server .
 ----
 
-'''
+
 
 == Step 2: Develop the `db_server` Role
 
@@ -98,7 +98,7 @@ db_password: "SecurePassword123"
   become_user: postgres
 ----
 
-'''
+
 
 == Step 3: Configure Molecule Testing for the Role
 
@@ -106,12 +106,14 @@ Configure Molecule to test the `db_server` role. Molecule scenarios for collecti
 
 . **Initialize the Molecule scenario for the db_server role:**
    From the root of your collection, run:
+
 [source,bash,role=execute]
 ----
 molecule init scenario db_server
 ----
 
 . **Update the molecule configuration:**
+
 [source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
@@ -146,6 +148,7 @@ verifier:
 ----
 
 . **Update the converge playbook:**
+
 [source,yaml,role=execute,title="extensions/molecule/db_server/converge.yml"]
 ----
 ---
@@ -158,6 +161,7 @@ verifier:
 ----
 
 . **Create the verification playbook:**
+
 [source,yaml,role=execute,title="extensions/molecule/db_server/verify.yml"]
 ----
 ---
@@ -194,7 +198,7 @@ verifier:
         fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
         success_msg: "Verification successful! The DB user can connect, write, and read."
 ----
-'''
+
 
 == Step 4: Run the Test Suite!
 
