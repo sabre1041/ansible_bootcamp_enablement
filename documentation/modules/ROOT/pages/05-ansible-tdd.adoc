@@ -47,7 +47,7 @@ ansible-creator add resource role db_server
 Modify the files inside `roles/db_server/` to install and configure PostgreSQL.
 
 === Define Default Variables (`roles/db_server/defaults/main.yml`)
-[source,yaml]
+[source,yaml,role=execute]
 ----
 ---
 # defaults file for db_server
@@ -57,7 +57,7 @@ db_password: "SecurePassword123"
 ----
 
 === Write the Main Tasks (`roles/db_server/tasks/main.yml`)
-[source,yaml]
+[source,yaml,role=execute]
 ----
 ---
 # tasks file for db_server
@@ -117,7 +117,7 @@ Now, you will configure two separate scenarios in `extensions/molecule/`: one (`
 === Create a Base Configuration (`extensions/molecule/config.yml`)
 This is a new, shared configuration file that other scenarios will inherit from. Create the file `extensions/molecule/config.yml` and add the following content.
 
-[source,yaml]
+[source,yaml,role=execute]
 ----
 ---
 scenario:
@@ -139,21 +139,21 @@ The `default` scenario will only create and destroy the test container.
 
 .  **Modify `extensions/molecule/default/molecule.yml`:**
     Replace its contents to define the platform and override the test sequence.
-    [source,yaml]
-    ----
-    ---
-    driver:
-      name: docker
-    platforms:
-      - name: instance
-        image: "redhat/ubi9-init"
-        pre_build_image: true
-        privileged: true
-    scenario:
-      test_sequence:
-        - create
-        - destroy
-    ----
+[source,yaml,role=execute]
+----
+---
+driver:
+    name: docker
+platforms:
+    - name: instance
+    image: "redhat/ubi9-init"
+    pre_build_image: true
+    privileged: true
+scenario:
+    test_sequence:
+    - create
+    - destroy
+----
 
 . **Clear out the default `converge.yml`:**
    The `default` scenario does not converge anything. Open `extensions/molecule/default/converge.yml` and delete its contents, leaving an empty file.
@@ -170,72 +170,72 @@ This new scenario will perform the actual test of the role.
 
 . **Create `extensions/molecule/db_server/molecule.yml`:**
    This file just needs to point to the base config.
-   [source,yaml]
-   ----
-   ---
-   extends: ../config.yml
+[source,yaml,role=execute]
+----
+---
+extends: ../config.yml
 
-   dependency:
-     name: galaxy
-     collections:
-       - community.postgresql
-   ----
+dependency:
+    name: galaxy
+    collections:
+    - community.postgresql
+----
 
 . **Create `extensions/molecule/db_server/converge.yml`:**
    This playbook runs the `db_server` role.
-   [source,yaml]
-   ----
-   ---
-   - name: Converge
-     hosts: all
-     tasks:
-       - name: "Include the db_server role"
-         ansible.builtin.include_role:
-           name: "ansible_bootcamp.my_collection.db_server"
-   ----
+[source,yaml,role=execute]
+----
+---
+- name: Converge
+    hosts: all
+    tasks:
+    - name: "Include the db_server role"
+        ansible.builtin.include_role:
+        name: "ansible_bootcamp.my_collection.db_server"
+----
 
 . **Create `extensions/molecule/db_server/verify.yml`:**
    This playbook functionally verifies the role's actions.
-   [source,yaml]
-   ----
-   ---
-   - name: Verify
-     hosts: all
-     vars:
-       db_name: "webapp_prod"
-       db_user: "webapp_user"
-       db_password: "SecurePassword123"
-     tasks:
-       - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
-         community.postgresql.postgresql_query:
-           login_user: "{{ db_user }}"
-           login_password: "{{ db_password }}"
-           db: "{{ db_name }}"
-           query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
+[source,yaml,role=execute]
+----
+---
+- name: Verify
+    hosts: all
+    vars:
+    db_name: "webapp_prod"
+    db_user: "webapp_user"
+    db_password: "SecurePassword123"
+    tasks:
+    - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
+        community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
 
-       - name: "FUNCTIONAL TEST: Write data to the new table"
-         community.postgresql.postgresql_query:
-           login_user: "{{ db_user }}"
-           login_password: "{{ db_password }}"
-           db: "{{ db_name }}"
-           query: "INSERT INTO molecule_verify (id) VALUES (1);"
+    - name: "FUNCTIONAL TEST: Write data to the new table"
+        community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "INSERT INTO molecule_verify (id) VALUES (1);"
 
-       - name: "FUNCTIONAL TEST: Read data back and verify the result"
-         community.postgresql.postgresql_query:
-           login_user: "{{ db_user }}"
-           login_password: "{{ db_password }}"
-           db: "{{ db_name }}"
-           query: "SELECT COUNT(*) FROM molecule_verify;"
-         register: query_result
-         changed_when: false
+    - name: "FUNCTIONAL TEST: Read data back and verify the result"
+        community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "SELECT COUNT(*) FROM molecule_verify;"
+        register: query_result
+        changed_when: false
 
-       - name: "Assert that one record was found"
-         ansible.builtin.assert:
-           that:
-             - query_result.query_result[0].count == 1
-           fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
-           success_msg: "Verification successful! The DB user can connect, write, and read."
-   ----
+    - name: "Assert that one record was found"
+        ansible.builtin.assert:
+        that:
+            - query_result.query_result[0].count == 1
+        fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
+        success_msg: "Verification successful! The DB user can connect, write, and read."
+----
 '''
 
 == Step 4: Run the Full Test Suite!
