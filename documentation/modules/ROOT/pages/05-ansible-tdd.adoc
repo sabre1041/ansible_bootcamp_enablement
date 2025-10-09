@@ -1,10 +1,10 @@
-= Lab: Advanced Collection Testing
+= Lab: Collection Role Testing with Molecule
 
 '''
 
 == Objective
 
-You will add a `db_server` role to an Ansible collection and configure an advanced, collection-level Molecule testing strategy. This involves creating a dedicated scenario for resource management and a separate scenario for functionally testing the role. This powerful pattern, ideal for collections with multiple components, uses `shared_state` to ensure test infrastructure is created only once, making the test suite faster and more efficient. 🧪
+You will add a `db_server` role to an Ansible collection and configure Molecule testing to validate the role's functionality. This involves setting up a proper test scenario that installs PostgreSQL, configures the database, and verifies that the role works correctly through functional testing. 🧪
 
 '''
 
@@ -92,107 +92,86 @@ db_password: "SecurePassword123"
 
 '''
 
-== Step 3: Configure the Advanced Molecule Scenarios
+== Step 3: Configure Molecule Testing for the Role
 
-Now, you will configure two separate scenarios in `extensions/molecule/`: one (`default`) to manage the Docker container lifecycle and another (`db_server`) to test the role.
+Configure Molecule to test the `db_server` role. Modern Molecule uses a simpler approach with scenarios located directly in the `molecule/` directory at the collection root.
 
-[source,yaml,role=execute,title="extensions/molecule/config.yml"]
+. **Initialize the Molecule scenario for the db_server role:**
+   From the root of your collection, run:
+[source,bash,role=execute]
+----
+molecule init scenario --role-name db_server
+----
+
+. **Update the molecule configuration:**
+[source,yaml,role=execute,title="molecule/db_server/molecule.yml"]
 ----
 ---
-scenario:
-  test_sequence:
-    - converge
-    - idempotence
-    - verify
-  shared_state: true
+dependency:
+  name: galaxy
+  collections:
+    - community.postgresql
+
+driver:
+  name: docker
+
+platforms:
+  - name: instance
+    image: "registry.redhat.io/ubi9/ubi-init:latest"
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    command: /usr/sbin/init
 
 provisioner:
   name: ansible
+  inventory:
+    group_vars:
+      all:
+        db_name: "webapp_prod"
+        db_user: "webapp_user"
+        db_password: "SecurePassword123"
 
 verifier:
   name: ansible
 ----
 
-=== Configure the `default` (Resource Management) Scenario
-The `default` scenario will only create and destroy the test container.
-
-[source,yaml,role=execute,title="extensions/molecule/default/molecule.yml"]
-----
----
-driver:
-  name: docker
-platforms:
-  - name: instance
-    image: "redhat/ubi9-init"
-    pre_build_image: true
-    privileged: true
-scenario:
-  test_sequence:
-    - create
-    - destroy
-----
-
-. **Clear out the default `converge.yml`:**
-   The `default` scenario does not converge anything. Open `extensions/molecule/default/converge.yml` and delete its contents, leaving an empty file.
-
-=== Create and Configure the `db_server` (Component Testing) Scenario
-This new scenario will perform the actual test of the role.
-
-. **Initialize the new scenario:**
-   From the root of your collection, run:
-[source,bash,role=execute]
-----
-molecule init scenario db_server -d extensions/molecule
-----
-
-[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
-----
----
-extends: ../config.yml
-
-dependency:
-    name: galaxy
-    collections:
-    - community.postgresql
-----
-
-[source,yaml,role=execute,title="extensions/molecule/db_server/converge.yml"]
+. **Update the converge playbook:**
+[source,yaml,role=execute,title="molecule/db_server/converge.yml"]
 ----
 ---
 - name: Converge
-    hosts: all
-    tasks:
+  hosts: all
+  tasks:
     - name: "Include the db_server role"
-        ansible.builtin.include_role:
+      ansible.builtin.include_role:
         name: "ansible_bootcamp.my_collection.db_server"
 ----
 
-[source,yaml,role=execute,title="extensions/molecule/db_server/verify.yml"]
+. **Create the verification playbook:**
+[source,yaml,role=execute,title="molecule/db_server/verify.yml"]
 ----
 ---
 - name: Verify
-    hosts: all
-    vars:
-    db_name: "webapp_prod"
-    db_user: "webapp_user"
-    db_password: "SecurePassword123"
-    tasks:
+  hosts: all
+  tasks:
     - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
-        community.postgresql.postgresql_query:
+      community.postgresql.postgresql_query:
         login_user: "{{ db_user }}"
         login_password: "{{ db_password }}"
         db: "{{ db_name }}"
         query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
 
     - name: "FUNCTIONAL TEST: Write data to the new table"
-        community.postgresql.postgresql_query:
+      community.postgresql.postgresql_query:
         login_user: "{{ db_user }}"
         login_password: "{{ db_password }}"
         db: "{{ db_name }}"
         query: "INSERT INTO molecule_verify (id) VALUES (1);"
 
     - name: "FUNCTIONAL TEST: Read data back and verify the result"
-        community.postgresql.postgresql_query:
+      community.postgresql.postgresql_query:
         login_user: "{{ db_user }}"
         login_password: "{{ db_password }}"
         db: "{{ db_name }}"
@@ -201,26 +180,30 @@ dependency:
         changed_when: false
 
     - name: "Assert that one record was found"
-        ansible.builtin.assert:
+      ansible.builtin.assert:
         that:
-            - query_result.query_result[0].count == 1
+          - query_result.query_result[0].count == 1
         fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
         success_msg: "Verification successful! The DB user can connect, write, and read."
 ----
 '''
 
-== Step 4: Run the Full Test Suite!
+== Step 4: Run the Test Suite!
 
-From the root of your `ansible_bootcamp.my_collection` directory, execute the entire test suite using the `--all` flag.
+From the root of your `ansible_bootcamp.my_collection` directory, run the Molecule test for the db_server role.
 
 [source,bash,role=execute]
 ----
-molecule test --all
+molecule test -s db_server
 ----
 
-Molecule will now execute the following sequence:
-1.  **`default` scenario:** Runs the `create` action, starting the Docker container.
-2.  **`db_server` scenario:** Runs `converge`, `idempotence`, and `verify` against the already-running container.
-3.  **`default` scenario:** Runs the `destroy` action, cleaning up the Docker container.
+Molecule will execute the standard test sequence:
+1. **Dependency:** Install required collections
+2. **Create:** Start the Docker container
+3. **Prepare:** (Optional preparation steps)
+4. **Converge:** Run the Ansible role
+5. **Idempotence:** Verify the role runs without changes on second execution
+6. **Verify:** Run functional tests
+7. **Destroy:** Clean up the Docker container
 
-This workflow perfectly matches the advanced pattern in the document and sets your students up for testing large, complex collections efficiently.
+The test will validate that your db_server role correctly installs and configures PostgreSQL, and that the database user can connect and perform operations.
