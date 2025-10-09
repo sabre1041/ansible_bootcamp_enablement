@@ -156,10 +156,10 @@ This new scenario will perform the actual test of the role.
 
 . **Initialize the new scenario:**
    From the root of your collection, run:
-   [source,bash,role=execute]
-   ----
-   molecule init scenario db_server -d extensions/molecule
-   ----
+[source,bash,role=execute]
+----
+molecule init scenario db_server -d extensions/molecule
+----
 
 [source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
