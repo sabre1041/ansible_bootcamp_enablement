@@ -10,12 +10,20 @@ You will add a `db_server` role to an Ansible collection and configure Molecule 
 
 == Prerequisites
 
-* Ansible, Molecule, and Docker are installed.
+* Ansible, Molecule, and Podman are installed.
 * You are in a development directory where you can create a new collection.
 
 '''
 
-== Step 1: Add a new role to the Collection
+== Step 1: Create the Collection and Add a Role
+
+. Create the collection skeleton:
++
+[source,bash,role=execute]
+----
+ansible-creator init collection ansible_bootcamp.my_collection
+cd ansible_bootcamp.my_collection
+----
 
 . Add the `db_server` role:
 +
@@ -94,17 +102,17 @@ db_password: "SecurePassword123"
 
 == Step 3: Configure Molecule Testing for the Role
 
-Configure Molecule to test the `db_server` role. Modern Molecule uses a simpler approach with scenarios located directly in the `molecule/` directory at the collection root.
+Configure Molecule to test the `db_server` role. Molecule scenarios for collections are located in the `extensions/molecule/` directory.
 
 . **Initialize the Molecule scenario for the db_server role:**
    From the root of your collection, run:
 [source,bash,role=execute]
 ----
-molecule init scenario --role-name db_server
+molecule init scenario db_server
 ----
 
 . **Update the molecule configuration:**
-[source,yaml,role=execute,title="molecule/db_server/molecule.yml"]
+[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 dependency:
@@ -113,7 +121,7 @@ dependency:
     - community.postgresql
 
 driver:
-  name: docker
+  name: podman
 
 platforms:
   - name: instance
@@ -138,7 +146,7 @@ verifier:
 ----
 
 . **Update the converge playbook:**
-[source,yaml,role=execute,title="molecule/db_server/converge.yml"]
+[source,yaml,role=execute,title="extensions/molecule/db_server/converge.yml"]
 ----
 ---
 - name: Converge
@@ -150,7 +158,7 @@ verifier:
 ----
 
 . **Create the verification playbook:**
-[source,yaml,role=execute,title="molecule/db_server/verify.yml"]
+[source,yaml,role=execute,title="extensions/molecule/db_server/verify.yml"]
 ----
 ---
 - name: Verify
@@ -197,13 +205,15 @@ From the root of your `ansible_bootcamp.my_collection` directory, run the Molecu
 molecule test -s db_server
 ----
 
+*Note:* If you encounter issues with the container driver, you may need to ensure Podman is properly installed and configured for your environment. The test will install required collections and run the role in an isolated container.
+
 Molecule will execute the standard test sequence:
 1. **Dependency:** Install required collections
-2. **Create:** Start the Docker container
+2. **Create:** Start the Podman container
 3. **Prepare:** (Optional preparation steps)
 4. **Converge:** Run the Ansible role
 5. **Idempotence:** Verify the role runs without changes on second execution
 6. **Verify:** Run functional tests
-7. **Destroy:** Clean up the Docker container
+7. **Destroy:** Clean up the Podman container
 
 The test will validate that your db_server role correctly installs and configures PostgreSQL, and that the database user can connect and perform operations.
