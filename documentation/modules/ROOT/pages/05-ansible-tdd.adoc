@@ -15,29 +15,13 @@ You will add a `db_server` role to an Ansible collection and configure an advanc
 
 '''
 
-== Step 1: Create and Prepare the Collection
-
-First, generate the collection and add the `db_server` role resource.
-
-. Generate the collection skeleton:
-+
-[source,bash,role=execute]
-----
-ansible-creator collection init ansible_bootcamp.my_collection
-----
-
-. Change into the collection directory. All subsequent actions are relative to this path.
-+
-[source,bash,role=execute]
-----
-cd ansible_bootcamp.my_collection
-----
+== Step 1: Add a new role to the Collection
 
 . Add the `db_server` role:
 +
 [source,bash,role=execute]
 ----
-ansible-creator add resource role db_server
+ansible-creator add resource role db_server .
 ----
 
 '''
@@ -136,14 +120,14 @@ The `default` scenario will only create and destroy the test container.
 ----
 ---
 driver:
-    name: docker
+  name: docker
 platforms:
-    - name: instance
+  - name: instance
     image: "redhat/ubi9-init"
     pre_build_image: true
     privileged: true
 scenario:
-    test_sequence:
+  test_sequence:
     - create
     - destroy
 ----
