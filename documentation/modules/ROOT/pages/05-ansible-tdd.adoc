@@ -21,21 +21,21 @@ First, generate the collection and add the `db_server` role resource.
 
 . Generate the collection skeleton:
 +
-[source,bash]
+[source,bash,role=execute]
 ----
 ansible-creator collection init ansible_bootcamp.my_collection
 ----
 
 . Change into the collection directory. All subsequent actions are relative to this path.
 +
-[source,bash]
+[source,bash,role=execute]
 ----
 cd ansible_bootcamp.my_collection
 ----
 
 . Add the `db_server` role:
 +
-[source,bash]
+[source,bash,role=execute]
 ----
 ansible-creator add resource role db_server
 ----
@@ -46,8 +46,7 @@ ansible-creator add resource role db_server
 
 Modify the files inside `roles/db_server/` to install and configure PostgreSQL.
 
-=== Define Default Variables (`roles/db_server/defaults/main.yml`)
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="roles/db_server/defaults/main.yml"]
 ----
 ---
 # defaults file for db_server
@@ -56,8 +55,7 @@ db_user: "webapp_user"
 db_password: "SecurePassword123"
 ----
 
-=== Write the Main Tasks (`roles/db_server/tasks/main.yml`)
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="roles/db_server/tasks/main.yml"]
 ----
 ---
 # tasks file for db_server
@@ -114,10 +112,7 @@ db_password: "SecurePassword123"
 
 Now, you will configure two separate scenarios in `extensions/molecule/`: one (`default`) to manage the Docker container lifecycle and another (`db_server`) to test the role.
 
-=== Create a Base Configuration (`extensions/molecule/config.yml`)
-This is a new, shared configuration file that other scenarios will inherit from. Create the file `extensions/molecule/config.yml` and add the following content.
-
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="extensions/molecule/config.yml"]
 ----
 ---
 scenario:
@@ -137,9 +132,7 @@ verifier:
 === Configure the `default` (Resource Management) Scenario
 The `default` scenario will only create and destroy the test container.
 
-.  **Modify `extensions/molecule/default/molecule.yml`:**
-    Replace its contents to define the platform and override the test sequence.
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="extensions/molecule/default/molecule.yml"]
 ----
 ---
 driver:
@@ -163,14 +156,12 @@ This new scenario will perform the actual test of the role.
 
 . **Initialize the new scenario:**
    From the root of your collection, run:
-   [source,bash]
+   [source,bash,role=execute]
    ----
    molecule init scenario db_server -d extensions/molecule
    ----
 
-. **Create `extensions/molecule/db_server/molecule.yml`:**
-   This file just needs to point to the base config.
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 extends: ../config.yml
@@ -181,9 +172,7 @@ dependency:
     - community.postgresql
 ----
 
-. **Create `extensions/molecule/db_server/converge.yml`:**
-   This playbook runs the `db_server` role.
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="extensions/molecule/db_server/converge.yml"]
 ----
 ---
 - name: Converge
@@ -194,9 +183,7 @@ dependency:
         name: "ansible_bootcamp.my_collection.db_server"
 ----
 
-. **Create `extensions/molecule/db_server/verify.yml`:**
-   This playbook functionally verifies the role's actions.
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="extensions/molecule/db_server/verify.yml"]
 ----
 ---
 - name: Verify
@@ -242,7 +229,7 @@ dependency:
 
 From the root of your `ansible_bootcamp.my_collection` directory, execute the entire test suite using the `--all` flag.
 
-[source,bash]
+[source,bash,role=execute]
 ----
 molecule test --all
 ----
