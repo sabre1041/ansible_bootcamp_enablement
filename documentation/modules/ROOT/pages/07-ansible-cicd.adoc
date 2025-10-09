@@ -279,7 +279,7 @@ spec:
 . *oc apply -f collection-pipeline.yml* with the previously created _collection-pipeline.yml_
 . *oc apply -f collection-cluster-trigger-binding.yml* with the previously created _collection-cluster-trigger-binding.yml_
 
-mage:07-ansible-cicd/devspace-oc-apply.png[]
+image::07-ansible-cicd/devspace-oc-apply.png[]
 
 ==== 4.2.2: Validate collection-cluster-trigger-binding.yml config has been applied
 
