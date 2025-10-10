@@ -10,8 +10,7 @@ This lab walks through the various aspects of launching, configuring and using D
 . Click on `Installed Operators`
 . To the far right of `Red Hat OpenShift Dev Spaces` click the link under `Provided APIs` titled `Red Hat OpenShift Dev Spaces instance Specification`
 image::01-introduction/intro1.png[]
-. Click on `devspaces`
-. Under `Details` click int `Red Hat OpenShift Dev Spaces URL`
+. Under `Details` click the `Red Hat OpenShift Dev Spaces URL`
 image::01-introduction/intro2.png[]
 
 == Dev Spaces Workspace
