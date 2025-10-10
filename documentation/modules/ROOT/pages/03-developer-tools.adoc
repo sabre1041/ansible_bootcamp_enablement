@@ -12,9 +12,9 @@ While not required, sourcing these two files will greatly improve your CLI inter
 
 [source,bash]
 ----
-  source /usr/share/bash-completion/completions/git
-  source /usr/share/git-core/contrib/completion/git-prompt.sh
-  PS1='[\u \W$(__git_ps1 " (%s)")]\$ '
+source /usr/share/bash-completion/completions/git
+source /usr/share/git-core/contrib/completion/git-prompt.sh
+PS1='[\u \W$(__git_ps1 " (%s)")]\$ '
 ----
 
 Notice your prompt will now display which branch you are in. Also, `git` sub commands now auto-complete with the TAB key.
@@ -25,8 +25,8 @@ If you haven't done so already in this Ansible Workspace, set your global userna
 
 [source,bash]
 ----
-  git config --global user.name "First Last"
-  git config --global user.email "email@example.com"
+git config --global user.name "First Last"
+git config --global user.email "email@example.com"
 ----
 
 === Branches
@@ -35,10 +35,10 @@ Branches should be used liberally. Test ideas and have no fear trashing a branch
 
 [source,bash]
 ----
-  git branch
-  git branch test
-  git checkout test
-  git branch
+git branch
+git branch test
+git checkout test
+git branch
 ----
 
 === Pull/Merge Requests
@@ -51,19 +51,43 @@ When a change is detected on the same line and git is unable to automtically app
 
 === Updating branches
 
-TBD merge vs rebase
+When working in a branch, it is often necessary to ensure your branch has the latest commits that are in main. If it has been a while since you created or updated your branch, it could be several commits behind. 
+
+_Merge_ will take two divergent branches and preserve their history, adding a commit to tie them together
+
+_Rebase_ will rewind and play commits back in order resulting in a cleaner, more linear history, but can make merge conflicts more difficult to manage
 
 === Cleaning up git history
 
 While you generally should not be editing git history, there are times where this is necessary. Perhaps commits were made with a default or incorrect `user.name` or `user.email` and needed to be corrected. Or perhaps secrets were leaked and though cleaned up in HEAD, they are still in git history. In these cases, it is possible to edit specific commits.
 
-== Pre-Commit
-
-TBD pre-commit
-
 == Secrets Scanning 
 
-TBD gitleaks
+It is absolutely vital that you never EVER commit any secrets to git. Even if you revert the commit or delete the file, it is still in history. Even if it is "just a lab server" or "only internal" a secret will trigger many security scans requiring additinal work to explain if it is valid and needs rotating or not. Just don't do it. This lab will walk through using a tool like `gitleaks` to help keep your secrets out of git.
+
+First create a fake API-like key. The default regex and patterns will determine a UUID-like value to be similar to an API key:
+
+[source,bash]
+----
+cd /projects
+mkdir leak_test
+echo key=$(uuidgen) > leak_test/file
+cat leak_test/file
+----
+
+None of these specifics matter, but feel free to add additional files in this directory with any kind of desired data, the next step will scan the entire directory.
+
+[source,bash]
+----
+podman pull docker.io/zricethezav/gitleaks:latest
+podman run -v /projects/leak_test/:/scan:Z zricethezav/gitleaks:latest dir -v /scan/
+----
+
+The default rules should detect the UUID as an API key.
+
+== Pre-Commit
+
+Pre-commit is a tool that essentially hooks into `git` and runs additional tooling before the commit actualy writes to git history. This is a perfect way to automatically call things like `ansible-lint` and `gitleaks` before having to go back and squash or clean up git history.
 
 == Ansible Development Tools (ADT)
 
