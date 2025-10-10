@@ -1,3 +1,223 @@
-= Test Driven Development (TDD) with Ansible
+= Lab: Collection Role Testing with Molecule
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+== Objective
+
+You will add a `db_server` role to an Ansible collection and configure Molecule testing to validate the role's functionality. This involves setting up a proper test scenario that installs PostgreSQL, configures the database, and verifies that the role works correctly through functional testing. 🧪
+
+
+
+== Prerequisites
+
+* Ansible, Molecule, and Podman are installed.
+* You are in a development directory where you can create a new collection.
+
+
+
+== Step 1: Create the Collection and Add a Role
+
+. Create the collection skeleton:
+
+[source,bash,role=execute]
+----
+ansible-creator init collection ansible_bootcamp.my_collection
+cd ansible_bootcamp.my_collection
+----
+
+. Add the `db_server` role:
+
+[source,bash,role=execute]
+----
+ansible-creator add resource role db_server .
+----
+
+
+
+== Step 2: Develop the `db_server` Role
+
+Modify the files inside `roles/db_server/` to install and configure PostgreSQL.
+
+[source,yaml,role=execute,title="roles/db_server/defaults/main.yml"]
+----
+---
+# defaults file for db_server
+db_name: "webapp_prod"
+db_user: "webapp_user"
+db_password: "SecurePassword123"
+----
+
+[source,yaml,role=execute,title="roles/db_server/tasks/main.yml"]
+----
+---
+# tasks file for db_server
+- name: Install PostgreSQL and dependencies
+  ansible.builtin.package:
+    name:
+      - postgresql-server
+      - python3-psycopg2
+    state: present
+  become: true
+
+- name: Initialize the PostgreSQL database
+  ansible.builtin.command: postgresql-setup --initdb
+  args:
+    creates: /var/lib/pgsql/data/postgresql.conf
+  become: true
+
+- name: Ensure the PostgreSQL service is started and enabled
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: Create the application database
+  community.postgresql.postgresql_db:
+    name: "{{ db_name }}"
+    state: present
+  become: true
+  become_user: postgres
+
+- name: Create the application database user
+  community.postgresql.postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    state: present
+  become: true
+  become_user: postgres
+
+- name: Grant the user full privileges on the new database
+  community.postgresql.postgresql_privs:
+    db: "{{ db_name }}"
+    privs: ALL
+    type: database
+    roles: "{{ db_user }}"
+    grant_option: false
+  become: true
+  become_user: postgres
+----
+
+
+
+== Step 3: Configure Molecule Testing for the Role
+
+Configure Molecule to test the `db_server` role. Molecule scenarios for collections are located in the `extensions/molecule/` directory.
+
+. **Initialize the Molecule scenario for the db_server role:**
+   From the root of your collection, run:
+
+[source,bash,role=execute]
+----
+molecule init scenario db_server
+----
+
+. **Update the molecule configuration:**
+
+[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
+----
+---
+dependency:
+  name: galaxy
+  collections:
+    - community.postgresql
+
+driver:
+  name: podman
+
+platforms:
+  - name: instance
+    image: "registry.redhat.io/ubi9/ubi-init:latest"
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    command: /usr/sbin/init
+
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        db_name: "webapp_prod"
+        db_user: "webapp_user"
+        db_password: "SecurePassword123"
+
+verifier:
+  name: ansible
+----
+
+. **Update the converge playbook:**
+
+[source,yaml,role=execute,title="extensions/molecule/db_server/converge.yml"]
+----
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include the db_server role"
+      ansible.builtin.include_role:
+        name: "ansible_bootcamp.my_collection.db_server"
+----
+
+. **Create the verification playbook:**
+
+[source,yaml,role=execute,title="extensions/molecule/db_server/verify.yml"]
+----
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
+
+    - name: "FUNCTIONAL TEST: Write data to the new table"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "INSERT INTO molecule_verify (id) VALUES (1);"
+
+    - name: "FUNCTIONAL TEST: Read data back and verify the result"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "SELECT COUNT(*) FROM molecule_verify;"
+        register: query_result
+        changed_when: false
+
+    - name: "Assert that one record was found"
+      ansible.builtin.assert:
+        that:
+          - query_result.query_result[0].count == 1
+        fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
+        success_msg: "Verification successful! The DB user can connect, write, and read."
+----
+
+
+== Step 4: Run the Test Suite!
+
+From the root of your `ansible_bootcamp.my_collection` directory, run the Molecule test for the db_server role.
+
+[source,bash,role=execute]
+----
+molecule test -s db_server
+----
+
+*Note:* If you encounter issues with the container driver, you may need to ensure Podman is properly installed and configured for your environment. The test will install required collections and run the role in an isolated container.
+
+Molecule will execute the standard test sequence:
+1. **Dependency:** Install required collections
+2. **Create:** Start the Podman container
+3. **Prepare:** (Optional preparation steps)
+4. **Converge:** Run the Ansible role
+5. **Idempotence:** Verify the role runs without changes on second execution
+6. **Verify:** Run functional tests
+7. **Destroy:** Clean up the Podman container
+
+The test will validate that your db_server role correctly installs and configures PostgreSQL, and that the database user can connect and perform operations.
