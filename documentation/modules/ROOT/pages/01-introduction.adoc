@@ -1,4 +1,4 @@
-= Ansible Development in DevSpaces
+= Ansible Development in Dev Spaces
 
 This lab walks through the various aspects of launching, configuring and using DevSpaces on OpenShift as your primary development environment for Ansible.
 
@@ -15,6 +15,11 @@ image::01-introduction/intro1.png[]
 . Under `Details` click the `Red Hat OpenShift Dev Spaces URL`
 +
 image::01-introduction/intro2.png[]
+
+NOTE: These are the long steps. For a shortcut, use the 9-block icon in the upper right to launch `Red Hat OpenShift Dev Space`
++
+image::01-introduction/intro2.5.png[]
+
 
 == Dev Spaces Workspace
 
