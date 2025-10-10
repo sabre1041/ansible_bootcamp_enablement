@@ -5,17 +5,57 @@ This lab walks through some of the basic software development pratices as they a
 == Git
 
 While technically you can use something like a local directory for AAP, in general consider `git` a requirement. Furthermore, to properly scale automation across an enterprise, `git` _proficiency_ is required. This lab covers the extreme basics of `git`. For many of you, this may be 
+
+=== CLI Completion
+
+While not required, sourcing these two files will greatly improve your CLI interactions. Note that this can also be added to the `devfile` or a local `.bashrc`
+
+[source,bash]
+----
+  source /usr/share/bash-completion/completions/git
+  source /usr/share/git-core/contrib/completion/git-prompt.sh
+  PS1='[\u \W$(__git_ps1 " (%s)")]\$ '
+----
+
+Notice your prompt will now display which branch you are in. Also, `git` sub commands now auto-complete with the TAB key.
+
+=== Set Global Settings
+
+If you haven't done so already in this Ansible Workspace, set your global username and email:
+
+[source,bash]
+----
+  git config --global user.name "First Last"
+  git config --global user.email "email@example.com"
+----
+
 === Branches
 
-=== Pull Requests
+Branches should be used liberally. Test ideas and have no fear trashing a branch that didn't work. It's better to leave a branch is it is and start a new one based on your current working branch rather than testing a few things and reverting the commits or comment/uncomment things.
+
+[source,bash]
+----
+  git branch
+  git branch test
+  git checkout test
+  git branch
+----
+
+=== Pull/Merge Requests
+
+Pull/Merge requests are when you have work in a branch you want to merge into another branch. Typically this is a feature branch with your work that you want to merge into `main` but it could be any other branch target. PR/MRs are an essential way to review code and allow others to comment and provide feedback or changes. PR/MRs can also be used to kick off pipelines to run further commands on this branch of code.
 
 === Merge conflicts
+
+When a change is detected on the same line and git is unable to automtically apply the changes, human intervention is needed.
 
 === Updating branches
 
 TBD merge vs rebase
 
 === Cleaning up git history
+
+While you generally should not be editing git history, there are times where this is necessary. Perhaps commits were made with a default or incorrect `user.name` or `user.email` and needed to be corrected. Or perhaps secrets were leaked and though cleaned up in HEAD, they are still in git history. In these cases, it is possible to edit specific commits.
 
 == Pre-Commit
 
