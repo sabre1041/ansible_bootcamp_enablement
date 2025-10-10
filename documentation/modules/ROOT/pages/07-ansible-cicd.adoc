@@ -512,20 +512,30 @@ image::07-ansible-cicd/PAH-verify.png[]
 
 === 4.7: Install and Use the update collection from PAH
 
-. Log into AAP and go to the Automation Content Section
-. Click on Repositories
-. Click on the published repository
-. Click on the Distrubutions tab and copy the cli configuration
-. Create a file in the base of your repo called ansible.cfg and past the cli configuration into it
-. Update the cli configuration with the token you created in the previous lab
+. In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 
-[source,bash]
+NOTE: If you have these environment variables set from the previous lab you do not need to set them again.
+
+[source,bash,role=execute]
 ----
-[galaxy] 
- server_list = published 
- [galaxy_server.published] 
- url = {aap_controller_web_url}/pulp_ansible/galaxy/published/ 
- token=<put your token here>
+# Set the list of servers Ansible should know about
+export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
+
+# Configure the 'published' repository
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/published/'
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='YOUR_API_TOKEN_HERE'
+
+# Configure the 'certified' repository
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='YOUR_API_TOKEN_HERE'
+
+# Configure the 'validated' repository
+export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
+export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='YOUR_API_TOKEN_HERE'
+
+# Configure the 'community' repository
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansible/galaxy/community/'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 ----
 
 . Use andile-galaxy to install the new version of your collection from Private Automation hub
