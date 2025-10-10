@@ -17,8 +17,8 @@ image::01-introduction/intro1.png[]
 image::01-introduction/intro2.png[]
 
 NOTE: These are the long steps. For a shortcut, use the 9-block icon in the upper right to launch `Red Hat OpenShift Dev Space`
-+
-image::01-introduction/intro2.5.png[]
+
+image::01-introduction/intro-dev_spaces_shortcut.png[]
 
 
 == Dev Spaces Workspace
