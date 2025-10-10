@@ -41,7 +41,7 @@ NOTE: The `AnsibleAutomationPlatform` CRD deploys and manages the other CRDs lis
 * Next to the `Details` tab click on `YAML`. This will show you the current YAML specification that defines the CRD.
 ** For example, take a look at the `spec` key in the YAML definition:
 +
-[source,yaml]
+[source,yaml,role=execute]
 ----
   controller:
     disabled: false
