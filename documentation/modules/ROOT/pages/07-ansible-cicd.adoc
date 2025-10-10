@@ -59,7 +59,7 @@ After an empty repository is created on your Gitea, we need to clone the reposit
 . Open the integrated terminal
 . Configure your git username and email
 
-[source,bash]
+[source,bash,role=execute]
 ----
   git config --global user.email "you@example.com"
   git config --global user.name "Your Name"
@@ -76,7 +76,7 @@ image::../assets/images/07-ansible-cicd/devspaces.png[]
 .collection-pipeline.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="ansible-pipeline.yaml"]
 ----
 apiVersion: tekton.dev/v1
 kind: Pipeline
@@ -250,7 +250,7 @@ spec:
 .collection-cluster-trigger-binding.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="ClusterTriggerBinding.yml"]
 ----
 apiVersion: triggers.tekton.dev/v1beta1
 kind: ClusterTriggerBinding
@@ -314,7 +314,7 @@ The _collection-pipeline.yml_ configuration file will refrence the _collection-p
 .collection-publish.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="collection-publish.yml"]
 ----
 ---
 - name: Publish collections to Hub
@@ -480,7 +480,7 @@ Place the following lines in the roles/dad_joke/tasks/main.yml
 .main.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="roles/dad_joke/tasks/main.yml"]
 ----
 - name: Fetch a Random Joke from the API
   ansible.builtin.uri:
@@ -517,10 +517,10 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 . Create a file in the base of your repo called ansible.cfg and past the cli configuration into it
 . Update the cli configuration with the token you created in the previous lab
 
-[source,bash]
+[source,bash,role=execute,title="ansible.cfg"]
 ----
-[galaxy] 
- server_list = published 
+[galaxy]
+ server_list = published
  [galaxy_server.published] 
  url = https://aap-aap.apps.cluster-8q965.dynamic.redhatworkshops.io/pulp_ansible/galaxy/published/ 
  token=<put your token here>
@@ -528,7 +528,7 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 
 . Use andile-galaxy to install the new version of your collection from Private Automation hub
 
-[source,bash]
+[source,bash,role=execute]
 ----
  ansible-galaxy collection install ansible_bootcamp.my_collection
 ----
@@ -538,7 +538,7 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 .test.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="test.yml"]
 ----
 ---
 - name: Random Dad Joke Generator
@@ -553,7 +553,7 @@ image::../assets/images/07-ansible-cicd/PAH-verify.png[]
 
 . Run the playbook and if successful it should return a dad Joke
 
-[source,bash]
+[source,bash,role=execute]
 ----
  ansible-playbook test.yml
 ----
