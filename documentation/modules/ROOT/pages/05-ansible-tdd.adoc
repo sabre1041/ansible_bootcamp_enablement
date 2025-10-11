@@ -1,42 +1,30 @@
 = Lab: Collection Role Testing with Molecule
 
+== 1. Introduction: Test-Driven Development with Molecule
 
+Test-Driven Development (TDD) is a software development approach where tests are written before the code they validate. In Ansible automation, Molecule enables this practice by providing a framework for testing roles in isolated environments.
 
-== Objective
+.Why use Molecule for Ansible roles?
 
-You will add a `db_server` role to an Ansible collection and configure Molecule testing to validate the role's functionality. This involves setting up a proper test scenario that installs PostgreSQL, configures the database, and verifies that the role works correctly through functional testing. 🧪
+. **Isolated Testing**: Tests run in clean, ephemeral containers ensuring consistent results.
+. **Idempotence Verification**: Confirms roles can run multiple times without side effects.
+. **Functional Testing**: Validates that roles actually work as intended, not just that they run.
+. **CI/CD Integration**: Enables automated testing in pipelines before deployment.
 
+== 2. Creating a role and writing tests for it
 
+Now, let's create a role for our collection, then set up Molecule testing.
 
-== Prerequisites
-
-* Ansible, Molecule, and Podman are installed.
-* You are in a development directory where you can create a new collection.
-
-
-
-== Step 1: Create the Collection and Add a Role
-
-. Create the collection skeleton:
-
-[source,bash,role=execute]
-----
-ansible-creator init collection ansible_bootcamp.my_collection
-cd ansible_bootcamp.my_collection
-----
-
-. Add the `db_server` role:
+=== Step 2.1: Add the db_server Role
 
 [source,bash,role=execute]
 ----
 ansible-creator add resource role db_server .
 ----
 
+== 3. Developing the db_server Role
 
-
-== Step 2: Develop the `db_server` Role
-
-Modify the files inside `roles/db_server/` to install and configure PostgreSQL.
+Now we'll implement the db_server role to install and configure PostgreSQL with proper database setup.
 
 [source,yaml,role=execute,title="roles/db_server/defaults/main.yml"]
 ----
@@ -98,21 +86,22 @@ db_password: "SecurePassword123"
   become_user: postgres
 ----
 
+== 4. Configuring Molecule Testing
 
+Molecule will test our db_server role in an isolated container environment to ensure it works correctly.
 
-== Step 3: Configure Molecule Testing for the Role
+=== Step 4.1: Initialize Molecule Scenario
 
-Configure Molecule to test the `db_server` role. Molecule scenarios for collections are located in the `extensions/molecule/` directory.
-
-. **Initialize the Molecule scenario for the db_server role:**
-   From the root of your collection, run:
+From the root of your collection, initialize a Molecule scenario for the db_server role:
 
 [source,bash,role=execute]
 ----
 molecule init scenario db_server
 ----
 
-. **Update the molecule configuration:**
+=== Step 4.2: Configure Molecule Settings
+
+Update the molecule configuration file to use Podman as the driver and include necessary collections:
 
 [source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
@@ -129,10 +118,11 @@ platforms:
   - name: instance
     image: "registry.redhat.io/ubi9/ubi-init:latest"
     privileged: true
+    tmpfs:
+      - /tmp
+      - /run
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
-    cgroupns_mode: host
-    command: /usr/sbin/init
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
 provisioner:
   name: ansible
@@ -147,7 +137,9 @@ verifier:
   name: ansible
 ----
 
-. **Update the converge playbook:**
+=== Step 4.3: Update the Converge Playbook
+
+Modify the converge playbook to use the full collection role name:
 
 [source,yaml,role=execute,title="extensions/molecule/db_server/converge.yml"]
 ----
@@ -160,7 +152,9 @@ verifier:
         name: "ansible_bootcamp.my_collection.db_server"
 ----
 
-. **Create the verification playbook:**
+=== Step 4.4: Create Functional Tests
+
+Create a verification playbook that performs functional testing of the database setup:
 
 [source,yaml,role=execute,title="extensions/molecule/db_server/verify.yml"]
 ----
@@ -199,25 +193,48 @@ verifier:
         success_msg: "Verification successful! The DB user can connect, write, and read."
 ----
 
+== 5. Running the Test Suite
 
-== Step 4: Run the Test Suite!
+Now let's execute the complete Molecule test suite to validate our db_server role.
 
-From the root of your `ansible_bootcamp.my_collection` directory, run the Molecule test for the db_server role.
+=== Step 5.1: Execute the Tests
+
+From the root of your `ansible_bootcamp.my_collection` directory, run the Molecule test suite:
 
 [source,bash,role=execute]
 ----
 molecule test -s db_server
 ----
 
-*Note:* If you encounter issues with the container driver, you may need to ensure Podman is properly installed and configured for your environment. The test will install required collections and run the role in an isolated container.
+NOTE: If you encounter issues with the container driver, ensure Podman is properly installed and configured for your environment.
 
-Molecule will execute the standard test sequence:
-1. **Dependency:** Install required collections
-2. **Create:** Start the Podman container
-3. **Prepare:** (Optional preparation steps)
-4. **Converge:** Run the Ansible role
-5. **Idempotence:** Verify the role runs without changes on second execution
-6. **Verify:** Run functional tests
-7. **Destroy:** Clean up the Podman container
+=== Step 5.2: Understanding the Test Sequence
 
-The test will validate that your db_server role correctly installs and configures PostgreSQL, and that the database user can connect and perform operations.
+Molecule executes a comprehensive test sequence to validate your role:
+
+. **Dependency:** Install required Ansible collections (community.postgresql)
+. **Create:** Start an isolated Podman container with UBI9 base image
+. **Prepare:** (Optional preparation steps - skipped in this scenario)
+. **Converge:** Execute the db_server role to install and configure PostgreSQL
+. **Idempotence:** Run the role again to verify no changes occur (ensures safe re-runs)
+. **Verify:** Execute functional tests to validate database operations work correctly
+. **Destroy:** Clean up the test container
+
+The test suite validates that your db_server role successfully installs PostgreSQL, creates the application database and user, and enables functional database operations.
+
+Further documentation are provided below for those who are interested to learn more:
+
+* https://molecule.readthedocs.io/en/latest/[Molecule Documentation,window=_blank]
+* https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation,window=_blank]
+* https://docs.ansible.com/ansible/latest/user_guide/collections_using.html[Ansible Collections Guide,window=_blank]
+
+== 6. Conclusion
+
+Congratulations! You have successfully implemented Test-Driven Development for Ansible automation by:
+
+. Creating an Ansible collection with a db_server role
+. Implementing PostgreSQL installation and configuration
+. Configuring Molecule for isolated testing with functional verification
+. Running comprehensive tests that validate role functionality and idempotence
+
+This TDD approach ensures your automation is reliable, maintainable, and ready for production deployment. The skills you've learned here form the foundation for developing high-quality Ansible content that can be confidently deployed in enterprise environments.

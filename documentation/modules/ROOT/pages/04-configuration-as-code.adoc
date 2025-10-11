@@ -268,7 +268,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 
 - The next step is to create the `playbooks/aap_config.yml` playbook. This playbook will execute the `aap_configuration` dispatch role, applying the provided configurations in the necessary order.
 +
-[source,yaml,role=execute]
+[source,yaml,role=execute,title="playbooks/aap_config.yml"]
 ----
 ---
 - name: Playbook to configure ansible controller
@@ -303,7 +303,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 
 === Task 10 - Check your paths
 
-- Here's the desired layout for your folders from the root of the repo. Please examine the file organization to confirm that each file resides in its correct location within this structure. Run the `+tree+` command to verify. 
+- Here's the desired layout for your folders from the root of the repo. Please examine the file organization to confirm that each file resides in its correct location within this structure. Run the `+tree+` command to verify.
 +
 [source,bash]
 ----
@@ -782,7 +782,7 @@ The next step is to create a playbook/file `playbooks/aap_config.yml` that will 
 
 - Run `playbooks/aap_config` playbook.
 +
-[source,console]
+[source,console,role=execute]
 ----
 ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 ----
