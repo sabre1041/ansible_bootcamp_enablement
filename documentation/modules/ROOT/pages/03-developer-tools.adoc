@@ -23,10 +23,12 @@ Notice your prompt will now display which branch you are in. Also, `git` sub com
 
 If you haven't done so already in this Ansible Workspace, set your global username and email:
 
+[user devspaces-example (main)]$
+
 [source,bash]
 ----
-git config --global user.name "First Last"
-git config --global user.email "email@example.com"
+[user devspaces-example (main)]$ git config --global user.name "First Last"
+[user devspaces-example (main)]$ git config --global user.email "email@example.com"
 ----
 
 === Branches
@@ -35,10 +37,18 @@ Branches should be used liberally. Test ideas and have no fear trashing a branch
 
 [source,bash]
 ----
-git branch
-git branch test
-git checkout test
-git branch
+[user devspaces-example (main)]$ git branch
+* main
+[user devspaces-example (main)]$ git branch test
+[user devspaces-example (main)]$ git branch
+* main
+  test
+[user devspaces-example (main)]$ git checkout test
+A       secret
+Switched to branch 'test'
+[user devspaces-example (test)]$ git branch
+  main
+* test
 ----
 
 === Pull/Merge Requests
@@ -69,10 +79,9 @@ First create a fake API-like key. The default regex and patterns will determine 
 
 [source,bash]
 ----
-cd /projects
-mkdir leak_test
-echo key=$(uuidgen) > leak_test/file
-cat leak_test/file
+cd /projects/devspaces-example/
+echo key=$(uuidgen) > secret
+cat secret
 ----
 
 None of these specifics matter, but feel free to add additional files in this directory with any kind of desired data, the next step will scan the entire directory.
@@ -80,7 +89,7 @@ None of these specifics matter, but feel free to add additional files in this di
 [source,bash]
 ----
 podman pull docker.io/zricethezav/gitleaks:latest
-podman run -v /projects/leak_test/:/scan:Z zricethezav/gitleaks:latest dir -v /scan/
+podman run -v /projects/devspaces-example/:/scan:Z zricethezav/gitleaks:latest dir -v /scan/
 ----
 
 The default rules should detect the UUID as an API key.
@@ -88,6 +97,110 @@ The default rules should detect the UUID as an API key.
 == Pre-Commit
 
 Pre-commit is a tool that essentially hooks into `git` and runs additional tooling before the commit actualy writes to git history. This is a perfect way to automatically call things like `ansible-lint` and `gitleaks` before having to go back and squash or clean up git history.
+
+=== Install pre-commit
+
+[source,bash]
+----
+$ pip install --user pre-commit
+----
+
+[source,bash]
+----
+Collecting pre-commit
+  Downloading pre_commit-4.3.0-py2.py3-none-any.whl (220 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.0/221.0 kB 26.4 MB/s eta 0:00:00
+Collecting cfgv>=2.0.0
+  Downloading cfgv-3.4.0-py2.py3-none-any.whl (7.2 kB)
+Collecting identify>=1.0.0
+  Downloading identify-2.6.15-py2.py3-none-any.whl (99 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.2/99.2 kB 63.9 MB/s eta 0:00:00
+Collecting nodeenv>=0.11.1
+  Downloading nodeenv-1.9.1-py2.py3-none-any.whl (22 kB)
+Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib64/python3.11/site-packages (from pre-commit) (6.0.3)
+Requirement already satisfied: virtualenv>=20.10.0 in /usr/local/lib/python3.11/site-packages (from pre-commit) (20.25.1)
+Requirement already satisfied: distlib<1,>=0.3.7 in /usr/local/lib/python3.11/site-packages (from virtualenv>=20.10.0->pre-commit) (0.3.8)
+Requirement already satisfied: filelock<4,>=3.12.2 in /usr/local/lib/python3.11/site-packages (from virtualenv>=20.10.0->pre-commit) (3.13.1)
+Requirement already satisfied: platformdirs<5,>=3.9.1 in /usr/local/lib/python3.11/site-packages (from virtualenv>=20.10.0->pre-commit) (4.2.0)
+Installing collected packages: nodeenv, identify, cfgv, pre-commit
+  WARNING: The script nodeenv is installed in '/home/user/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script identify-cli is installed in '/home/user/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+  WARNING: The script pre-commit is installed in '/home/user/.local/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed cfgv-3.4.0 identify-2.6.15 nodeenv-1.9.1 pre-commit-4.3.0
+----
+
+Notice the WARNING: this tells you the path the binary was installed to.
+
+Add the following to `.pre-commit-config.yaml`
+
+[source,bash]
+----
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0 # Use the desired Gitleaks version
+    hooks:
+      - id: gitleaks
+        name: gitleaks
+        entry: podman run -v /projects/devspaces-example:/scan:Z zricethezav/gitleaks:latest dir -v /scan/
+        language: system # Indicate that it's a system command (Podman)
+        stages: [pre-commit]
+----
+
+Install the pre-commit hook:
+
+[source,bash]
+----
+$ /home/user/.local/bin/pre-commit install
+
+ pre-commit installed at .git/hooks/pre-commit
+----
+
+Attempt a `git commit` which should fail
+
+[source,bash]
+----
+$ git add secret
+$ git commit
+
+gitleaks.................................................................Failed
+- hook id: gitleaks
+- exit code: 1
+
+○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+Finding:     key=3863b2c6-cc7b-4832-92b6-5b82d6b1a987
+Secret:      3863b2c6-cc7b-4832-92b6-5b82d6b1a987
+RuleID:      generic-api-key
+Entropy:     3.583275
+File:        /gitleaks/secret
+Line:        1
+Fingerprint: /gitleaks/secret:generic-api-key:1
+
+1:22AM INF scanned ~15523 bytes (15.52 KB) in 7.62ms
+1:22AM WRN leaks found: 1
+
+bash-5.1$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   secret
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .pre-commit-config.yaml
+
+----
+
+In this way a developer never needs to remember to run a tool before a commit, pre-commit will do it for you, keeping mistakes out of git history.
 
 == Ansible Development Tools (ADT)
 
