@@ -4,7 +4,7 @@ This lab walks through some of the basic software development pratices as they a
 
 == Git
 
-While technically you can use something like a local directory for AAP, in general consider `git` a requirement. Furthermore, to properly scale automation across an enterprise, `git` _proficiency_ is required. This lab covers the extreme basics of `git`. For many of you, this may be 
+While technically you can use something like a local directory for AAP, in general consider `git` a requirement. Furthermore, to properly scale automation across an enterprise, `git` _proficiency_ is required. This lab covers the extreme basics of `git`. For many of you, this may be second nature so feel free to skip basic concepts you are already familiar with. This will not affect the lab later on. You will just miss some fun.
 
 === CLI Completion
 
@@ -50,6 +50,8 @@ Switched to branch 'test'
   main
 * test
 ----
+
+NOTE: Yes, you can create a branch using `git checkout -b <branch name>` but we wanted to show the long steps for teaching purposes. There are many shortcuts in git, see `man git`.
 
 === Pull/Merge Requests
 

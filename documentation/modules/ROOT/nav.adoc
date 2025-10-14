@@ -7,7 +7,6 @@
 ** xref:module-02.adoc#prerequisites[Install Prerequisites]
 ** xref:module-02.adoc#container[Enable Container]
 ////
-* xref:00-env-familiarization.adoc[0. Environment Familiarization]
 * xref:01-introduction.adoc[1. Introduction]
 * xref:02-aap-azure.adoc[2. AAP on Azure]
 * xref:03-developer-tools.adoc[3. Developer Tools]

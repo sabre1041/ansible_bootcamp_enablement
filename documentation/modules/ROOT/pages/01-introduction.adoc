@@ -1,8 +1,38 @@
 = Ansible Development in Dev Spaces
 
-This lab walks through the various aspects of launching, configuring and using DevSpaces on OpenShift as your primary development environment for Ansible.
+This lab is hosted on the Red Hat Demo Platform. This section walks through the various components and aspects of launching, configuring and using Dev Spaces on OpenShift as your primary development environment for Ansible.
+
+== Introduction: What is included in the demo environment
+
+.Red Hat OpenShift Platform
+
+Dedicated OCP cluster for hosting AAP and Dev Spaces
+
+.Ansible Automation Platform
+
+Dedicated instance of AAP running on OpenShift
+
+.Red Hat OpenShift Dev Spaces
+
+Dedicated Dev Spaces instance running on OpenShift
+
+.Gitea
+
+Dedicated git instance
+
+.Lab Instructions
+
+These lab instructions you are reading
+
+== Contributing to this Lab Documentation
+
+If you see an error in this lab, fork and submit a pull request against https://github.com/sabre1041/ansible_bootcamp_enablement
 
 == Dev Spaces console
+
+*Red Hat OpenShift Dev Spaces* is a powerful tool for creating consistent and reproducible development environments. It has a rich history rooted in open source starting as *Eclipse Che* - a Java-based developer workspace server and cloud-native IDE. Recognizing the potential of this technology, Red Hat became a key contirbutor to this project and this involvement led to the acquisition of Codenvy in 2017. On Feburary 5, 2019, Red Hat officially launched *Red Hat CodeReady Workspaces*. This is when the powerful concept of *devfiles* was introduced, a YAML-based configuration file that defines a development environment as code. This allowed the reproducibility and portability of development workspaces that aimed to end the "works on my system" problem many developers experienced. In June 2022, Red Hat announced a major evolution and rebranding of CodeReady Workspaces to *Red Hat OpenShift Dev Spaces*. With the release of AAP 2.6, a technology preview for *Ansible Development Workspaces* was announced which uses *Red Hat OpenShift Dev Spaces* https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/using_ansible_development_workspaces_for_automation_content_development/index[Ansible Development Workspaces documentation]
+
+.Launching Dev Spaces from OpenShift
 
 . Open the `OpenShift Console` link from your lab instructions
 . Check the `authentication` information in the lab instructions to login
@@ -20,8 +50,9 @@ NOTE: These are the long steps. For a shortcut, use the 9-block icon in the uppe
 
 image::01-introduction/intro-dev_spaces_shortcut.png[]
 
-
 == Dev Spaces Workspace
+
+.Launching a specific Dev Spaces Workspace
 
 . Login via OpenShift authentication provided in lab instructions
 . Select `Allow selected permissions` to authorize access and launch the console
@@ -29,45 +60,85 @@ image::01-introduction/intro-dev_spaces_shortcut.png[]
 +
 image::01-introduction/intro3.png[]
 +
-. This will take a few minutes and eventually show the VSCode infterface
+. This will take a few minutes and eventually show the VSCode infterface. While it loads think about the previous page that you can't see right now. There were other workspaces available and an input box to provide your own git URL.
 +
 image::01-introduction/intro4.png[]
 +
 . Trust the extension publishers if you wish to continue
 . Trust the authors of this workspace if you know us
-. Wait a few minutes until the additional extension icons appear for Ansible and OpenShift
+. Wait a few minutes until the additional extension icons appear for Ansible and OpenShift on the left side.
 +
 image::01-introduction/intro5.png[]
 
-== User Credentials in Workspaces
+== Ansible and OpenShift Extensions
 
-TBD
+For this lab we have have provided a `.code-workspace` configuration that listed these extensions. See https://github.com/jeffcpullen/devspaces-example/blob/main/devspaces.code-workspace
 
-== Launching a Workspace from a git repo
-
-TBD
-
-== Configuring Extensions
-
-. Click on the `Ansible` extension icon
+. Click on the `Ansible` extension icon to access the Ansible Development Tools extension (covered in a later lab)
 +
 image::01-introduction/intro6.png[]
 
-== Enabling Lightspeed
+== User Credentials in Workspaces
 
-TBD 
+If you would like to add Personal Access tokens for Github, Gitlab or Bitbucket this can be set once and applied to all your workspaces. This is done after logging into the Red Hat OpenShift DevSpaces dashboard, then in the top right drop down next to your username and icon and select, "User Preferences". In the User Preferences page you will want to select "Personal Access Tokens" and add a git Personal Access Token (PAT).
+
+For more information see the https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/3.23/html/user_guide/getting-started-with-devspaces#authenticating-to-a-git-server-from-a-workspace[Authenticating to a Git server from a Workspace].
 
 == Accessing a Terminal
 
 . Open a new terminal from the VSCode menu starting with the hamburger (3 horizontal lines) in the top left choosing `Terminal` then `New Terminal`
 +
 image::01-introduction/intro7.png[]
-. Explore the environment running commands like `whoami` and `cat /etc/redhat-release`
+. Explore the environment:
 
-== Configuring ansible-navigator
+[source,bash]
+----
+$ whoami
 
-TBD
+user
+----
 
-== Run a playbook through ansible-navigator
+[source,bash]
+----
+cat /etc/redhat-release`
 
-TBD
+Red Hat Enterprise Linux release 9.6 (Plow)
+----
+
+
+[source,bash]
+----
+$ ansible --version
+
+ansible [core 2.16.14]
+  config file = None
+  configured module search path = ['/home/user/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/local/lib/python3.11/site-packages/ansible
+  ansible collection location = /home/user/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/local/bin/ansible
+  python version = 3.11.11 (main, Aug 21 2025, 00:00:00) [GCC 11.5.0 20240719 (Red Hat 11.5.0-5)] (/usr/bin/python3.11)
+  jinja version = 3.1.6
+  libyaml = True
+----
+
+== Conclusion
+
+You have successfully learned:
+
+. Some details about lab resources
+. How to use your lab information to login to OpenShift and Dev Spaces
+. How to provide feedback and contributions to this demo environment
+
+This foundation prepares you to start your Ansible Bootcamp Enablement lab.
+
+== Helpful Links
+
+For additional reference and deeper learning on AAP in Azure, review the following resources:
+
+. https://access.redhat.com/articles/6983528[Red Hat Ansible Automation Platform on Azure Articles].
+. https://access.redhat.com/articles/6973251[Networking and Prerequisites for AAP on Azure].
+. https://redhat.enterprise.slack.com/archives/C068PHHMF2T[Slack - Ansible Cloud Services].
+. https://docs.redhat.com/en/documentation/red_hat_openshift_dev_spaces/3.23/html/user_guide/getting-started-with-devspaces#authenticating-to-a-git-server-from-a-workspace[Authenticating to a Git server from a Workspace].
+. https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/using_ansible_development_workspaces_for_automation_content_development/index[Ansible Development Workspaces documentation]
+. https://github.com/jeffcpullen/devspaces-example/[Source for the Dev Space Workspace]
+. https://github.com/sabre1041/ansible_bootcamp_enablement[Source for this lab content]
