@@ -116,6 +116,8 @@ Create the meta directory and argument specification file:
 
 [source,yaml,role=execute,subs="verbatim,attributes",title="roles/db_server/meta/argument_specs.yml"]
 ----
+---
+# argument spec file for ansible_bootcamp.my_collection.db_server
 argument_specs:
   main:
     short_description: "Arguments for the db_server role"
@@ -172,7 +174,7 @@ USER postgres
 
 Build the custom PostgreSQL container image:
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 podman build -t localhost/my_psql .
 ----
@@ -195,12 +197,27 @@ molecule init scenario db_server
 
 **Move the scenario to the extensions directory:**
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 mv molecule/db_server extensions/molecule/; rmdir molecule
 ----
 
 **Move some playbooks into utils directory:**
+
+[source,bash,role=execute,subs="verbatim,attributes"]
+----
+mv extensions/molecule/db_server/{converge.yml,create.yml,destroy.yml} extensions/molecule/utils/playbooks/
+----
+
+**Delete unused example directory:**
+
+[source,bash,role=execute,subs="verbatim,attributes"]
+----
+rm -rf extensions/molecule/integration_hello_world
+----
+
+**Modify `extensions/molecule/db_server/molecule.yml`:**
+   Replace the contents of this file with the following configuration:
 
 [source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/molecule.yml"]
 ----
