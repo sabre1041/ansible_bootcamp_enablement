@@ -595,7 +595,7 @@ Once you have the updated collection in your PAH you can follow the steps below 
 
 NOTE: If you have these environment variables set from the previous lab you do not need to set them again.
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Set the list of servers Ansible should know about
 export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
@@ -605,11 +605,11 @@ export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL={aap_controller_web_url}/pulp_ansible
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'certified' repository
-export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL={aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/''
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL={aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'validated' repository
-export ANSIBLE_GALAXY_SERVER_VALIDATED_URL=''{aap_controller_web_url}/pulp_ansible/galaxy/validated/
+export ANSIBLE_GALAXY_SERVER_VALIDATED_URL={aap_controller_web_url}/pulp_ansible/galaxy/validated/
 export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'community' repository
