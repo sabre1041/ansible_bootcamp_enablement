@@ -2,121 +2,160 @@
 
 '''
 
-== Objective
+== 1. Introduction: Test-Driven Development with Molecule
+
+Test-Driven Development (TDD) is a software development approach where tests are written before the code they validate. In Ansible automation, Molecule enables this practice by providing a framework for testing roles in isolated environments.
+
+Why use Molecule for Ansible roles?
+
+* *Isolated Testing*: Tests run in clean, ephemeral containers ensuring consistent results.
+* *Idempotence Verification*: Confirms roles can run multiple times without side effects.
+* *Functional Testing*: Validates that roles actually work as intended, not just that they run.
+* *CI/CD Integration*: Enables automated testing in pipelines before deployment.
+
+=== 1.1 Objective
 
 You will write and test an Ansible role that **manages** a PostgreSQL database running inside a pre-built container. Instead of installing the database software, your role will be responsible for creating users and databases within the running service.
 
-This lab demonstrates a modern, container-native testing workflow where the Molecule `default` scenario provisions the database container using environment variables, and a separate `db_server` scenario runs a role to configure it. 🧪
+This lab demonstrates a modern, container-native testing workflow where the Molecule `default` scenario provisions the database container using environment variables, and a separate `db_server` scenario runs a role to configure it.
 
 '''
 
-== Prerequisites
-
-* Ansible, Molecule, and Docker (or Podman) are installed.
-* You are in a development directory where you can create a new collection.
-
-'''
-
-== Step 1: Create and Prepare the Collection
+== Step 2: Create and Prepare the Collection
 
 First, generate the collection and add the `db_server` role resource.
 
-. Generate the collection skeleton:
-+
-[source,bash]
-----
-ansible-creator collection init ansible_bootcamp.my_collection
-----
+Add the `db_server` role:
 
-. Change into the collection directory:
-+
-[source,bash]
+[source,bash,role=execute]
 ----
-cd ansible_bootcamp.my_collection
-----
-
-. Add the `db_server` role:
-+
-[source,bash]
-----
-ansible-creator add resource role db_server
-----
-
-. **Remove the default scenario created by `ansible-creator` to start fresh:**
-+
-[source,bash]
-----
-rm -rf extensions/molecule
+ansible-creator add resource role db_server .
 ----
 
 '''
 
-== Step 2: Develop the `db_server` Role
+== Step 3: Develop the `db_server` Role
 
 The role's responsibility is now much simpler. It assumes PostgreSQL is already running and only needs to create our application's user and database.
 
-=== Define Default Variables (`roles/db_server/defaults/main.yml`)
-[source,yaml]
+[source,yaml,role=execute,title="roles/db_server/defaults/main.yml"]
 ----
 ---
-# defaults file for db_server
-db_name: "webapp_prod"
-db_user: "webapp_user"
-db_password: "SecurePassword123"
+# defaults file for ansible_bootcamp.my_collection.db_server
+db_server_db_name: "webapp_prod"
+db_server_db_user: "webapp_user"
+db_server_db_password: "SecurePassword123"
+...
+
 ----
 
-=== Write the Main Tasks (`roles/db_server/tasks/main.yml`)
 Replace the entire contents of this file. Notice there are no installation, initialization, or service management tasks.
 
-[source,yaml]
+[source,yaml,role=execute,title="roles/db_server/tasks/main.yml"]
 ----
 ---
-# tasks file for db_server
+# tasks file for ansible_bootcamp.my_collection.db_server
 - name: Create the application database
   community.postgresql.postgresql_db:
-    name: "{{ db_name }}"
+    name: "{{ db_server_db_name }}"
     state: present
-  become: true
-  become_user: postgres
 
 - name: Create the application database user
   community.postgresql.postgresql_user:
-    name: "{{ db_user }}"
-    password: "{{ db_password }}"
+    login_db: "{{ db_server_db_name }}"
+    name: "{{ db_server_db_user }}"
+    password: "{{ db_server_db_password }}"
     state: present
-  become: true
-  become_user: postgres
 
-- name: Grant the user full privileges on the new database
+- name: Grant CONNECT on database to our user
   community.postgresql.postgresql_privs:
-    db: "{{ db_name }}"
-    privs: ALL
+    login_db: "{{ db_server_db_name }}"
+    privs: CONNECT
     type: database
-    roles: "{{ db_user }}"
-    grant_option: false
-  become: true
-  become_user: postgres
+    obj: "{{ db_server_db_name }}"
+    roles: "{{ db_server_db_user }}"
+
+- name: Grant USAGE and CREATE on schema public to our user
+  community.postgresql.postgresql_privs:
+    login_db: "{{ db_server_db_name }}"
+    privs: ALL
+    type: schema
+    obj: public
+    roles: "{{ db_server_db_user }}"
+
+...
+
 ----
 
 '''
 
-== Step 3: Configure the Advanced Molecule Scenarios
+== Step 3.5: Create the PostgreSQL Container Image
+
+Before running the tests, you need to create a custom PostgreSQL container image that includes the necessary Python PostgreSQL libraries for the Ansible modules to work.
+
+=== Create the Dockerfile
+
+Create a `Dockerfile` in the root of your collection:
+
+[source,text,role=execute,title="Dockerfile"]
+----
+FROM registry.redhat.io/rhel9/postgresql-16:latest
+USER root
+RUN dnf install -y python3-psycopg2
+USER postgres
+----
+
+=== Build the Container Image
+
+Build the custom PostgreSQL container image:
+
+[source,bash,role=execute]
+----
+podman build -t localhost/my_psql .
+----
+
+'''
+
+== Step 4: Configure the Advanced Molecule Scenarios
 
 You will now create and configure your scenarios in a `molecule/` directory at the root of the collection.
 
 === Create and Configure the `db_server` (Component Testing) Scenario
 This scenario performs the actual test of the role.
 
-. **Initialize the new scenario:**
-   [source,bash]
-   ----
-   molecule init scenario db_server -d molecule
-   ----
+**Initialize the new scenario:**
 
-. **Modify `molecule/db_server/molecule.yml`:**
-   Replace the contents of this file. We are merging the settings from the old `config.yml` directly into this file.
-   [source,yaml]
-   ----
+[source,bash,role=execute]
+----
+molecule init scenario db_server
+----
+
+**Move the scenario to the extensions directory:**
+
+[source,bash,role=execute]
+----
+mv molecule/db_server extensions/molecule/; rmdir molecule
+----
+
+**Move some playbooks into utils directory:**
+
+[source,bash,role=execute]
+----
+mv extensions/molecule/db_server/{converge.yml,create.yml,destroy.yml} extensions/molecule/utils/playbooks/
+----
+
+**Delete unused example directory:**
+
+[source,bash,role=execute]
+----
+rm -rf extensions/molecule/integration_hello_world
+----
+
+**Modify `extensions/molecule/db_server/molecule.yml`:**
+   Replace the contents of this file with the following configuration:
+
+[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
+----
 ---
 dependency:
   name: galaxy
@@ -126,11 +165,13 @@ driver:
   name: podman
 platforms:
   - name: instance
-    image: localhost/my_pgsql:latest # "registry.redhat.io/rhel9/postgresql-16:latest"
+    image: localhost/my_psql
+    container_command: run-postgresql
+    entrypoint: container-entrypoint
+    ports:
+      - 5432:5432
     env:
-      POSTGRESQL_USER=webapp_user
-      POSTGRESQL_PASSWORD=SecurePassword123
-      POSTGRESQL_DATABASE=webapp_prod
+      POSTGRESQL_ADMIN_PASSWORD: AdminSecurePassword123
     pre_build_image: true
     cgroupns_mode: host
     tmpfs:
@@ -140,86 +181,350 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
 provisioner:
   name: ansible
+  playbooks:
+    cleanup: ../utils/playbooks/cleanup.yml
+    converge: ../utils/playbooks/converge.yml
+    destroy: ../utils/playbooks/destroy.yml
+    prepare: ../utils/playbooks/prepare.yml
+    create: ../utils/playbooks/create.yml
+    verify: ../utils/playbooks/verify.yml
   inventory:
     group_vars:
       all:
-        db_name: "webapp_prod"
-        db_user: "webapp_user"
-        db_password: "SecurePassword123"
+        ansible_connection: containers.podman.podman
+        db_server_db_name: "webapp_prod"
+        db_server_db_user: "webapp_user"
+        db_server_db_password: "SecurePassword123"
 verifier:
   name: ansible
+...
 
-   ----
+----
 
-. **Delete the `prepare.yml` playbook:**
-   The specialized container image handles all setup, so a prepare step is not needed.
-   [source,bash]
-   ----
-   rm molecule/db_server/prepare.yml
-   ----
+[source,yaml,role=execute,title="extensions/molecule/db_server/requirements.yml"]
+----
+---
+collections:
+  - containers.podman
+  - community.postgresql
+...
 
-. **Create `molecule/db_server/converge.yml`:**
-   [source,yaml]
-   ----
-   ---
-   - name: Converge
-     hosts: all
-     tasks:
-       - name: "Include the db_server role"
-         ansible.builtin.include_role:
-           name: "ansible_bootcamp.my_collection.db_server"
-   ----
+----
 
-. **Create `molecule/db_server/verify.yml`:**
-   [source,yaml]
-   ----
-   ---
-   - name: Verify
-     hosts: all
-     vars:
-       db_name: "webapp_prod"
-       db_user: "webapp_user"
-       db_password: "SecurePassword123"
-     tasks:
-       - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
-         community.postgresql.postgresql_query:
-           login_user: "{{ db_user }}"
-           login_password: "{{ db_password }}"
-           db: "{{ db_name }}"
-           query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
+The scenario uses shared playbook files for container management and testing. Create the following files:
 
-       - name: "FUNCTIONAL TEST: Write data to the new table"
-         community.postgresql.postgresql_query:
-           login_user: "{{ db_user }}"
-           login_password: "{{ db_password }}"
-           db: "{{ db_name }}"
-           query: "INSERT INTO molecule_verify (id) VALUES (1);"
+The `create.yml` playbook is responsible for provisioning the test infrastructure. In Molecule's testing lifecycle, this is the first phase where containers or virtual machines are created to provide isolated environments for testing.
 
-       - name: "FUNCTIONAL TEST: Read data back and verify the result"
-         community.postgresql.postgresql_query:
-           login_user: "{{ db_user }}"
-           login_password: "{{ db_password }}"
-           db: "{{ db_name }}"
-           query: "SELECT COUNT(*) FROM molecule_verify;"
-         register: query_result
-         changed_when: false
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/create.yml"]
+----
+---
+- name: Create container instances
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create containers from inventory
+      containers.podman.podman_container:
+        name: "{{ item['name'] }}"
+        image: "{{ item['image'] }}"
+        command: "{{ item['container_command'] | default('sleep 1d') }}"
+        privileged: "{{ item['container_privileged'] | default(false) }}"
+        volumes: "{{ item['volumes'] | default(omit) }}"
+        entrypoint: "{{ item['entrypoint'] | default(omit) }}"
+        capabilities: "{{ item['container_capabilities'] | default(omit) }}"
+        systemd: "{{ item['container_systemd'] | default(false) }}"
+        log_driver: "{{ item['container_log_driver'] | default('json-file') }}"
+        env: "{{ item['env'] | default(omit) }}"
+        ports: "{{ item['ports'] }}"
+        state: started
+      register: result
+      loop: "{{ molecule_yml.platforms }}"
 
-       - name: "Assert that one record was found"
-         ansible.builtin.assert:
-           that:
-             - query_result.query_result[0].count == 1
-           fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
-           success_msg: "Verification successful! The DB user can connect, write, and read."
-   ----
+    - name: Verify containers are running
+      ansible.builtin.include_tasks:
+        file: tasks/create-fail.yml
+      when: >
+        item.container.State.ExitCode != 0 or
+        not item.container.State.Running
+      loop: "{{ result.results }}"
+      loop_control:
+        label: "{{ item.container.Name }}"
+
+    - name: Wait for containers to be ready
+      ansible.builtin.wait_for_connection:
+        timeout: 30
+      delegate_to: "{{ item }}"
+      loop: "{{ play_hosts }}"
+...
+
+----
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
+----
+---
+- name: Retrieve container log
+  ansible.builtin.command:
+    cmd: podman logs {{ item.container.Name }}
+  changed_when: false
+  register: logfile_cmd
+
+- name: Display container log and fail
+  ansible.builtin.fail:
+    msg: |
+      Container {{ item.container.Name }} failed to start properly.
+      Exit Code: {{ item.container.State.ExitCode }}
+      Running: {{ item.container.State.Running }}
+      Log output: {{ logfile_cmd.stdout | default('No logs available') }}
+...
+
+----
+
+The `prepare.yml` playbook handles any pre-testing setup tasks. This optional phase in Molecule allows you to configure the test environment before applying your Ansible role, such as installing dependencies or setting up prerequisites.
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/prepare.yml"]
+----
+---
+- name: Prepare play
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: Molecule | Prepare | Ping hosts
+      ansible.builtin.ping:
+...
+
+----
+
+The `converge.yml` playbook is the core of Molecule testing - it executes your Ansible role against the test infrastructure. This phase applies your automation to verify that the role works correctly and achieves the desired state.
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/converge.yml"]
+----
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Wait for PostgreSQL to be ready"
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host }}"
+        port: 5432
+        delay: 5   # Time to wait before first check
+        timeout: 60 # Total time to wait before failing
+      delegate_to: localhost
+
+    - name: "Wait for PostgreSQL to accept connections inside container"
+      ansible.builtin.command: psql -h localhost -U {{ db_server_db_user }} -d {{ db_server_db_name }} -c "SELECT 1;"
+      register: postgres_check
+      until: postgres_check.rc == 0
+      retries: 30
+      delay: 2
+      ignore_errors: true
+      changed_when: false
+
+    - name: "Include the db_server role"
+      ansible.builtin.include_role:
+        name: "ansible_bootcamp.my_collection.db_server"
+...
+
+----
+
+The `verify.yml` playbook performs functional testing to validate that your role not only ran successfully, but actually achieved the desired results. This phase includes tests that check database connectivity, verify data persistence, and confirm your automation works end-to-end.
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/verify.yml"]
+----
+---
+- name: Verify
+  hosts: all
+  vars:
+    db_server_db_name: "webapp_prod"
+    db_server_db_user: "webapp_user"
+    db_server_db_password: "SecurePassword123"
+  tasks:
+    - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_server_db_user }}"
+        login_password: "{{ db_server_db_password }}"
+        db: "{{ db_server_db_name }}"
+        query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
+
+    - name: "FUNCTIONAL TEST: Write data to the new table"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_server_db_user }}"
+        login_password: "{{ db_server_db_password }}"
+        db: "{{ db_server_db_name }}"
+        query: "INSERT INTO molecule_verify (id) VALUES (1);"
+
+    - name: "FUNCTIONAL TEST: Read data back and verify the result"
+      community.postgresql.postgresql_query:
+        login_user: "{{ db_server_db_user }}"
+        login_password: "{{ db_server_db_password }}"
+        db: "{{ db_server_db_name }}"
+        query: "SELECT COUNT(*) FROM molecule_verify;"
+      register: query_result
+      changed_when: false
+
+    - name: "Assert that one record was found"
+      ansible.builtin.assert:
+        that:
+          - query_result.query_result[0].count == 1
+        fail_msg: "Verification failed! Expected to find 1 record but found {{ query_result.query_result[0].count }}."
+        success_msg: "Verification successful! The DB user can connect, write, and read."
+...
+
+----
+
+The `cleanup.yml` playbook handles cleanup of temporary files and artifacts created during testing, helping maintain a clean test environment between test runs without destroying the actual test infrastructure.
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/cleanup.yml"]
+----
+---
+- name: Cleanup container instances
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: Check if container is running
+      containers.podman.podman_container_info:
+        name: "{{ groups['all'] }}"
+      register: container_info
+      delegate_to: localhost
+
+    - name: Remove temporary files from running containers
+      ansible.builtin.file:
+        path: /tmp/molecule_os_info.txt
+        state: absent
+      when:
+        - container_info.containers | length > 0
+        - container_info.containers[0].State.Running
+      failed_when: false
+...
+
+----
+
+The `destroy.yml` playbook tears down the test infrastructure completely. This final phase in Molecule's lifecycle ensures that containers, virtual machines, and other test resources are properly cleaned up after testing is complete.
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/destroy.yml"]
+----
+---
+- name: Destroy container instances
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Get info for all containers
+      containers.podman.podman_container_info:
+        name: "{{ item['name'] }}"
+      loop: "{{ molecule_yml.platforms }}"
+      register: podman_infos
+
+    - name: Kill container if running
+      containers.podman.podman_container:
+        name: "{{ item.item['name'] }}"
+        state: stopped
+        timeout: 2
+      loop: "{{ podman_infos.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when:
+        - item.containers | length > 0
+        - item.containers[0].State.Status == "running"
+
+    - name: Remove container to ensure clean state
+      containers.podman.podman_container:
+        name: "{{ item.item['name'] }}"
+        state: absent
+      loop: "{{ podman_infos.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when: item.containers | length > 0
+...
+
+----
+
+The `noop.yml` playbook is a placeholder that performs no operations. It can be used as a template or when you need a playbook that does nothing during specific testing phases.
+
+[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/noop.yml"]
+----
+---
+- name: No-op
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Run a noop
+      ansible.builtin.debug:
+        msg: "This does nothing!"
+...
+----
+
 '''
 
-== Step 4: Run the Full Test Suite!
+=== Additional Molecule Playbooks
 
-From the root of your `ansible_bootcamp.my_collection` directory, execute the entire test suite.
+Molecule supports several other standard playbooks that we haven't implemented in this lab:
 
-[source,bash]
+* *`idempotence.yml`*: Tests that running your role multiple times produces the same result without unwanted side effects. This verifies that your automation is truly idempotent.
+
+* *`side_effect.yml`*: Tests the impact of your role on other parts of the system or external dependencies. Useful for testing integration effects or cross-system interactions.
+
+These additional playbooks can be configured in your `molecule.yml` file under the `provisioner.playbooks` section when you need more advanced testing scenarios.
+
+'''
+
+== Step 5: Build and Install the Collection
+
+Before running the molecule tests, you need to build and install the collection so that the role can be found by Ansible.
+
+Update the `galaxy.yml` file to add a dependency on `"community.postgresql": "*"` and increment the version number.
+
+[source,bash,role=execute]
 ----
+ansible-galaxy collection build .
+ansible-galaxy collection install ansible_bootcamp-my_collection-*.tar.gz --force
+ansible-galaxy collection publish -s https://{aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-*.tar.gz --token YOUR_API_TOKEN_HERE
+----
+
+'''
+
+== Step 5.2: Understanding the Test Sequence
+
+Molecule executes a comprehensive test sequence to validate your role:
+
+*Dependency*: Install required Ansible collections (community.postgresql)
+
+*Create*: Start an isolated Podman container with UBI9 base image
+
+*Prepare*: (Optional preparation steps - skipped in this scenario)
+
+*Converge*: Execute the db_server role to install and configure PostgreSQL
+
+*Idempotence*: Run the role again to verify no changes occur (ensures safe re-runs)
+
+*Verify*: Execute functional tests to validate database operations work correctly
+
+*Destroy*: Clean up the test container
+
+The test suite validates that your db_server role successfully installs PostgreSQL, creates the application database and user, and enables functional database operations.
+
+Further documentation are provided below for those who are interested to learn more:
+
+* https://molecule.readthedocs.io/[Molecule Documentation]
+* https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
+* https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+
+== Step 6: Run the Full Test Suite!
+
+Change to the extensions directory and execute the test suite.
+
+[source,bash,role=execute]
+----
+cd extensions
 molecule test --all
 ----
 
-This corrected structure removes the invalid `extends` keyword and uses a more explicit configuration for each scenario, which will resolve the validation error. ✅
+This corrected structure removes the invalid `extends` keyword and uses a more explicit configuration for each scenario, which will resolve the validation error.
+
+== Conclusion
+
+Congratulations! You have successfully implemented Test-Driven Development for Ansible automation by:
+
+* Creating an Ansible collection with a db_server role
+* Implementing PostgreSQL installation and configuration
+* Configuring Molecule for isolated testing with functional verification
+* Running comprehensive tests that validate role functionality and idempotence
+
+This TDD approach ensures your automation is reliable, maintainable, and ready for production deployment. The skills you've learned here form the foundation for developing high-quality Ansible content that can be confidently deployed in enterprise environments.

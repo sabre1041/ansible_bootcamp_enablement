@@ -16,7 +16,7 @@ version: 3
 
 images:
   base_image:
-    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   system:
@@ -37,31 +37,31 @@ additional_build_steps:
   prepend_galaxy:
     - ARG TOKEN
     - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
-    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
     - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
     - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://{aap_controller_web_url}/pulp_ansible/galaxy/community/'
     - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://{aap_controller_web_url}/pulp_ansible/galaxy/published/'
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 === Task 2: Build and Publish the Execution Environment
 
 [source,bash,role=execute]
 ----
 # Log in to your PAH container registry
-podman login pah.example.com
+podman login {aap_controller_web_url}
 
 # Build the EE. It will pull the base from PAH, then add our content.
 ansible-builder build --tag config_as_code_ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
 
 # Tag and push the image to your PAH registry
-podman tag localhost/config_as_code_ee:1.0 pah.example.com/config_as_code_ee:1.0
-podman push pah.example.com/config_as_code_ee:1.0
+podman tag localhost/config_as_code_ee:1.0 {aap_controller_web_url}/config_as_code_ee:1.0
+podman push {aap_controller_web_url}/config_as_code_ee:1.0
 ----
 
 [#variable_files]
