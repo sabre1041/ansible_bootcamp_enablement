@@ -9,14 +9,14 @@ First, let's build a new EE with all our required collections.
 
 === Step 1.1: Build new EE
 
-[source,bash,role=execute,title="execution-environment.yml"]
+[source,bash,role=execute,subs="verbatim,attributes",title="execution-environment.yml"]
 ----
 ---
 version: 3
 
 images:
   base_image:
-    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   system:
@@ -37,31 +37,31 @@ additional_build_steps:
   prepend_galaxy:
     - ARG TOKEN
     - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
-    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
     - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
     - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansible/galaxy/community/'
     - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/published/'
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 === Task 2: Build and Publish the Execution Environment
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Log in to your PAH container registry
-podman login pah.example.com
+podman login {aap_controller_web_url}
 
 # Build the EE. It will pull the base from PAH, then add our content.
 ansible-builder build --tag config_as_code_ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
 
 # Tag and push the image to your PAH registry
-podman tag localhost/config_as_code_ee:1.0 pah.example.com/config_as_code_ee:1.0
-podman push pah.example.com/config_as_code_ee:1.0
+podman tag localhost/config_as_code_ee:1.0 {aap_controller_web_url}/config_as_code_ee:1.0
+podman push {aap_controller_web_url}/config_as_code_ee:1.0
 ----
 
 [#variable_files]
@@ -73,7 +73,7 @@ podman push pah.example.com/config_as_code_ee:1.0
 
 - The variables are defined in the file `config/dev/auth.yml`. 
 
-[source,yaml,role=execute,title="config/dev/auth.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/auth.yml"]
 ----
 aap_hostname: <GATEWAY_HOST>
 aap_username: "{{ student_account }}"
@@ -103,7 +103,7 @@ WARNING: Do not include https:// in the GATEWAY_HOST value
 - Your username should be: {ssh_username}
 - Your password should be: {ssh_password}
 +
-[source,yaml,role=execute,title="config/dev/vault.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/vault.yml"]
 ----
 ---
 aap_password: ### Insert Password here
@@ -122,7 +122,7 @@ NOTE: For good configuration as code we recommend retrieving passwords from secu
 
 - Create a `.password` file and put a password in it. This is the password vault uses to encrypt secrets.
 +
-[source,bash,role=execute,title=".password"]
+[source,bash,role=execute,subs="verbatim,attributes",title=".password"]
 ----
 cascLB2193
 ----
@@ -131,7 +131,7 @@ IMPORTANT: **We do not recommend using .password files outside of lab environmen
 
 - The `ansible.cfg` file points to the `.password` file. This has been preopulated, but please review the ansible.cfg file to see how this lab is connected to hub and uses the password file.
 +
-[source,bash,role=execute,title="ansible.cfg"]
+[source,bash,role=execute,subs="verbatim,attributes",title="ansible.cfg"]
 ----
 [defaults]
 vault_password_file=.password
@@ -139,7 +139,7 @@ vault_password_file=.password
 +
 Encrypt vault with the password in the .password file
 +
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-vault encrypt config/dev/vault.yml
 ----
@@ -154,7 +154,7 @@ ansible-vault encrypt config/dev/vault.yml
 
 - Create a file `config/all/organizations.yml`
 +
-[source,yaml,role=execute,title="config/all/organizations.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/organizations.yml"]
 ----
 ---
 aap_organizations_all:
@@ -173,7 +173,7 @@ aap_organizations_all:
 
 - Create a file `config/all/teams.yml`
 +
-[source,yaml,role=execute,title="config/all/teams.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/teams.yml"]
 ----
 ---
 aap_teams_all:
@@ -192,7 +192,7 @@ aap_teams_all:
 
 - Create a file `config/all/users.yml` with the below information:
 +
-[source,yaml,role=execute,title="config/all/users.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/users.yml"]
 ----
 ---
 aap_user_accounts_all:
@@ -207,7 +207,7 @@ aap_user_accounts_all:
 
 - Create a file `hosts` inventory file:
 +
-[source,bash,role=execute,title="hosts"]
+[source,bash,role=execute,subs="verbatim,attributes",title="hosts"]
 ----
 [dev]
 localhost
@@ -222,7 +222,7 @@ localhost
 
 - Create a file `config/all/hub_repositories.yml` to create the list of community repositories and their remote counterpart.
 +
-[source,yaml,role=execute,title="config/all/hub_repositories.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/hub_repositories.yml"]
 ----
 ---
 hub_collection_remotes_all:
@@ -268,7 +268,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 
 - The next step is to create the `playbooks/aap_config.yml` playbook. This playbook will execute the `aap_configuration` dispatch role, applying the provided configurations in the necessary order.
 +
-[source,yaml,role=execute,title="playbooks/aap_config.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="playbooks/aap_config.yml"]
 ----
 ---
 - name: Playbook to configure ansible controller
@@ -339,7 +339,7 @@ We need to save our work your lab's Gitea.
 
 ==== 11.2 Create `.gitignore` file
 
-[source,bash,role=execute,title=".gitignore"]
+[source,bash,role=execute,subs="verbatim,attributes",title=".gitignore"]
 ----
 context/
 .password
@@ -356,7 +356,7 @@ After an empty repository is created on your Gitea, we need to push the collecti
 . In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
 . Now, follow these steps in the root directory of 'my_pah_project'
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 git config --global user.email "gitea@opentlc.com"
 git config --global user.name <YOUR NAME>
@@ -370,7 +370,7 @@ git push -u origin main
 
 === Task 12 - Create ansible-navigator configuration file
 
-[source,yaml,role=execute,title="ansible-navigator.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="ansible-navigator.yml"]
 ----
 ---
 ansible-navigator:
@@ -385,7 +385,7 @@ ansible-navigator:
 
 - The next step is to run this playbook, this kicks off the initial setup for everything we've just created for the Ansible Automation Platform.
 +
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 ----
@@ -417,7 +417,7 @@ help you complete this task.
 
 - Create a file `config/all/settings.yml` with the below content.
 +
-[source,yaml,role=execute,title="config/all/settings.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/settings.yml"]
 ----
 ---
 controller_settings_all:
@@ -437,7 +437,7 @@ to include a new EE (that we will show how to create with code in the next modul
 +
 image::04-configuration-as-code/config_ee_v2.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
 
-[source,yaml,role=execute,title="config/all/execution_environments.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/execution_environments.yml"]
 ----
 ---
 controller_execution_environments_all:
@@ -477,7 +477,7 @@ the variables that will then be useable in a job.
 +
 The role will iterate through this list and for each item in this list it will create custom credential types for using it in the controller.
 +
-[source,yaml,role=execute,title="config/all/credential_types.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/credential_types.yml"]
 ----
 ---
 controller_credential_types_all:
@@ -547,7 +547,7 @@ controller_credential_types_all:
 - Create a file `config/all/credentials.yml` and add the required information to the list `controller_credentials` to configure the UI to look like the screenshot. Make it to look like the screenshot, but make sure to use parameters for the values.
 *DO NOT PASTE YOUR PASSWORD IN CLEARTEXT FOR CREDENTIALS!*
 +
-[source,yaml,role=execute,title="config/all/credentials.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/credentials.yml"]
 ----
 ---
 controller_credentials_all:
@@ -631,7 +631,7 @@ image::04-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,
 +
 image::04-configuration-as-code/orgs.png[title="Config as Code Organization",125%,125%, link=self, window=blank]
 +
-[source,yaml,role=execute,title="Update config/all/organizations.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="Update config/all/organizations.yml"]
 ----
 ---
 aap_organizations_all:
@@ -654,7 +654,7 @@ WARNING: There are some values such as `project base path`, `playbook directory`
 NOTE: You will want to refer to the role documentation to determine which options need to be set
 // TODO - What git project are we pointing at? Also, perhaps consider providing a table with the values they need to set so they can at least copy/paste URLs etc, but still have to look up the options required
 
-[source,yaml,role=execute,title="config/all/projects.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/projects.yml"]
 ----
 ---
 controller_configuration_projects_async_delay: 5
@@ -675,7 +675,7 @@ image::04-configuration-as-code/project_v2.png[title="Project",125%,125%, link=s
 information to the list `controller_inventories` to configure the UI
 to look like the screenshot
 +
-[source,yaml,role=execute,title="config/all/inventories.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/inventories.yml"]
 ----
 ---
 controller_inventories_all:
@@ -692,7 +692,7 @@ image::04-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, 
 
 - Add to file `config/all/inventory_sources.yml` and a new variable with the required information to the list `controller_inventory_sources` to configure the UI to look like the screenshot
 +
-[source,yaml,role=execute,title="config/all/inventory_sources.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/inventory_sources.yml"]
 ----
 ---
 controller_inventory_sources_all:
@@ -712,7 +712,7 @@ information to the list `controller_templates` to configure the UI to like the s
 +
 Pay attention to the credentials attached to each job template.
 +
-[source,yaml,role=execute,title="config/all/job_templates.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/job_templates.yml"]
 ----
 ---
 controller_templates_all:
@@ -733,7 +733,7 @@ image::04-configuration-as-code/aap_config_template_v3.png[title="AAP Config Tem
 +
 The next step is to create a playbook/file `playbooks/aap_config.yml` that will call the aap_configuration dispatch role which will apply all provided configurations in the order that they need to be created.
 +
-[source,yaml,role=execute,title="Updated playbooks/aap_config.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="Updated playbooks/aap_config.yml"]
 ----
 ---
 - name: Playbook to configure ansible controller
@@ -782,7 +782,7 @@ The next step is to create a playbook/file `playbooks/aap_config.yml` that will 
 
 - Run `playbooks/aap_config` playbook.
 +
-[source,console,role=execute]
+[source,console,role=execute,subs="verbatim,attributes"]
 ----
 ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 ----

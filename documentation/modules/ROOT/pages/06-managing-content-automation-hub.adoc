@@ -37,29 +37,29 @@ Instead of creating a configuration file with your secret token, we will set env
 ==== Step 2.1.3: Set Environment Variables
 In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Set the list of servers Ansible should know about
 export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
 
 # Configure the 'published' repository
-export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://pah.example.com/pulp_ansible/galaxy/published/'
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/published/'
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'certified' repository
-export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://pah.example.com/pulp_ansible/galaxy/rh-certified/'
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'validated' repository
-export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://pah.example.com/pulp_ansible/galaxy/validated/'
+export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
 export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='YOUR_API_TOKEN_HERE'
 
 # Configure the 'community' repository
-export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://pah.example.com/pulp_ansible/galaxy/community/'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansible/galaxy/community/'
 export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 3. Creating and Publishing a Custom Collection
 
@@ -67,7 +67,7 @@ Now, let's use ansible-creator to scaffold a new collection.
 
 === Step 3.1: Initialize the Collection with ansible-creator
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Create a main project directory
 mkdir my_pah_project
@@ -81,16 +81,16 @@ WARNING: Remove ansible.utils from deps list
 
 === Step 3.2: Build and Publish the Collection
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Build your custom collection
 ansible-galaxy collection build
 
 # Publish the collection to PAH
-ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token <token>
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token <token>
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub
 
 NOTE: Make sure to Approve collection in the hub UI
 
@@ -109,7 +109,7 @@ NOTE: Make sure to set your Git Config user parameters, 'git config --global use
 
 ==== 4.2 Append to the `.gitignore` file
 
-[source,bash,role=execute,title=".gitignore"]
+[source,bash,role=execute,subs="verbatim,attributes",title=".gitignore"]
 ----
 context/
 .password
@@ -129,7 +129,7 @@ After an empty repository is created on your Gitea, we need to push the collecti
 
 NOTE: The Copy URL button on the far right of the 'Clone this repository' section will be used to copy Gitea repository URL in this set of instructions
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 git config --global user.email "gitea@opentlc.com"
 git config --global user.name <YOUR NAME>
@@ -161,14 +161,14 @@ Now, we'll define and build an EE that uses our synced minimal image and our cus
 
 Create a file named execution-environment.yml.
 
-[source,yaml,title="execution-environment.yml",role=execute]
+[source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
 ---
 version: 3
 
 images:
   base_image:
-    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   ansible_core:
@@ -184,34 +184,34 @@ additional_build_steps:
   prepend_galaxy:
     - ARG TOKEN
     - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
-    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
     - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
     - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansible/galaxy/community/'
     - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/published/'
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
 
 === Step 6.2: Build and Publish the Execution Environment
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Log in to your PAH container registry
-podman login pah.example.com
+podman login {aap_controller_web_url}
 
 # Build the EE. It will pull the base from PAH, then add our content.
 ansible-builder build --tag my-pah-ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
 
 # Tag and push the image to your PAH registry
-podman tag localhost/my-pah-ee:1.0 pah.example.com/my-pah-ee:1.0
-podman push pah.example.com/my-pah-ee:1.0
+podman tag localhost/my-pah-ee:1.0 {aap_controller_web_url}/my-pah-ee:1.0
+podman push {aap_controller_web_url}/my-pah-ee:1.0
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 7. Adding a Custom Filter Plugin
 
@@ -221,7 +221,7 @@ Now that we have a working EE, let's iterate by adding a custom filter plugin to
 
 Create the file with the following content:
 
-[source,python,title="plugins/filter/cowsay_filter.py",role=execute]
+[source,python,title="plugins/filter/cowsay_filter.py",role=execute,subs="verbatim,attributes"]
 ----
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -256,14 +256,14 @@ class FilterModule(object):
 
 Our new plugin requires the cowsay Python library, and we need to ensure our EE is pulling the new version of our collection. Modify execution-environment.yml to include both changes.
 
-[source,yaml,title="execution-environment.yml",role=execute]
+[source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
 ---
 version: 3
 
 images:
   base_image:
-    name: aap.example.com/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   ansible_core:
@@ -281,17 +281,17 @@ additional_build_steps:
   prepend_galaxy:
     - ARG TOKEN
     - ENV ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
-    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='https://aap.example.com/pulp_ansible/galaxy/rh-certified/'
+    - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
     - ENV ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='https://aap.example.com/pulp_ansible/galaxy/validated/'
+    - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
     - ENV ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='https://aap.example.com/pulp_ansible/galaxy/community/'
+    - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansible/galaxy/community/'
     - ENV ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$TOKEN
-    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='https://aap.example.com/pulp_ansible/galaxy/published/'
+    - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/published/'
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
 
 === Step 7.3: Increment Version and Republish
 
@@ -301,26 +301,26 @@ First, edit `galaxy.yml` and change the version from `1.0.0` to `1.0.1`.
 
 Then, run the following commands:
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Rebuild and republish the collection
 ansible-galaxy collection build
-ansible-galaxy collection publish -s https://aap.example.com/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 NOTE: Make sure to Approve collection in the hub UI
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Rebuild and republish the EE with a new version tag
 ansible-builder build --tag my-pah-ee:1.1 --build-arg TOKEN=YOUR_API_TOKEN_HERE
-podman tag localhost/my-pah-ee:1.1 pah.example.com/my-pah-ee:1.1
-podman push pah.example.com/my-pah-ee:1.1
+podman tag localhost/my-pah-ee:1.1 {aap_controller_web_url}/my-pah-ee:1.1
+podman push {aap_controller_web_url}/my-pah-ee:1.1
 ----
 
-NOTE: Replace the following values `pah.example.com` With the URL of your Private Automation Hub.
+NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
 
 == 8. Preparing the Project for Automation Controller
 
@@ -330,7 +330,7 @@ Now we'll update our playbook to use the new filter.
 
 Create a playbook named `playbooks/test_pah_ee.yml`. This playbook uses the debug module to print a message that has been formatted by our custom cowsay filter.
 
-[source,yaml,title="playbooks/test_pah_ee.yml",role=execute]
+[source,yaml,title="playbooks/test_pah_ee.yml",role=execute,subs="verbatim,attributes"]
 ----
 ---
 - name: Test custom filter from Private Automation Hub
@@ -359,7 +359,7 @@ Now, let's configure Controller to use our custom content.
 
 === Step 9.2: Add the Execution Environment to Controller
 . In the Controller UI, navigate to Infrastructure -> Execution Environments.
-. Click Add, name it My Custom PAH EE, and use the image path `pah.example.com/my-pah-ee:1.1`.
+. Click Add, name it My Custom PAH EE, and use the image path `{aap_controller_web_url}/my-pah-ee:1.1`.
 . Select your Hub credential as the registry credential and Save.
 
 === Step 9.3: Create a Project
