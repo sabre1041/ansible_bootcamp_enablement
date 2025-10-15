@@ -92,7 +92,6 @@ Replace the entire contents of this file. Notice there are no installation, init
     type: schema
     obj: public
     roles: "{{ db_server_db_user }}"
-
 ...
 
 ----
@@ -154,34 +153,7 @@ This argument specification:
 
 '''
 
-== Step 4: Create the PostgreSQL Container Image
-
-Before running the tests, you need to create a custom PostgreSQL container image that includes the necessary Python PostgreSQL libraries for the Ansible modules to work.
-
-=== Create the Dockerfile
-
-Create a `Dockerfile` in the root of your collection:
-
-[source,text,role=execute,subs="verbatim,attributes",title="Dockerfile"]
-----
-FROM registry.redhat.io/rhel9/postgresql-16:latest
-USER root
-RUN dnf install -y python3-psycopg2
-USER postgres
-----
-
-=== Build the Container Image
-
-Build the custom PostgreSQL container image:
-
-[source,bash,role=execute,subs="verbatim,attributes"]
-----
-podman build -t localhost/my_psql .
-----
-
-'''
-
-== Step 5: Configure the Advanced Molecule Scenarios
+== Step 4: Configure the Advanced Molecule Scenarios
 
 You will now create and configure your scenarios in a `molecule/` directory at the root of the collection.
 
@@ -230,13 +202,14 @@ driver:
   name: podman
 platforms:
   - name: instance
-    image: localhost/my_psql
-    container_command: run-postgresql
-    entrypoint: container-entrypoint
+    image: quay.io/ddaniels/psql16
+    entrypoint: docker-entrypoint.sh
+    container_command: postgres
     ports:
       - 5432:5432
     env:
-      POSTGRESQL_ADMIN_PASSWORD: AdminSecurePassword123
+      POSTGRES_PASSWORD: AdminSecurePassword123
+      POSTGRES_USER: postgres
     pre_build_image: true
     cgroupns_mode: host
     tmpfs:
@@ -257,9 +230,6 @@ provisioner:
     group_vars:
       all:
         ansible_connection: containers.podman.podman
-        db_server_db_name: "webapp_prod"
-        db_server_db_user: "webapp_user"
-        db_server_db_password: "SecurePassword123"
 verifier:
   name: ansible
 ...
@@ -301,6 +271,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
         env: "{{ item['env'] | default(omit) }}"
         ports: "{{ item['ports'] }}"
         state: started
+        user: postgres
       register: result
       loop: "{{ molecule_yml.platforms }}"
 
@@ -370,18 +341,9 @@ The `converge.yml` playbook is the core of Molecule testing - it executes your A
       ansible.builtin.wait_for:
         host: "{{ ansible_host }}"
         port: 5432
-        delay: 5   # Time to wait before first check
-        timeout: 60 # Total time to wait before failing
+        delay: 10  # Time to wait before first check
+        timeout: 120 # Total time to wait before failing
       delegate_to: localhost
-
-    - name: "Wait for PostgreSQL to accept connections inside container"
-      ansible.builtin.command: psql -h localhost -U {{ db_server_db_user }} -d {{ db_server_db_name }} -c "SELECT 1;"
-      register: postgres_check
-      until: postgres_check.rc == 0
-      retries: 30
-      delay: 2
-      ignore_errors: true
-      changed_when: false
 
     - name: "Include the db_server role"
       ansible.builtin.include_role:
@@ -530,7 +492,7 @@ These additional playbooks can be configured in your `molecule.yml` file under t
 
 '''
 
-== Step 6: Build and Install the Collection
+== Step 5: Build and Install the Collection
 
 Before running the molecule tests, you need to build and install the collection so that the role can be found by Ansible.
 
@@ -545,7 +507,7 @@ ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansibl
 
 '''
 
-== Step 6.2: Understanding the Test Sequence
+== Step 5.1: Understanding the Test Sequence
 
 Molecule executes a comprehensive test sequence to validate your role:
 
@@ -571,7 +533,7 @@ Further documentation are provided below for those who are interested to learn m
 * https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
 * https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
 
-== Step 7: Run the Full Test Suite!
+== Step 6: Run the Full Test Suite!
 
 Change to the extensions directory and execute the test suite.
 
