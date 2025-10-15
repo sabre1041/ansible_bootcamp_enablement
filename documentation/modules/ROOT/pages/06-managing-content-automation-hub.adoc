@@ -109,7 +109,7 @@ NOTE: Make sure to set your Git Config user parameters, 'git config --global use
 
 ==== 4.2 Append to the `.gitignore` file
 
-[source,bash,role=execute,title=".gitignore"]
+[source,bash,role=execute,subs="verbatim,attributes",title=".gitignore"]
 ----
 context/
 .password

@@ -38,7 +38,7 @@ ansible-creator add resource role db_server .
 
 The role's responsibility is now much simpler. It assumes PostgreSQL is already running and only needs to create our application's user and database.
 
-[source,yaml,role=execute,title="roles/db_server/defaults/main.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="roles/db_server/defaults/main.yml"]
 ----
 ---
 # defaults file for ansible_bootcamp.my_collection.db_server
@@ -51,7 +51,7 @@ db_server_db_password: "SecurePassword123"
 
 Replace the entire contents of this file. Notice there are no installation, initialization, or service management tasks.
 
-[source,yaml,role=execute,title="roles/db_server/tasks/main.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="roles/db_server/tasks/main.yml"]
 ----
 ---
 # tasks file for ansible_bootcamp.my_collection.db_server
@@ -104,7 +104,7 @@ The `argument_spec` file provides a way to validate role arguments, document the
 
 Create the meta directory and argument specification file:
 
-[source,yaml,role=execute,title="roles/db_server/meta/argument_specs.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="roles/db_server/meta/argument_specs.yml"]
 ----
 argument_specs:
   main:
@@ -150,7 +150,7 @@ Before running the tests, you need to create a custom PostgreSQL container image
 
 Create a `Dockerfile` in the root of your collection:
 
-[source,text,role=execute,title="Dockerfile"]
+[source,text,role=execute,subs="verbatim,attributes",title="Dockerfile"]
 ----
 FROM registry.redhat.io/rhel9/postgresql-16:latest
 USER root
@@ -207,7 +207,7 @@ rm -rf extensions/molecule/integration_hello_world
 **Modify `extensions/molecule/db_server/molecule.yml`:**
    Replace the contents of this file with the following configuration:
 
-[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 dependency:
@@ -254,7 +254,7 @@ verifier:
 
 ----
 
-[source,yaml,role=execute,title="extensions/molecule/db_server/requirements.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/requirements.yml"]
 ----
 ---
 collections:
@@ -268,7 +268,7 @@ The scenario uses shared playbook files for container management and testing. Cr
 
 The `create.yml` playbook is responsible for provisioning the test infrastructure. In Molecule's testing lifecycle, this is the first phase where containers or virtual machines are created to provide isolated environments for testing.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/create.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/create.yml"]
 ----
 ---
 - name: Create container instances
@@ -311,7 +311,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
 
 ----
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
 ----
 ---
 - name: Retrieve container log
@@ -333,7 +333,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
 
 The `prepare.yml` playbook handles any pre-testing setup tasks. This optional phase in Molecule allows you to configure the test environment before applying your Ansible role, such as installing dependencies or setting up prerequisites.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/prepare.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/prepare.yml"]
 ----
 ---
 - name: Prepare play
@@ -348,7 +348,7 @@ The `prepare.yml` playbook handles any pre-testing setup tasks. This optional ph
 
 The `converge.yml` playbook is the core of Molecule testing - it executes your Ansible role against the test infrastructure. This phase applies your automation to verify that the role works correctly and achieves the desired state.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/converge.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/converge.yml"]
 ----
 ---
 - name: Converge
@@ -380,7 +380,7 @@ The `converge.yml` playbook is the core of Molecule testing - it executes your A
 
 The `verify.yml` playbook performs functional testing to validate that your role not only ran successfully, but actually achieved the desired results. This phase includes tests that check database connectivity, verify data persistence, and confirm your automation works end-to-end.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/verify.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/verify.yml"]
 ----
 ---
 - name: Verify
@@ -425,7 +425,7 @@ The `verify.yml` playbook performs functional testing to validate that your role
 
 The `cleanup.yml` playbook handles cleanup of temporary files and artifacts created during testing, helping maintain a clean test environment between test runs without destroying the actual test infrastructure.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/cleanup.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/cleanup.yml"]
 ----
 ---
 - name: Cleanup container instances
@@ -452,7 +452,7 @@ The `cleanup.yml` playbook handles cleanup of temporary files and artifacts crea
 
 The `destroy.yml` playbook tears down the test infrastructure completely. This final phase in Molecule's lifecycle ensures that containers, virtual machines, and other test resources are properly cleaned up after testing is complete.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/destroy.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/destroy.yml"]
 ----
 ---
 - name: Destroy container instances
@@ -491,7 +491,7 @@ The `destroy.yml` playbook tears down the test infrastructure completely. This f
 
 The `noop.yml` playbook is a placeholder that performs no operations. It can be used as a template or when you need a playbook that does nothing during specific testing phases.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/noop.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/noop.yml"]
 ----
 ---
 - name: No-op

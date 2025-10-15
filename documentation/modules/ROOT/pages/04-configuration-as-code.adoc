@@ -9,7 +9,7 @@ First, let's build a new EE with all our required collections.
 
 === Step 1.1: Build new EE
 
-[source,bash,role=execute,title="execution-environment.yml"]
+[source,bash,role=execute,subs="verbatim,attributes",title="execution-environment.yml"]
 ----
 ---
 version: 3
@@ -73,7 +73,7 @@ podman push {aap_controller_web_url}/config_as_code_ee:1.0
 
 - The variables are defined in the file `config/dev/auth.yml`. 
 
-[source,yaml,role=execute,title="config/dev/auth.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/auth.yml"]
 ----
 aap_hostname: <GATEWAY_HOST>
 aap_username: "{{ student_account }}"
@@ -103,7 +103,7 @@ WARNING: Do not include https:// in the GATEWAY_HOST value
 - Your username should be: {ssh_username}
 - Your password should be: {ssh_password}
 +
-[source,yaml,role=execute,title="config/dev/vault.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/vault.yml"]
 ----
 ---
 aap_password: ### Insert Password here
@@ -122,7 +122,7 @@ NOTE: For good configuration as code we recommend retrieving passwords from secu
 
 - Create a `.password` file and put a password in it. This is the password vault uses to encrypt secrets.
 +
-[source,bash,role=execute,title=".password"]
+[source,bash,role=execute,subs="verbatim,attributes",title=".password"]
 ----
 cascLB2193
 ----
@@ -131,7 +131,7 @@ IMPORTANT: **We do not recommend using .password files outside of lab environmen
 
 - The `ansible.cfg` file points to the `.password` file. This has been preopulated, but please review the ansible.cfg file to see how this lab is connected to hub and uses the password file.
 +
-[source,bash,role=execute,title="ansible.cfg"]
+[source,bash,role=execute,subs="verbatim,attributes",title="ansible.cfg"]
 ----
 [defaults]
 vault_password_file=.password
@@ -222,7 +222,7 @@ localhost
 
 - Create a file `config/all/hub_repositories.yml` to create the list of community repositories and their remote counterpart.
 +
-[source,yaml,role=execute,title="config/all/hub_repositories.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/hub_repositories.yml"]
 ----
 ---
 hub_collection_remotes_all:
@@ -339,7 +339,7 @@ We need to save our work your lab's Gitea.
 
 ==== 11.2 Create `.gitignore` file
 
-[source,bash,role=execute,title=".gitignore"]
+[source,bash,role=execute,subs="verbatim,attributes",title=".gitignore"]
 ----
 context/
 .password
@@ -370,7 +370,7 @@ git push -u origin main
 
 === Task 12 - Create ansible-navigator configuration file
 
-[source,yaml,role=execute,title="ansible-navigator.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="ansible-navigator.yml"]
 ----
 ---
 ansible-navigator:
