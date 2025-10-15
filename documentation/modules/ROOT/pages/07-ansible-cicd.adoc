@@ -179,10 +179,32 @@ spec:
       workspaces:
         - name: source
           workspace: shared-workspace
-    - name: create-namespace
+    - name: molecule-test
       runAfter:
         - build-collection
         - lint-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'ghcr.io/ansible/ansible-devspaces:latest'
+            name: molecule-test
+            script: |
+              cd collection_repo/extensions
+              export ANSIBLE_COLLECTIONS_PATH=/workspace/source/collection_repo
+              echo $ANSIBLE_COLLECTIONS_PATH
+              ansible-galaxy collection install git+$(params.collection-url)
+              molecule test -s dad_joke
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: create-namespace
+      runAfter:
+        - molecule-test
       taskSpec:
         metadata: {}
         spec: null
@@ -499,11 +521,65 @@ Place the following lines in the roles/dad_joke/tasks/main.yml
 ----
 ====
 
-Open the galaxy.yml file at the root of the collection repo and increment the version number
+==== 4.5.2 Add a molecule test senario
+
+. Navigate to the extensions directory of your collection.  This should be a folder in the root of the collection
+. Init the dad_joke test senario
+
+[source,bash,role=execute]
+----
+molecule init scenario dad_joke
+----
+[start=3]
+. Update the extensions/molecule/dad_joke/converge.yml file with the contents below
+
+.converge.yml
+[%collapsible]
+====
+[source,yaml,role=execute,title="test.yml"]
+----
+---
+- name: Converge
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: "Include the dad_joke role"
+      ansible.builtin.include_role:
+        name: ansible_bootcamp.my_collection.dad_joke
+----   
+====
+
+[start=4]
+. Update the extensions/molecule/dad_joke/converge.yml file with the contents below
+
+.molecule.yml
+[%collapsible]
+====
+[source,yaml,role=execute,title="test.yml"]
+----
+---
+driver:
+  name: default
+platforms:
+  - name: instance
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      collections_path: ${ANSIBLE_COLLECTIONS_PATH}
+----   
+====
+
+[start=5]
+
+. Open the galaxy.yml file at the root of the collection repo and increment the version number
 Commit and push your code you should now see your pipeline start to run
 
 
 === 4.6: Verify that your updated collection is available in Private Automation Hub
+
+NOTE: This step should be done only after you verify that the Tekton pipeline has completed successfully.
 
 . Log into AAP and go to the Automation Content Section
 . Click on the Collections link and verify that the new version of your collection is present
@@ -511,6 +587,9 @@ Commit and push your code you should now see your pipeline start to run
 image::07-ansible-cicd/PAH-verify.png[]
 
 === 4.7: Install and Use the update collection from PAH
+
+[abstract]
+Once you have the updated collection in your PAH you can follow the steps below to install and run it in your local machine.
 
 . In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 

@@ -99,10 +99,32 @@ spec:
       workspaces:
         - name: source
           workspace: shared-workspace
-    - name: create-namespace
+    - name: molecule-test
       runAfter:
         - build-collection
         - lint-collection
+      taskSpec:
+        metadata: {}
+        spec: null
+        steps:
+          - computeResources: {}
+            image: 'ghcr.io/ansible/ansible-devspaces:latest'
+            name: molecule-test
+            script: |
+              cd collection_repo/extensions
+              export ANSIBLE_COLLECTIONS_PATH=/workspace/source/collection_repo
+              echo $ANSIBLE_COLLECTIONS_PATH
+              ansible-galaxy collection install git+$(params.collection-url)
+              molecule test -s dad_joke
+            workingDir: $(workspaces.source.path)
+        workspaces:
+          - name: source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: create-namespace
+      runAfter:
+        - molecule-test
       taskSpec:
         metadata: {}
         spec: null
