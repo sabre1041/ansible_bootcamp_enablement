@@ -59,7 +59,7 @@ After an empty repository is created on your Gitea, we need to clone the reposit
 . Open the integrated terminal
 . Configure your git username and email
 
-[source,bash]
+[source,bash,role=execute]
 ----
   git config --global user.email "you@example.com"
   git config --global user.name "Your Name"
@@ -76,7 +76,7 @@ image::07-ansible-cicd/devspaces.png[]
 .collection-pipeline.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="collection-pipeline.yml"]
 ----
 apiVersion: tekton.dev/v1
 kind: Pipeline
@@ -250,7 +250,7 @@ spec:
 .collection-cluster-trigger-binding.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="collection-cluster-trigger-binding.yml"]
 ----
 apiVersion: triggers.tekton.dev/v1beta1
 kind: ClusterTriggerBinding
@@ -314,7 +314,7 @@ The _collection-pipeline.yml_ configuration file will refrence the _collection-p
 .collection-publish.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="collection-publish.yml"]
 ----
 ---
 - name: Publish collections to Hub
@@ -482,7 +482,7 @@ Place the following lines in the roles/dad_joke/tasks/main.yml
 .main.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="roles/dad_joke/tasks/main.yml"]
 ----
 - name: Fetch a Random Joke from the API
   ansible.builtin.uri:
@@ -540,7 +540,7 @@ export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 
 . Use andile-galaxy to install the new version of your collection from Private Automation hub
 
-[source,bash]
+[source,bash,role=execute]
 ----
  ansible-galaxy collection install ansible_bootcamp.my_collection
 ----
@@ -550,7 +550,7 @@ export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 .test.yml
 [%collapsible]
 ====
-[source,yaml]
+[source,yaml,role=execute,title="test.yml"]
 ----
 ---
 - name: Random Dad Joke Generator
@@ -565,7 +565,7 @@ export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 
 . Run the playbook and if successful it should return a dad Joke
 
-[source,bash]
+[source,bash,role=execute]
 ----
  ansible-playbook test.yml
 ----
