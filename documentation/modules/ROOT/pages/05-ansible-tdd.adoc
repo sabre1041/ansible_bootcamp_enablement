@@ -57,7 +57,6 @@ db_server_db_user: "webapp_user"
 db_server_db_password: "SecurePassword123"
 ...
 
-[source,yaml,role=execute,subs="verbatim,attributes",title="roles/db_server/tasks/main.yml"]
 ----
 
 Replace the entire contents of this file. Notice there are no installation, initialization, or service management tasks.
