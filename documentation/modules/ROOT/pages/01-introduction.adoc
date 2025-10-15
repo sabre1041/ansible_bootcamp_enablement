@@ -1,3 +1,68 @@
-= Introduction
+= Ansible Development in DevSpaces
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+This lab walks through the various aspects of launching, configuring and using DevSpaces on OpenShift as your primary development environment for Ansible.
+
+== Dev Spaces console
+
+. Open the `OpenShift Console` link from your lab instructions
+. Check the `authentication` information in the lab instructions to login
+. Click on `Operators`
+. Click on `Installed Operators`
+. To the far right of `Red Hat OpenShift Dev Spaces` click the link under `Provided APIs` titled `Red Hat OpenShift Dev Spaces instance Specification`
++
+image::01-introduction/intro1.png[]
++
+. Under `Details` click the `Red Hat OpenShift Dev Spaces URL`
++
+image::01-introduction/intro2.png[]
+
+== Dev Spaces Workspace
+
+. Login via OpenShift authentication provided in lab instructions
+. Select `Allow selected permissions` to authorize access and launch the console
+. Scroll down and select the workspace titled `Ansible Dev Space`
++
+image::01-introduction/intro3.png[]
++
+. This will take a few minutes and eventually show the VSCode infterface
++
+image::01-introduction/intro4.png[]
++
+. Trust the extension publishers if you wish to continue
+. Trust the authors of this workspace if you know us
+. Wait a few minutes until the additional extension icons appear for Ansible and OpenShift
++
+image::01-introduction/intro5.png[]
+
+== User Credentials in Workspaces
+
+TBD
+
+== Launching a Workspace from a git repo
+
+TBD
+
+== Configuring Extensions
+
+. Click on the `Ansible` extension icon
++
+image::01-introduction/intro6.png[]
+
+== Enabling Lightspeed
+
+TBD 
+
+== Accessing a Terminal
+
+. Open a new terminal from the VSCode menu starting with the hamburger (3 horizontal lines) in the top left choosing `Terminal` then `New Terminal`
++
+image::01-introduction/intro7.png[]
+. Explore the environment running commands like `whoami` and `cat /etc/redhat-release`
+
+== Configuring ansible-navigator
+
+TBD
+
+== Run a playbook through ansible-navigator
+
+TBD

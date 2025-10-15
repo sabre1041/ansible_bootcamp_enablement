@@ -1,0 +1,66 @@
+= Environment Familiarization
+
+[abstract]
+This lab is hosted on the Red Hat Demo Platform. This section will walk you through navigating your personal demo environment.
+
+== 1. Introduction: What is included in the demo environment
+
+.Red Hat OpenShift Platform
+
+. Dedicated instance for doing stuff
+
+.Ansible Automation Platform
+
+. Dedicated instance for doing stuff
+
+.Ansible Automation Hub
+
+. Dedicated instance for doing stuff
+
+.Red Hat OpenShift Dev Spaces
+
+. Dedicated instance for doing stuff
+
+.Gitea
+
+. Dedicated instance for doing stuff
+
+.Other
+
+. Dedicated instance for doing stuff
+
+== Accessing your Red Hat OpenShift Cluster
+
+oc client install, login, etc
+
+=== Accessing Red Hat OpenShift Dev Spaces
+
+How to get to dashboard, login
+
+=== Using Gitea
+
+Login, fork and clone
+
+
+== Contributing to this Lab Documentation
+
+Linking Github token
+
+== 7. Conclusion
+
+You have successfully:
+
+. How to access lab resources
+. How to use your Administrator and User credentials
+. How to interact and update code using Gitea
+. How to provide feedback and contributions to this demo environment
+
+This foundation prepares you to start your Ansible Bootcamp Enablement lab.
+
+== 8. Helpful Links
+
+For additional reference and deeper learning on AAP in Azure, review the following resources:
+
+. https://access.redhat.com/articles/6983528[Red Hat Ansible Automation Platform on Azure Articles].
+. https://access.redhat.com/articles/6973251[Networking and Prerequisites for AAP on Azure].
+. https://redhat.enterprise.slack.com/archives/C068PHHMF2T[Slack - Ansible Cloud Services].
