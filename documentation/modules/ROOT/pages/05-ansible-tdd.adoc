@@ -89,7 +89,60 @@ Replace the entire contents of this file. Notice there are no installation, init
 
 '''
 
-== Step 3.5: Create the PostgreSQL Container Image
+== Step 3.5: Add Argument Specification for Role Validation
+
+The `argument_spec` file provides a way to validate role arguments, document their purpose, and define default values. This file is placed in `roles/db_server/meta/argument_specs.yml` and helps ensure that the role receives the correct parameters.
+
+=== Why Use argument_spec?
+
+* *Input Validation*: Ensures required parameters are provided and have correct types
+* *Documentation*: Self-documenting roles that IDEs and documentation tools can use
+* *Error Prevention*: Catches configuration errors early in the execution
+* *Better UX*: Provides clear error messages when parameters are missing or invalid
+
+=== Create the argument_specs.yml File
+
+Create the meta directory and argument specification file:
+
+[source,yaml,role=execute,title="roles/db_server/meta/argument_specs.yml"]
+----
+argument_specs:
+  main:
+    short_description: "Arguments for the db_server role"
+    description: "This role manages PostgreSQL database users and databases within an existing PostgreSQL instance."
+    author: "Ansible Bootcamp"
+    options:
+      db_server_db_name:
+        type: "str"
+        required: true
+        description: "The name of the database to create"
+        default: "webapp_prod"
+
+      db_server_db_user:
+        type: "str"
+        required: true
+        description: "The name of the database user to create"
+        default: "webapp_user"
+
+      db_server_db_password:
+        type: "str"
+        required: true
+        description: "The password for the database user"
+        default: "SecurePassword123"
+        no_log: true
+----
+
+This argument specification:
+
+* Defines three main options corresponding to your role's variables
+* Marks all parameters as required (even though they have defaults)
+* Uses `type: "str"` for string validation
+* Includes descriptions for documentation
+* Uses `no_log: true` for the password to prevent it from appearing in logs
+
+'''
+
+== Step 4: Create the PostgreSQL Container Image
 
 Before running the tests, you need to create a custom PostgreSQL container image that includes the necessary Python PostgreSQL libraries for the Ansible modules to work.
 
@@ -116,7 +169,7 @@ podman build -t localhost/my_psql .
 
 '''
 
-== Step 4: Configure the Advanced Molecule Scenarios
+== Step 5: Configure the Advanced Molecule Scenarios
 
 You will now create and configure your scenarios in a `molecule/` directory at the root of the collection.
 
@@ -465,7 +518,7 @@ These additional playbooks can be configured in your `molecule.yml` file under t
 
 '''
 
-== Step 5: Build and Install the Collection
+== Step 6: Build and Install the Collection
 
 Before running the molecule tests, you need to build and install the collection so that the role can be found by Ansible.
 
@@ -480,7 +533,7 @@ ansible-galaxy collection publish -s https://{aap_controller_web_url}/api/galaxy
 
 '''
 
-== Step 5.2: Understanding the Test Sequence
+== Step 6.2: Understanding the Test Sequence
 
 Molecule executes a comprehensive test sequence to validate your role:
 
@@ -506,7 +559,7 @@ Further documentation are provided below for those who are interested to learn m
 * https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
 * https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
 
-== Step 6: Run the Full Test Suite!
+== Step 7: Run the Full Test Suite!
 
 Change to the extensions directory and execute the test suite.
 
