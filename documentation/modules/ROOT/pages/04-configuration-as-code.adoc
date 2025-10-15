@@ -51,7 +51,7 @@ NOTE: Replace the following values `{aap_controller_web_url}` With the URL of yo
 
 === Task 2: Build and Publish the Execution Environment
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Log in to your PAH container registry
 podman login {aap_controller_web_url}
@@ -139,7 +139,7 @@ vault_password_file=.password
 +
 Encrypt vault with the password in the .password file
 +
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-vault encrypt config/dev/vault.yml
 ----
@@ -154,7 +154,7 @@ ansible-vault encrypt config/dev/vault.yml
 
 - Create a file `config/all/organizations.yml`
 +
-[source,yaml,role=execute,title="config/all/organizations.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/organizations.yml"]
 ----
 ---
 aap_organizations_all:
@@ -173,7 +173,7 @@ aap_organizations_all:
 
 - Create a file `config/all/teams.yml`
 +
-[source,yaml,role=execute,title="config/all/teams.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/teams.yml"]
 ----
 ---
 aap_teams_all:
@@ -192,7 +192,7 @@ aap_teams_all:
 
 - Create a file `config/all/users.yml` with the below information:
 +
-[source,yaml,role=execute,title="config/all/users.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/users.yml"]
 ----
 ---
 aap_user_accounts_all:
@@ -207,7 +207,7 @@ aap_user_accounts_all:
 
 - Create a file `hosts` inventory file:
 +
-[source,bash,role=execute,title="hosts"]
+[source,bash,role=execute,subs="verbatim,attributes",title="hosts"]
 ----
 [dev]
 localhost
@@ -268,7 +268,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 
 - The next step is to create the `playbooks/aap_config.yml` playbook. This playbook will execute the `aap_configuration` dispatch role, applying the provided configurations in the necessary order.
 +
-[source,yaml,role=execute,title="playbooks/aap_config.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="playbooks/aap_config.yml"]
 ----
 ---
 - name: Playbook to configure ansible controller
@@ -356,7 +356,7 @@ After an empty repository is created on your Gitea, we need to push the collecti
 . In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
 . Now, follow these steps in the root directory of 'my_pah_project'
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 git config --global user.email "gitea@opentlc.com"
 git config --global user.name <YOUR NAME>
@@ -385,7 +385,7 @@ ansible-navigator:
 
 - The next step is to run this playbook, this kicks off the initial setup for everything we've just created for the Ansible Automation Platform.
 +
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 ----
@@ -417,7 +417,7 @@ help you complete this task.
 
 - Create a file `config/all/settings.yml` with the below content.
 +
-[source,yaml,role=execute,title="config/all/settings.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/settings.yml"]
 ----
 ---
 controller_settings_all:
@@ -437,7 +437,7 @@ to include a new EE (that we will show how to create with code in the next modul
 +
 image::04-configuration-as-code/config_ee_v2.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
 
-[source,yaml,role=execute,title="config/all/execution_environments.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/execution_environments.yml"]
 ----
 ---
 controller_execution_environments_all:
@@ -477,7 +477,7 @@ the variables that will then be useable in a job.
 +
 The role will iterate through this list and for each item in this list it will create custom credential types for using it in the controller.
 +
-[source,yaml,role=execute,title="config/all/credential_types.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/credential_types.yml"]
 ----
 ---
 controller_credential_types_all:
@@ -547,7 +547,7 @@ controller_credential_types_all:
 - Create a file `config/all/credentials.yml` and add the required information to the list `controller_credentials` to configure the UI to look like the screenshot. Make it to look like the screenshot, but make sure to use parameters for the values.
 *DO NOT PASTE YOUR PASSWORD IN CLEARTEXT FOR CREDENTIALS!*
 +
-[source,yaml,role=execute,title="config/all/credentials.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/credentials.yml"]
 ----
 ---
 controller_credentials_all:
@@ -631,7 +631,7 @@ image::04-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,
 +
 image::04-configuration-as-code/orgs.png[title="Config as Code Organization",125%,125%, link=self, window=blank]
 +
-[source,yaml,role=execute,title="Update config/all/organizations.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="Update config/all/organizations.yml"]
 ----
 ---
 aap_organizations_all:
@@ -654,7 +654,7 @@ WARNING: There are some values such as `project base path`, `playbook directory`
 NOTE: You will want to refer to the role documentation to determine which options need to be set
 // TODO - What git project are we pointing at? Also, perhaps consider providing a table with the values they need to set so they can at least copy/paste URLs etc, but still have to look up the options required
 
-[source,yaml,role=execute,title="config/all/projects.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/projects.yml"]
 ----
 ---
 controller_configuration_projects_async_delay: 5
@@ -675,7 +675,7 @@ image::04-configuration-as-code/project_v2.png[title="Project",125%,125%, link=s
 information to the list `controller_inventories` to configure the UI
 to look like the screenshot
 +
-[source,yaml,role=execute,title="config/all/inventories.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/inventories.yml"]
 ----
 ---
 controller_inventories_all:
@@ -692,7 +692,7 @@ image::04-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, 
 
 - Add to file `config/all/inventory_sources.yml` and a new variable with the required information to the list `controller_inventory_sources` to configure the UI to look like the screenshot
 +
-[source,yaml,role=execute,title="config/all/inventory_sources.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/inventory_sources.yml"]
 ----
 ---
 controller_inventory_sources_all:
@@ -712,7 +712,7 @@ information to the list `controller_templates` to configure the UI to like the s
 +
 Pay attention to the credentials attached to each job template.
 +
-[source,yaml,role=execute,title="config/all/job_templates.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="config/all/job_templates.yml"]
 ----
 ---
 controller_templates_all:
@@ -733,7 +733,7 @@ image::04-configuration-as-code/aap_config_template_v3.png[title="AAP Config Tem
 +
 The next step is to create a playbook/file `playbooks/aap_config.yml` that will call the aap_configuration dispatch role which will apply all provided configurations in the order that they need to be created.
 +
-[source,yaml,role=execute,title="Updated playbooks/aap_config.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="Updated playbooks/aap_config.yml"]
 ----
 ---
 - name: Playbook to configure ansible controller
@@ -782,7 +782,7 @@ The next step is to create a playbook/file `playbooks/aap_config.yml` that will 
 
 - Run `playbooks/aap_config` playbook.
 +
-[source,console,role=execute]
+[source,console,role=execute,subs="verbatim,attributes"]
 ----
 ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 ----

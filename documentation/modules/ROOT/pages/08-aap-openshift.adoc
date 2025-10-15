@@ -41,7 +41,7 @@ NOTE: The `AnsibleAutomationPlatform` CRD deploys and manages the other CRDs lis
 * Next to the `Details` tab click on `YAML`. This will show you the current YAML specification that defines the CRD.
 ** For example, take a look at the `spec` key in the YAML definition:
 +
-[source,yaml,role=execute,title="AnsibleAutomationPlatform CRD Spec"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="AnsibleAutomationPlatform CRD Spec"]
 ----
   controller:
     disabled: false
@@ -89,7 +89,7 @@ Many pods will be up and running that correlate to the containers running the ap
 * Under the `Containers` drop down, select the `aap-controller-rsyslog` container. Observe how you now see the logs pertaining to the logging of the application pod. If there are any issues with the `awx-rsyslogd` or external logging, you may see them here.
 * Next to the `Details` tab, click on the `Terminal` tab. Under the `Containers` drop down, make sure that the `aap-controller-task` container is selected. You now have a direct terminal connection to the running container. Here you can view files, and interact with the running AWX application by running commands such as `awx-manage`. For example run `awx-manage --help`:
 +
-[source,bash,role=execute,title="Check AWX Manage Commands"]
+[source,bash,role=execute,subs="verbatim,attributes",title="Check AWX Manage Commands"]
 ----
 sh-4.4$ awx-manage --help
 
@@ -284,7 +284,7 @@ For this excercise we'll use the YAML view and paste a simple snippet in.
 * Click on the `YAML view` radio button.
 * In the code entry field paste the following YAML in:
 +
-[source,yaml,role=execute,title="Custom AAP Deployment"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="Custom AAP Deployment"]
 ----
 apiVersion: aap.ansible.com/v1alpha1
 kind: AnsibleAutomationPlatform

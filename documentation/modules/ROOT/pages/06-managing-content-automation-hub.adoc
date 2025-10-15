@@ -37,7 +37,7 @@ Instead of creating a configuration file with your secret token, we will set env
 ==== Step 2.1.3: Set Environment Variables
 In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Set the list of servers Ansible should know about
 export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
@@ -67,7 +67,7 @@ Now, let's use ansible-creator to scaffold a new collection.
 
 === Step 3.1: Initialize the Collection with ansible-creator
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Create a main project directory
 mkdir my_pah_project
@@ -81,7 +81,7 @@ WARNING: Remove ansible.utils from deps list
 
 === Step 3.2: Build and Publish the Collection
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Build your custom collection
 ansible-galaxy collection build
@@ -129,7 +129,7 @@ After an empty repository is created on your Gitea, we need to push the collecti
 
 NOTE: The Copy URL button on the far right of the 'Clone this repository' section will be used to copy Gitea repository URL in this set of instructions
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 git config --global user.email "gitea@opentlc.com"
 git config --global user.name <YOUR NAME>
@@ -161,7 +161,7 @@ Now, we'll define and build an EE that uses our synced minimal image and our cus
 
 Create a file named execution-environment.yml.
 
-[source,yaml,title="execution-environment.yml",role=execute]
+[source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
 ---
 version: 3
@@ -198,7 +198,7 @@ NOTE: Replace the following values `{aap_controller_web_url}` With the URL of yo
 
 === Step 6.2: Build and Publish the Execution Environment
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Log in to your PAH container registry
 podman login {aap_controller_web_url}
@@ -221,7 +221,7 @@ Now that we have a working EE, let's iterate by adding a custom filter plugin to
 
 Create the file with the following content:
 
-[source,python,title="plugins/filter/cowsay_filter.py",role=execute]
+[source,python,title="plugins/filter/cowsay_filter.py",role=execute,subs="verbatim,attributes"]
 ----
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -256,7 +256,7 @@ class FilterModule(object):
 
 Our new plugin requires the cowsay Python library, and we need to ensure our EE is pulling the new version of our collection. Modify execution-environment.yml to include both changes.
 
-[source,yaml,title="execution-environment.yml",role=execute]
+[source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
 ---
 version: 3
@@ -301,7 +301,7 @@ First, edit `galaxy.yml` and change the version from `1.0.0` to `1.0.1`.
 
 Then, run the following commands:
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Rebuild and republish the collection
 ansible-galaxy collection build
@@ -312,7 +312,7 @@ NOTE: Replace the following values `{aap_controller_web_url}` With the URL of yo
 
 NOTE: Make sure to Approve collection in the hub UI
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Rebuild and republish the EE with a new version tag
 ansible-builder build --tag my-pah-ee:1.1 --build-arg TOKEN=YOUR_API_TOKEN_HERE
@@ -330,7 +330,7 @@ Now we'll update our playbook to use the new filter.
 
 Create a playbook named `playbooks/test_pah_ee.yml`. This playbook uses the debug module to print a message that has been formatted by our custom cowsay filter.
 
-[source,yaml,title="playbooks/test_pah_ee.yml",role=execute]
+[source,yaml,title="playbooks/test_pah_ee.yml",role=execute,subs="verbatim,attributes"]
 ----
 ---
 - name: Test custom filter from Private Automation Hub
