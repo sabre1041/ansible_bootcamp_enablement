@@ -536,7 +536,7 @@ molecule init scenario dad_joke
 .converge.yml
 [%collapsible]
 ====
-[source,yaml,role=execute,title="test.yml"]
+[source,yaml,role=execute,title="converge.yml"]
 ----
 ---
 - name: Converge
@@ -555,7 +555,7 @@ molecule init scenario dad_joke
 .molecule.yml
 [%collapsible]
 ====
-[source,yaml,role=execute,title="test.yml"]
+[source,yaml,role=execute,title="molecule.yml"]
 ----
 ---
 driver:
