@@ -458,7 +458,7 @@ Update the `galaxy.yml` file to add a dependency on `"community.postgresql": "*"
 ----
 ansible-galaxy collection build .
 ansible-galaxy collection install ansible_bootcamp-my_collection-*.tar.gz --force
-ansible-galaxy collection publish -s https://{aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-*.tar.gz --token YOUR_API_TOKEN_HERE
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-*.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
 '''
