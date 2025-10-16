@@ -350,7 +350,7 @@ image::03-developer-tools/ansible-navigator2.png[]
 +
 image::03-developer-tools/ansible-navigator3.png[]
 +
-. One reviewed, hit `ESC` several times until you exit back to the terinal.
+. Once reviewed, hit `ESC` several times until you exit back to the terinal.
 +
 image::03-developer-tools/ansible-navigator4.png[]
 
