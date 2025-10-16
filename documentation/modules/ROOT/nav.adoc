@@ -15,3 +15,5 @@
 * xref:06-managing-content-automation-hub.adoc[6. Managing Content in Automation Hub]
 * xref:07-ansible-cicd.adoc[7. CI/CD for Ansible Content]
 * xref:08-aap-openshift.adoc[8. AAP on OpenShift]
+* xref:appendix.adoc[Appendix]
+** xref:appendix.adoc#refresh-showroom-content[Refresh Showroom Content]
