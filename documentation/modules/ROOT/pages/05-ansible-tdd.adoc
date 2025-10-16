@@ -125,19 +125,16 @@ argument_specs:
     options:
       db_server_db_name:
         type: "str"
-        required: true
         description: "The name of the database to create"
         default: "webapp_prod"
 
       db_server_db_user:
         type: "str"
-        required: true
         description: "The name of the database user to create"
         default: "webapp_user"
 
       db_server_db_password:
         type: "str"
-        required: true
         description: "The password for the database user"
         default: "SecurePassword123"
         no_log: true
