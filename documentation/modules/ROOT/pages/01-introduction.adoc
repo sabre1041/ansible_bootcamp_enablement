@@ -30,7 +30,9 @@ If you see an error in this lab, fork and submit a pull request against https://
 
 == Dev Spaces console
 
-*Red Hat OpenShift Dev Spaces* is a powerful tool for creating consistent and reproducible development environments. It has a rich history rooted in open source starting as *Eclipse Che* - a Java-based developer workspace server and cloud-native IDE. Recognizing the potential of this technology, Red Hat became a key contirbutor to this project and this involvement led to the acquisition of Codenvy in 2017. On Feburary 5, 2019, Red Hat officially launched *Red Hat CodeReady Workspaces*. This is when the powerful concept of *devfiles* was introduced, a YAML-based configuration file that defines a development environment as code. This allowed the reproducibility and portability of development workspaces that aimed to end the "works on my system" problem many developers experienced. In June 2022, Red Hat announced a major evolution and rebranding of CodeReady Workspaces to *Red Hat OpenShift Dev Spaces*. With the release of AAP 2.6, a technology preview for *Ansible Development Workspaces* was announced which uses *Red Hat OpenShift Dev Spaces* https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/using_ansible_development_workspaces_for_automation_content_development/index[Ansible Development Workspaces documentation]
+*Red Hat OpenShift Dev Spaces* provides consistent, reproducible development environments based on the open-source project *Eclipse Che*.
+
+It works by using a `devfile`, a YAML file that defines the entire workspace as code—including all necessary tools, runtimes, and project source. This file is used to instantly generate a pre-configured, containerized development environment, ensuring every developer on a team has an identical setup and solving the "it works on my machine" problem.
 
 .Launching Dev Spaces from OpenShift
 
