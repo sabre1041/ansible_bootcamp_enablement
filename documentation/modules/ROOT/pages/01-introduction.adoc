@@ -89,6 +89,7 @@ For more information see the https://docs.redhat.com/en/documentation/red_hat_op
 . Open a new terminal from the VSCode menu starting with the hamburger (3 horizontal lines) in the top left choosing `Terminal` then `New Terminal`
 +
 image::01-introduction/intro7.png[]
++
 . Explore the environment:
 
 [source,bash]
