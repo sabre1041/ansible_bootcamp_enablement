@@ -141,7 +141,7 @@ git remote add origin <PASTE GIT URL FROM GITEA HERE>
 git push -u origin main
 ----
 
-Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:07-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
+Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:06-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
 
 == 5. Syncing a Base EE from the Red Hat Registry
 
