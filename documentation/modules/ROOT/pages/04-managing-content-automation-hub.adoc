@@ -348,22 +348,24 @@ Push the `test_pah_ee.yml` playbook to your Git repository
 Now, let's configure Controller to use our custom content.
 
 === Step 9.1: Create a Credential for Hub Container Registry
-. Navigate to Resources -> Credentials and click Add.
-. Name it Hub, select the type Container Registry, and fill out your "Authentication URL", "username", "password".
+. Navigate to Automation Execution -> Infrastructure -> Credentials and click Add.
+. Name it Hub, select the type Container Registry, and fill out your "Authentication URL": {aap_controller_web_url}, "username": {aap_controller_admin_user}, "password": {aap_controller_admin_password}.
 
 === Step 9.2: Add the Execution Environment to Controller
-. In the Controller UI, navigate to Infrastructure -> Execution Environments.
+. Navigate to Automation Execution -> Infrastructure -> Execution Environments.
 . Click Add, name it My Custom PAH EE, and use the image path `{aap_controller_web_url}/my-pah-ee:1.1`.
 . Select your Hub credential as the registry credential and Save.
 
+NOTE: Remove https://
+
 === Step 9.3: Create a Project
-. Navigate to Resources -> Projects and click Add.
+. Navigate to Automation Execution -> Projects and click Add.
 . Name it Custom Content Test Project and point it to your Git repository URL.
 . Under Ansible Galaxy Credentials, select the PAH Galaxy Credential you just created.
 . Click Save and Sync the project.
 
 === Step 9.4: Create a Job Template
-. Navigate to Resources -> Templates and click Add -> Add job template.
+. Navigate to Automation Execution -> Templates and click Add -> Add job template.
 . Name it Test Custom Cowsay Filter.
 . Select an Inventory, the Custom Content Test Project, and the playbooks/test_pah_ee.yml playbook.
 . For the Execution Environment, select My Custom PAH EE.
