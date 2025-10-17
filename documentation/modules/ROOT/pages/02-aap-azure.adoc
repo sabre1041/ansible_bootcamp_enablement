@@ -1,4 +1,4 @@
-= Ansible Automation Platform on Azure
+= Lab: Ansible Automation Platform on Azure
 
 [abstract]
 We will deploy Red Hat Ansible Automation Platform as a managed application on Microsoft Azure. We will provision the platform directly from the Azure Marketplace, configure networking access, and validate that we can log into Automation Controller and run our first automation job.

@@ -59,7 +59,7 @@ export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansibl
 export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 3. Creating and Publishing a Custom Collection
 
@@ -90,15 +90,11 @@ ansible-galaxy collection build
 ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token <token>
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub
-
 NOTE: Make sure to Approve collection in the hub UI
 
 == 4. Push Collection to Repository
 
 After we've published our collection to your Private Automation Hub, we need to save our work into your lab's Gitea.
-
-NOTE: Make sure to set your Git Config user parameters, 'git config --global user.email "gitea@ansible_bootcamp"' and 'git config --global user.name "gitea"
 
 === 4.1 Create Gitea Repository
 
@@ -131,8 +127,6 @@ NOTE: The Copy URL button on the far right of the 'Clone this repository' sectio
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-git config --global user.email "gitea@opentlc.com"
-git config --global user.name <YOUR NAME>
 git init
 git checkout -b main
 git add --all
@@ -141,14 +135,14 @@ git remote add origin <PASTE GIT URL FROM GITEA HERE>
 git push -u origin main
 ----
 
-Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:07-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
+Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:06-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
 
 == 5. Syncing a Base EE from the Red Hat Registry
 
 Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
 
 . In your Private Automation Hub UI, navigate to Execution Environments -> Remote Registries.
-. Click Add remote registry and configure it for registry.redhat.io with your credentials.
+. Click Add remote registry and configure it for https://registry.redhat.io with your credentials.
 . Once saved, edit the registry and add ansible-execution-env/ee-minimal-rhel9 to the include tags list.
 . Save and Sync the registry.
 . After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
@@ -194,7 +188,7 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
+WARNING: Remove the https:// from the base_image name
 
 === Step 6.2: Build and Publish the Execution Environment
 
@@ -211,7 +205,7 @@ podman tag localhost/my-pah-ee:1.0 {aap_controller_web_url}/my-pah-ee:1.0
 podman push {aap_controller_web_url}/my-pah-ee:1.0
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+WARNING: Remove the https:// in these commands or it will error. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 7. Adding a Custom Filter Plugin
 
@@ -291,7 +285,7 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
+WARNING: Remove the https:// from the base_image name
 
 === Step 7.3: Increment Version and Republish
 
@@ -308,7 +302,7 @@ ansible-galaxy collection build
 ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 NOTE: Make sure to Approve collection in the hub UI
 
@@ -320,7 +314,7 @@ podman tag localhost/my-pah-ee:1.1 {aap_controller_web_url}/my-pah-ee:1.1
 podman push {aap_controller_web_url}/my-pah-ee:1.1
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
+WARNING: Remove the https:// in these commands or it will error.
 
 == 8. Preparing the Project for Automation Controller
 
@@ -347,29 +341,31 @@ Create a playbook named `playbooks/test_pah_ee.yml`. This playbook uses the debu
 
 === Step 8.2: Push Project Files to Git
 
-Push the `test_pah_ee.yml` playbook to your Git repository
+Push all your new and updated files to your Git repository
 
 == 9. Integrating with Automation Controller
 
 Now, let's configure Controller to use our custom content.
 
 === Step 9.1: Create a Credential for Hub Container Registry
-. Navigate to Resources -> Credentials and click Add.
-. Name it Hub, select the type Container Registry, and fill out your "Authentication URL", "username", "password".
+. Navigate to Automation Execution -> Infrastructure -> Credentials and click Add.
+. Name it Hub, select the type Container Registry, and fill out your "Authentication URL": {aap_controller_web_url}, "username": {aap_controller_admin_user}, "password": {aap_controller_admin_password}.
 
 === Step 9.2: Add the Execution Environment to Controller
-. In the Controller UI, navigate to Infrastructure -> Execution Environments.
+. Navigate to Automation Execution -> Infrastructure -> Execution Environments.
 . Click Add, name it My Custom PAH EE, and use the image path `{aap_controller_web_url}/my-pah-ee:1.1`.
 . Select your Hub credential as the registry credential and Save.
 
+NOTE: Remove https://
+
 === Step 9.3: Create a Project
-. Navigate to Resources -> Projects and click Add.
+. Navigate to Automation Execution -> Projects and click Add.
 . Name it Custom Content Test Project and point it to your Git repository URL.
 . Under Ansible Galaxy Credentials, select the PAH Galaxy Credential you just created.
 . Click Save and Sync the project.
 
 === Step 9.4: Create a Job Template
-. Navigate to Resources -> Templates and click Add -> Add job template.
+. Navigate to Automation Execution -> Templates and click Add -> Add job template.
 . Name it Test Custom Cowsay Filter.
 . Select an Inventory, the Custom Content Test Project, and the playbooks/test_pah_ee.yml playbook.
 . For the Execution Environment, select My Custom PAH EE.
@@ -382,10 +378,19 @@ Now, let's configure Controller to use our custom content.
 ==== Step 9.6: Sync collections
 . Log in to your Private Automation Hub web interface.
 . From the navigation menu on the left, click on Remotes.
+. Click on edit `community` copy and paste this in the requirements file section and click save.
+
+[source,yaml,role=execute,subs="verbatim,attributes"]
+----
+collections:
+  - name: containers.podman
+  - name: community.postgresql
+----
+
 . Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
 . From the navigation menu on the left, click on Repositories.
 . Edit validated and for the `Remote` field choose validated from the drop down and save.
-. Click on the triple dots for rh-certified and validated and select `Sync repository` and click sync on the popup.
+. Click on the triple dots for `rh-certified`, `validated`, and `community` and select `Sync repository` and click sync on the popup.
 
 NOTE: Syncing the certified collections will take some time, it is needed for another section so continue on and do not wait for it to finish.
 
@@ -401,3 +406,12 @@ Congratulations! You have successfully completed this workflow for managing cust
 . Configured Automation Controller to use all of your custom content.
 . Verified the entire process by launching a Job Template.
 . This process is fundamental to creating a secure, scalable, and manageable automation practice in an enterprise environment.
+
+== Helpful Links
+
+For additional reference and deeper learning on managing Ansible content:
+
+. https://docs.ansible.com/ansible/latest/galaxy/user_guide.html[Ansible Galaxy User Guide]
+. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+. https://ansible.readthedocs.io/projects/builder/[Ansible Builder Documentation]
+. https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/using_automation_hub/index[Private Automation Hub Documentation]

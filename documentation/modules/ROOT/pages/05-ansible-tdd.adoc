@@ -21,19 +21,9 @@ This lab demonstrates a modern, container-native testing workflow where the Mole
 
 '''
 
-== Step 2: Create and Prepare the Collection
+== Step 2: Prepare the Collection
 
-First, generate the collection and add the `db_server` role resource.
-
-. Create the collection skeleton:
-
-[source,bash,role=execute,subs="verbatim,attributes"]
-----
-ansible-creator init collection ansible_bootcamp.my_collection
-cd ansible_bootcamp.my_collection
-----
-
-. Add the `db_server` role:
+First, the `db_server` role resource.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -52,9 +42,9 @@ Modify the files inside `roles/db_server/` to install and configure PostgreSQL.
 ----
 ---
 # defaults file for ansible_bootcamp.my_collection.db_server
-db_server_db_name: "webapp_prod"
-db_server_db_user: "webapp_user"
-db_server_db_password: "SecurePassword123"
+db_server_name: "webapp_prod"
+db_server_user: "webapp_user"
+db_server_password: "SecurePassword123"
 ...
 
 ----
@@ -67,31 +57,31 @@ Replace the entire contents of this file. Notice there are no installation, init
 # tasks file for ansible_bootcamp.my_collection.db_server
 - name: Create the application database
   community.postgresql.postgresql_db:
-    name: "{{ db_server_db_name }}"
+    name: "{{ db_server_name }}"
     state: present
 
 - name: Create the application database user
   community.postgresql.postgresql_user:
-    login_db: "{{ db_server_db_name }}"
-    name: "{{ db_server_db_user }}"
-    password: "{{ db_server_db_password }}"
+    login_db: "{{ db_server_name }}"
+    name: "{{ db_server_user }}"
+    password: "{{ db_server_password }}"
     state: present
 
 - name: Grant CONNECT on database to our user
   community.postgresql.postgresql_privs:
-    login_db: "{{ db_server_db_name }}"
+    login_db: "{{ db_server_name }}"
     privs: CONNECT
     type: database
-    obj: "{{ db_server_db_name }}"
-    roles: "{{ db_server_db_user }}"
+    obj: "{{ db_server_name }}"
+    roles: "{{ db_server_user }}"
 
 - name: Grant USAGE and CREATE on schema public to our user
   community.postgresql.postgresql_privs:
-    login_db: "{{ db_server_db_name }}"
+    login_db: "{{ db_server_name }}"
     privs: ALL
     type: schema
     obj: public
-    roles: "{{ db_server_db_user }}"
+    roles: "{{ db_server_user }}"
 ...
 
 ----
@@ -123,21 +113,22 @@ argument_specs:
     description: "This role manages PostgreSQL database users and databases within an existing PostgreSQL instance."
     author: "Ansible Bootcamp"
     options:
-      db_server_db_name:
+      db_server_name:
         type: "str"
         description: "The name of the database to create"
         default: "webapp_prod"
 
-      db_server_db_user:
+      db_server_user:
         type: "str"
         description: "The name of the database user to create"
         default: "webapp_user"
 
-      db_server_db_password:
+      db_server_password:
         type: "str"
         description: "The password for the database user"
         default: "SecurePassword123"
         no_log: true
+...
 ----
 
 This argument specification:
@@ -175,7 +166,7 @@ mv molecule/db_server extensions/molecule/; rmdir molecule
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-mv extensions/molecule/db_server/{converge.yml,create.yml,destroy.yml} extensions/molecule/utils/playbooks/
+mv extensions/molecule/db_server/{converge.yml,create.yml,destroy.yml,verify.yml} extensions/molecule/utils/playbooks/
 ----
 
 **Delete unused example directory:**
@@ -188,7 +179,7 @@ rm -rf extensions/molecule/integration_hello_world
 **Modify `extensions/molecule/db_server/molecule.yml`:**
    Replace the contents of this file with the following configuration:
 
-[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/molecule.yml"]
+[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 dependency:
@@ -286,7 +277,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
       ansible.builtin.wait_for_connection:
         timeout: 30
       delegate_to: "{{ item }}"
-      loop: "{{ play_hosts }}"
+      loop: "{{ ansible_play_batch }}"
 ...
 
 ----
@@ -357,29 +348,29 @@ The `verify.yml` playbook performs functional testing to validate that your role
 - name: Verify
   hosts: all
   vars:
-    db_server_db_name: "webapp_prod"
-    db_server_db_user: "webapp_user"
-    db_server_db_password: "SecurePassword123"
+    db_server_name: "webapp_prod"
+    db_server_user: "webapp_user"
+    db_server_password: "SecurePassword123"
   tasks:
     - name: "FUNCTIONAL TEST: Connect as the new user and create a table"
       community.postgresql.postgresql_query:
-        login_user: "{{ db_server_db_user }}"
-        login_password: "{{ db_server_db_password }}"
-        db: "{{ db_server_db_name }}"
+        login_user: "{{ db_server_user }}"
+        login_password: "{{ db_server_password }}"
+        login_db: "{{ db_server_name }}"
         query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
 
     - name: "FUNCTIONAL TEST: Write data to the new table"
       community.postgresql.postgresql_query:
-        login_user: "{{ db_server_db_user }}"
-        login_password: "{{ db_server_db_password }}"
-        db: "{{ db_server_db_name }}"
+        login_user: "{{ db_server_user }}"
+        login_password: "{{ db_server_password }}"
+        login_db: "{{ db_server_name }}"
         query: "INSERT INTO molecule_verify (id) VALUES (1);"
 
     - name: "FUNCTIONAL TEST: Read data back and verify the result"
       community.postgresql.postgresql_query:
-        login_user: "{{ db_server_db_user }}"
-        login_password: "{{ db_server_db_password }}"
-        db: "{{ db_server_db_name }}"
+        login_user: "{{ db_server_user }}"
+        login_password: "{{ db_server_password }}"
+        login_db: "{{ db_server_name }}"
         query: "SELECT COUNT(*) FROM molecule_verify;"
       register: query_result
       changed_when: false
@@ -498,8 +489,8 @@ Update the `galaxy.yml` file to add a dependency on `"community.postgresql": "*"
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-galaxy collection build .
-ansible-galaxy collection install ansible_bootcamp-my_collection-*.tar.gz --force
-ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-*.tar.gz --token YOUR_API_TOKEN_HERE
+ansible-galaxy collection install ansible_bootcamp-my_collection-1.0.2.tar.gz --force
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.2.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
 '''
@@ -524,11 +515,14 @@ Molecule executes a comprehensive test sequence to validate your role:
 
 The test suite validates that your db_server role successfully installs PostgreSQL, creates the application database and user, and enables functional database operations.
 
-Further documentation are provided below for those who are interested to learn more:
+== Helpful Links
 
-* https://molecule.readthedocs.io/[Molecule Documentation]
-* https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
-* https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+For additional reference and deeper learning on Test-Driven Development with Ansible:
+
+. https://molecule.readthedocs.io/[Molecule Documentation]
+. https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
+. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+. https://ansible.readthedocs.io/projects/dev-tools/[Ansible Development Tools]
 
 == Step 6: Run the Full Test Suite!
 
@@ -536,11 +530,8 @@ Change to the extensions directory and execute the test suite.
 
 [source,bash,role=execute]
 ----
-cd extensions
 molecule test --all
 ----
-
-This corrected structure removes the invalid `extends` keyword and uses a more explicit configuration for each scenario, which will resolve the validation error.
 
 == Conclusion
 
