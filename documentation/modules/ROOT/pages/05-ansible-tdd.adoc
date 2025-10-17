@@ -188,7 +188,7 @@ rm -rf extensions/molecule/integration_hello_world
 **Modify `extensions/molecule/db_server/molecule.yml`:**
    Replace the contents of this file with the following configuration:
 
-[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/molecule.yml"]
+[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 dependency:
