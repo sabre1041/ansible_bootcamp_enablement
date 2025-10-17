@@ -340,7 +340,7 @@ You're now logged into the newly deployed AAP instance!
 
 == 5. Exercise: Modify the existing deployment
 
-THe operator will manage the desired state of the created CRDs.
+The operator will manage the desired state of the created CRDs.
 
 For instance, if changes are manually made to operator managed resources like `deployments`, `configmaps`, etc. Then the operator may override those changes and reapply the desired state according the the deployed `ansibleautomationplatform`, `automationcontroller`, etc CRDs.
 
