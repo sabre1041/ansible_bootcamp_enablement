@@ -166,7 +166,7 @@ mv molecule/db_server extensions/molecule/; rmdir molecule
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-mv extensions/molecule/db_server/{converge.yml,create.yml,destroy.yml} extensions/molecule/utils/playbooks/
+mv extensions/molecule/db_server/{converge.yml,create.yml,destroy.yml,verify.yml} extensions/molecule/utils/playbooks/
 ----
 
 **Delete unused example directory:**
@@ -489,8 +489,8 @@ Update the `galaxy.yml` file to add a dependency on `"community.postgresql": "*"
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-galaxy collection build .
-ansible-galaxy collection install ansible_bootcamp-my_collection-*.tar.gz --force
-ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-*.tar.gz --token YOUR_API_TOKEN_HERE
+ansible-galaxy collection install ansible_bootcamp-my_collection-1.0.2.tar.gz --force
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.2.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
 '''
@@ -527,7 +527,6 @@ Change to the extensions directory and execute the test suite.
 
 [source,bash,role=execute]
 ----
-cd extensions
 molecule test --all
 ----
 
