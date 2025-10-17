@@ -188,6 +188,8 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
+WARNING: Remove the https:// from the base_image name
+
 === Step 6.2: Build and Publish the Execution Environment
 
 [source,bash,role=execute,subs="verbatim,attributes"]
