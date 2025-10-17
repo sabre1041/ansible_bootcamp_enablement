@@ -3,6 +3,16 @@
 [abstract]
 We will deploy Red Hat Ansible Automation Platform as a managed application on Microsoft Azure. We will provision the platform directly from the Azure Marketplace, configure networking access, and validate that we can log into Automation Controller and run our first automation job.
 
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Understand the benefits of managed AAP deployment on Azure
+* Deploy AAP from the Azure Marketplace
+* Configure networking and security settings
+* Access and validate AAP functionality
+* Run your first automated job
+
 == 1. Introduction: Why AAP on Azure?
 
 .Why is this important?
@@ -135,12 +145,27 @@ For automation beyond localhost, configure Azure VNET peering:
 
 You have successfully:
 
-. Deployed Ansible Automation Platform as a managed service on Azure.
-. Validated the deployment by logging into Automation Controller.
-. Created and executed your first automation job.
-. Explored networking options for real-world automation.
+* Deployed Ansible Automation Platform as a managed service on Azure
+* Validated the deployment by logging into Automation Controller
+* Created and executed your first automation job
+* Explored networking options for real-world automation
 
-This foundation prepares you to scale AAP usage in enterprise environments while offloading operational overhead to Red Hat’s SRE team.
+This deployment method provides:
+
+* Rapid deployment from the Azure Marketplace
+* Fully managed infrastructure by Red Hat SREs
+* Seamless integration with Azure billing and support
+* Enterprise-ready automation capabilities
+
+The managed service approach allows you to focus on automation development rather than platform maintenance, while still benefiting from Red Hat's enterprise support and updates.
+
+== Next Steps
+
+Now that you understand managed AAP deployment on Azure, explore other deployment options:
+
+* **xref:08-aap-openshift.adoc[AAP on OpenShift]**: Learn operator-based deployment on OpenShift Container Platform
+* **Hybrid Deployments**: Combine managed Azure instances with on-premises automation controllers
+* **Multi-Cloud Automation**: Extend your automation across Azure, AWS, and other cloud platforms
 
 == 8. Helpful Links
 

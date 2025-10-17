@@ -3,7 +3,17 @@
 [abstract]
 We will explore essential software development practices applied to automation development, including git workflows, secret scanning with pre-commit hooks, and comprehensive testing. This lab covers treating automation as code with proper linting, testing, and CI/CD practices, culminating in an overview of the Ansible Development Tools suite.
 
-This lab walks through some of the basic software development pratices as they apply to automation development then ends with an overview of the Ansible Development Tools. All automation files should be treated as code. This means scanning for code syntax and quality, checking for secrets, and testing your code as much as possible before committing it. Once it is in git, consider it public and without effort will be there forever. 
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Apply software development best practices to automation code
+* Use git effectively for version control in automation projects
+* Implement pre-commit hooks for code quality and security
+* Set up comprehensive testing frameworks for automation
+* Navigate the Ansible Development Tools ecosystem
+
+This lab walks through some of the basic software development practices as they apply to automation development then ends with an overview of the Ansible Development Tools. All automation files should be treated as code. This means scanning for code syntax and quality, checking for secrets, and testing your code as much as possible before committing it. Once it is in git, consider it public and without effort will be there forever.
 
 == Git
 
@@ -433,6 +443,14 @@ You have successfully learned essential software development practices applied t
 . Creating and managing Ansible projects and collections through the VSCode interface
 
 This foundation prepares you to develop automation content that follows industry best practices for code quality, security, and maintainability.
+
+== Next Steps
+
+With your development environment configured, you're ready to create and manage automation content:
+
+* **xref:04-managing-content-automation-hub.adoc[Managing Content in Automation Hub]**: Create custom collections and execution environments
+* **xref:05-ansible-tdd.adoc[Advanced Collection Testing]**: Learn comprehensive testing methodologies for Ansible content
+* **xref:06-ansible-cicd.adoc[CI/CD for Ansible Content]**: Implement automated pipelines for your automation development workflow
 
 == Helpful Links
 

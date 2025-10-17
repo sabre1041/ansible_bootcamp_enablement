@@ -1,4 +1,18 @@
-= Configuration as Code
+= Lab: Configuration as Code
+
+[abstract]
+Learn how to manage your entire Ansible Automation Platform configuration as code using Ansible playbooks. This includes configuring organizations, teams, users, credentials, projects, inventories, job templates, and execution environments through automated, version-controlled processes.
+
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Understand the principles of infrastructure and configuration as code
+* Configure AAP organizations, teams, and users programmatically
+* Manage credentials, projects, and inventories through code
+* Create and configure job templates via automation
+* Implement execution environment management
+* Deploy complete AAP configurations using CI/CD pipelines
 
 == Building out the basics for config as code
 
@@ -807,6 +821,16 @@ You have successfully implemented Configuration as Code for Ansible Automation P
 . Executed the complete configuration using the infra.aap_configuration collection
 
 This approach enables you to manage your entire AAP infrastructure as code, ensuring consistency, version control, and repeatability across environments. The skills learned here form the foundation for managing complex enterprise automation platforms.
+
+== Next Steps
+
+With Configuration as Code mastered, you're ready for advanced AAP deployment scenarios:
+
+* **xref:08-aap-openshift.adoc[AAP on OpenShift]**: Learn operator-based AAP deployment on OpenShift
+* **Multi-Environment Deployments**: Extend your config-as-code to manage development, staging, and production environments
+* **GitOps Integration**: Implement GitOps workflows for continuous configuration updates
+* **Backup and Recovery**: Create automated backup and disaster recovery procedures
+* **Compliance Automation**: Implement automated compliance checking and reporting
 
 == Helpful Links
 

@@ -5,23 +5,41 @@ We will explore the Red Hat OpenShift Dev Spaces environment and learn how to la
 
 This lab is hosted on the Red Hat Demo Platform. This section walks through the various components and aspects of launching, configuring and using DevSpaces on OpenShift as your primary development environment for Ansible.
 
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Navigate the Red Hat OpenShift Dev Spaces interface
+* Launch and configure development workspaces
+* Understand the demo environment components
+* Set up authentication for git repositories
+* Use basic Ansible Development Tools features
+
 == 1. Introduction: What is included in the demo environment
 
 .Red Hat OpenShift Platform
 
 Dedicated OCP cluster for hosting AAP and DevSpaces
 
+---
+
 .Ansible Automation Platform
 
 Dedicated instance of AAP running on OpenShift
+
+---
 
 .Red Hat OpenShift Dev Spaces
 
 Dedicated DevSpaces instance running on OpenShift
 
+---
+
 .Gitea
 
 Dedicated git instance
+
+---
 
 .Lab Instructions
 
@@ -43,15 +61,15 @@ If you see an error in this lab, fork and submit a pull request against https://
 . Click on `Installed Operators`
 . To the far right of `Red Hat OpenShift Dev Spaces` click the link under `Provided APIs` titled `Red Hat OpenShift Dev Spaces instance Specification`
 +
-image::01-introduction/intro1.png[]
+image::01-introduction/intro1.png[OpenShift console showing Red Hat OpenShift Dev Spaces operator in the Installed Operators list]
 +
 . Under `Details` click the `Red Hat OpenShift Dev Spaces URL`
 +
-image::01-introduction/intro2.png[]
+image::01-introduction/intro2.png[Red Hat OpenShift Dev Spaces operator details page showing the Dev Spaces URL link]
 
 NOTE: These are the long steps. For a shortcut, use the 9-block icon in the upper right to launch `Red Hat OpenShift Dev Spaces`
 
-image::01-introduction/intro-dev_spaces_shortcut.png[]
+image::01-introduction/intro-dev_spaces_shortcut.png[OpenShift console header showing the 9-block application launcher icon for quick access to Dev Spaces]
 
 == 3. DevSpaces Workspace
 
@@ -61,17 +79,17 @@ image::01-introduction/intro-dev_spaces_shortcut.png[]
 . Select `Allow selected permissions` to authorize access and launch the console
 . Scroll down and select the workspace titled `Ansible Dev Space`
 +
-image::01-introduction/intro3.png[]
+image::01-introduction/intro3.png[Dev Spaces workspace selection page showing available workspaces including Ansible Dev Space]
 +
 . This will take a few minutes and eventually show the VSCode interface. While it loads think about the previous page that you can't see right now. There were other workspaces available and an input box to provide your own git URL.
 +
-image::01-introduction/intro4.png[]
+image::01-introduction/intro4.png[Dev Spaces workspace loading screen showing VSCode interface initialization]
 +
 . Trust the extension publishers if you wish to continue
 . Trust the authors of this workspace if you know us
 . Wait a few minutes until the additional extension icons appear for Ansible and OpenShift on the left side.
 +
-image::01-introduction/intro5.png[]
+image::01-introduction/intro5.png[VSCode interface in Dev Spaces showing Ansible and OpenShift extension icons in the left sidebar]
 
 == Ansible and OpenShift Extensions
 
@@ -79,7 +97,7 @@ For this lab we have have provided a `.code-workspace` configuration that listed
 
 . Click on the `Ansible` extension icon to access the Ansible Development Tools extension (covered in a later lab)
 +
-image::01-introduction/intro6.png[]
+image::01-introduction/intro6.png[Ansible extension interface in VSCode showing available Ansible development tools]
 
 == User Credentials in Workspaces
 
@@ -91,7 +109,7 @@ For more information see the https://docs.redhat.com/en/documentation/red_hat_op
 
 . Open a new terminal from the VSCode menu starting with the hamburger (3 horizontal lines) in the top left choosing `Terminal` then `New Terminal`
 +
-image::01-introduction/intro7.png[]
+image::01-introduction/intro7.png[VSCode terminal interface showing basic command line operations in the Dev Spaces environment]
 +
 . Explore the environment:
 
@@ -134,6 +152,16 @@ You have successfully learned:
 . How to provide feedback and contributions to this demo environment
 
 This foundation prepares you to start your Ansible Bootcamp Enablement lab.
+
+== Next Steps
+
+Now that you have your development environment set up, you can proceed to any of the following modules based on your interests:
+
+* **xref:02-aap-azure.adoc[AAP on Azure]**: Learn how to deploy AAP as a managed service on Microsoft Azure
+* **xref:03-developer-tools.adoc[Developer Tools]**: Master essential tools for Ansible automation development
+* **xref:04-managing-content-automation-hub.adoc[Managing Content in Automation Hub]**: Create and publish Ansible collections
+
+Each module is designed to be taken independently after completing this introduction, though following the suggested sequence will provide the best learning experience.
 
 == Helpful Links
 

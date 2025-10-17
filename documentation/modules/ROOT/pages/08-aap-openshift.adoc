@@ -1,10 +1,17 @@
 = Lab: Ansible Automation Platform on OpenShift
 
 [abstract]
-We will take look around a working installation of the Red Hat Ansible Automation Platform on Openshift Container Platform using the AAP operator.
+Explore a working installation of Red Hat Ansible Automation Platform on OpenShift Container Platform using the AAP operator. Learn to navigate existing deployments, deploy your own instances, customize configurations, and troubleshoot the AAP operator in OpenShift environments.
 
-[abstract]
-The goal will be to help to student familiarize themselves with what a working installation looks like, how to deploy their own instance of the operator, and how to customize and troubleshoot certain aspects of the AAP operator.
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Navigate and understand AAP operator deployments on OpenShift
+* Deploy custom AAP instances using the operator
+* Customize AAP configurations and deployments
+* Troubleshoot operator-managed AAP installations
+* Understand operator lifecycle management
 
 == 1. Introduction: Why AAP on OCP?
 
@@ -431,6 +438,17 @@ You have successfully explored Ansible Automation Platform deployment and manage
 . Understood the various CRDs and their purposes in the AAP ecosystem
 
 This knowledge prepares you to deploy, manage, and troubleshoot AAP on OpenShift in enterprise environments, leveraging the power of Kubernetes-native automation platform management.
+
+== Next Steps
+
+Congratulations on completing the Ansible Bootcamp Enablement! You now have comprehensive skills across the full automation lifecycle. Consider these advanced topics to continue your journey:
+
+* **Red Hat Ansible Automation Platform Certification**: Pursue official certification to validate your skills
+* **Production Deployments**: Apply your knowledge to real-world enterprise automation projects
+* **Community Contribution**: Share your knowledge and contribute to Ansible open source projects
+* **Advanced Topics**: Explore event-driven automation, decision frameworks, and multi-cloud orchestration
+
+You've mastered the essential skills for enterprise automation with Ansible. Continue building on this foundation to drive automation excellence in your organization.
 
 == Helpful Links
 
