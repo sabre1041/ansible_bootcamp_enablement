@@ -322,11 +322,11 @@ In the next section we'll take a look at different ways to monitor the progress 
 
 There are several ways to monitor what actions the operator are taking:
 
-* You can track the logs of the `<component<>-controller-operator-manager-<id>` pod logs.
+* You can track the logs of the operator manager pods for each component by looking at the `<component>-controller-operator-manager-<id>` pod logs.
 * You'll start noticing deployments, pods, secrets, etc start to be created and changing. Feel free to monitor their individual progress like in sections 3.2.
 * Resources start to get populated under the `Details` -> `Resources` page.
 
-When the `ansibleautomationplatform` CRD is successfully deployed then status of it and the `automationcontroller` instance should show `Conditions: Running, Successful`.
+When the `AnsibleAutomationPlatform` CRD is successfully deployed then status of it and the `AutomationController` instance should show `Conditions: Running, Successful`.
 
 This can be checked by:
 
