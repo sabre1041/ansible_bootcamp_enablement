@@ -316,7 +316,7 @@ image::03-developer-tools/ansible-creator4.png[]
 +
 image::03-developer-tools/ansible-creator6.png[]
 +
-. Th `collections` directory contains a simple role with a few tasks.
+. The `collections` directory contains a simple role with a few tasks.
 +
 image::03-developer-tools/ansible-creator5.png[]
 
@@ -419,3 +419,11 @@ image::03-developer-tools/ansible-creator8.png[]
 . Review the included sample role `run` and run it in your Workspace however you feel like using the tools learned in this lab.
 + 
 image::03-developer-tools/ansible-creator9.png[]
+
+== Helpful Links
+
+. https://github.com/gitleaks/gitleaks
+. https://pre-commit.com
+. https://github.com/redhat-cop/infra.aap_configuration/blob/devel/.pre-commit-config.yaml
+. https://ansible.readthedocs.io/projects/dev-tools/
+. https://ansible.readthedocs.io/projects/vscode-ansible/
