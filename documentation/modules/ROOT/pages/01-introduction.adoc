@@ -61,15 +61,15 @@ If you see an error in this lab, fork and submit a pull request against https://
 . Click on `Installed Operators`
 . To the far right of `Red Hat OpenShift Dev Spaces` click the link under `Provided APIs` titled `Red Hat OpenShift Dev Spaces instance Specification`
 +
-image::01-introduction/intro1.png[OpenShift console showing Red Hat OpenShift Dev Spaces operator in the Installed Operators list]
+image::01-introduction/intro1.png[OpenShift console showing Red Hat OpenShift DevSpaces operator in the Installed Operators list]
 +
-. Under `Details` click the `Red Hat OpenShift Dev Spaces URL`
+. Under `Details` click the `Red Hat OpenShift DevSpaces URL`
 +
-image::01-introduction/intro2.png[Red Hat OpenShift Dev Spaces operator details page showing the Dev Spaces URL link]
+image::01-introduction/intro2.png[Red Hat OpenShift DevSpaces operator details page showing the DevSpaces URL link]
 
 NOTE: These are the long steps. For a shortcut, use the 9-block icon in the upper right to launch `Red Hat OpenShift Dev Spaces`
 
-image::01-introduction/intro-dev_spaces_shortcut.png[OpenShift console header showing the 9-block application launcher icon for quick access to Dev Spaces]
+image::01-introduction/intro-dev_spaces_shortcut.png[OpenShift console header showing the 9-block application launcher icon for quick access to DevSpaces]
 
 == 3. DevSpaces Workspace
 
@@ -79,17 +79,17 @@ image::01-introduction/intro-dev_spaces_shortcut.png[OpenShift console header sh
 . Select `Allow selected permissions` to authorize access and launch the console
 . Scroll down and select the workspace titled `Ansible Dev Space`
 +
-image::01-introduction/intro3.png[Dev Spaces workspace selection page showing available workspaces including Ansible Dev Space]
+image::01-introduction/intro3.png[DevSpaces workspace selection page showing available workspaces including Ansible Dev Space]
 +
 . This will take a few minutes and eventually show the VSCode interface. While it loads think about the previous page that you can't see right now. There were other workspaces available and an input box to provide your own git URL.
 +
-image::01-introduction/intro4.png[Dev Spaces workspace loading screen showing VSCode interface initialization]
+image::01-introduction/intro4.png[DevSpaces workspace loading screen showing VSCode interface initialization]
 +
 . Trust the extension publishers if you wish to continue
 . Trust the authors of this workspace if you know us
 . Wait a few minutes until the additional extension icons appear for Ansible and OpenShift on the left side.
 +
-image::01-introduction/intro5.png[VSCode interface in Dev Spaces showing Ansible and OpenShift extension icons in the left sidebar]
+image::01-introduction/intro5.png[VSCode interface in DevSpaces showing Ansible and OpenShift extension icons in the left sidebar]
 
 == Ansible and OpenShift Extensions
 
@@ -109,7 +109,7 @@ For more information see the https://docs.redhat.com/en/documentation/red_hat_op
 
 . Open a new terminal from the VSCode menu starting with the hamburger (3 horizontal lines) in the top left choosing `Terminal` then `New Terminal`
 +
-image::01-introduction/intro7.png[VSCode terminal interface showing basic command line operations in the Dev Spaces environment]
+image::01-introduction/intro7.png[VSCode terminal interface showing basic command line operations in the DevSpaces environment]
 +
 . Explore the environment:
 

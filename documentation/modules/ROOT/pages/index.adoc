@@ -28,7 +28,7 @@ Before starting this bootcamp, ensure you have:
 
 The bootcamp is organized into sequential modules that build upon each other:
 
-. **xref:01-introduction.adoc[Introduction]**: Environment setup and Dev Spaces configuration
+. **xref:01-introduction.adoc[Introduction]**: Environment setup and DevSpaces configuration
 . **xref:02-aap-azure.adoc[AAP on Azure]**: Managed deployment on Microsoft Azure
 . **xref:03-developer-tools.adoc[Developer Tools]**: Essential tools for automation development
 . **xref:04-managing-content-automation-hub.adoc[Managing Content in Automation Hub]**: Collection development and publishing
