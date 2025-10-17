@@ -188,8 +188,6 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-WARNING: Remove the https:// Make sure to set your Git Config user parameters, 'git config --global user.email "gitea@ansible_bootcamp"' and 'git config --global user.name "gitea"from the base_image name
-
 === Step 6.2: Build and Publish the Execution Environment
 
 [source,bash,role=execute,subs="verbatim,attributes"]
