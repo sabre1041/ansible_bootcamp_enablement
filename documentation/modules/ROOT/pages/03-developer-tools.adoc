@@ -30,15 +30,15 @@ If you haven't done so already in this Ansible Workspace, set your global userna
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-[user devspaces-example (main)]$ git config --global user.name "First Last"
-[user devspaces-example (main)]$ git config --global user.email "email@example.com"
+git config --global user.name "First Last"
+git config --global user.email "email@example.com"
 ----
 
 === Branches
 
 Branches should be used liberally. Test ideas and have no fear trashing a branch that didn't work. It's better to leave a branch is it is and start a new one based on your current working branch rather than testing a few things and reverting the commits or comment/uncomment things. Using the new `git` prompt outlined above should update when your branch changes as such:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash,subs="verbatim,attributes"]
 ----
 [user devspaces-example (main)]$ git branch
 * main
@@ -77,7 +77,7 @@ It is absolutely vital that you never EVER commit any secrets to git. Even if yo
 
 First create a fake API-like key. The default regex and patterns will determine a UUID-like value to be similar to an API key:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ cd /projects/devspaces-example/
 $ echo key=$(uuidgen) > secret
@@ -87,7 +87,7 @@ key=3863b2c6-cc7b-4832-92b6-5b82d6b1a987
 
 Pull the appropriate image first:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ podman pull docker.io/zricethezav/gitleaks:latest
 Trying to pull docker.io/zricethezav/gitleaks:latest...
@@ -103,7 +103,7 @@ Writing manifest to image destination
 
 Run `gitleaks` to scan the directory containing the generated fake secret:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ podman run -v /projects/devspaces-example/:/scan:Z zricethezav/gitleaks:latest dir -v /scan/
 
@@ -138,7 +138,7 @@ Install pre-commit:
 $ pip install --user pre-commit
 ----
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 Collecting pre-commit
   Downloading pre_commit-4.3.0-py2.py3-none-any.whl (220 kB)
@@ -193,7 +193,7 @@ $ /home/user/.local/bin/pre-commit install
 
 Attempt a `git commit` which should fail:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ git add secret
 $ git commit
@@ -239,7 +239,7 @@ In this way a developer never needs to remember to run a tool before a commit, p
 
 In your terminal, view the installed Ansible Development Tools:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ adt --version
 ansible-builder                          3.1.0

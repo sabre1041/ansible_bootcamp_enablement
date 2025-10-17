@@ -95,14 +95,14 @@ image::01-introduction/intro7.png[]
 +
 . Explore the environment:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ whoami
 
 user
 ----
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 cat /etc/redhat-release`
 
@@ -110,7 +110,7 @@ Red Hat Enterprise Linux release 9.6 (Plow)
 ----
 
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 $ ansible --version
 
