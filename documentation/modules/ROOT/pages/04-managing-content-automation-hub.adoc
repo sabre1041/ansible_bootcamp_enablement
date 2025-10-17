@@ -376,7 +376,7 @@ Now, let's configure Controller to use our custom content.
 ==== Step 9.6: Sync collections
 . Log in to your Private Automation Hub web interface.
 . From the navigation menu on the left, click on Remotes.
-. Click on edit `community` copy and paste this in the requirements file section.
+. Click on edit `community` copy and paste this in the requirements file section and click save.
 
 [source,yaml,role=execute,subs="verbatim,attributes"]
 ----
@@ -388,7 +388,7 @@ collections:
 . Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
 . From the navigation menu on the left, click on Repositories.
 . Edit validated and for the `Remote` field choose validated from the drop down and save.
-. Click on the triple dots for rh-certified and validated and select `Sync repository` and click sync on the popup.
+. Click on the triple dots for `rh-certified`, `validated`, and `community` and select `Sync repository` and click sync on the popup.
 
 NOTE: Syncing the certified collections will take some time, it is needed for another section so continue on and do not wait for it to finish.
 
