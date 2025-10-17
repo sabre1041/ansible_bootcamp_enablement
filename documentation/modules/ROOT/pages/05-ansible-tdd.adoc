@@ -515,11 +515,14 @@ Molecule executes a comprehensive test sequence to validate your role:
 
 The test suite validates that your db_server role successfully installs PostgreSQL, creates the application database and user, and enables functional database operations.
 
-Further documentation are provided below for those who are interested to learn more:
+== Helpful Links
 
-* https://molecule.readthedocs.io/[Molecule Documentation]
-* https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
-* https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+For additional reference and deeper learning on Test-Driven Development with Ansible:
+
+. https://molecule.readthedocs.io/[Molecule Documentation]
+. https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
+. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+. https://ansible.readthedocs.io/projects/dev-tools/[Ansible Development Tools]
 
 == Step 6: Run the Full Test Suite!
 

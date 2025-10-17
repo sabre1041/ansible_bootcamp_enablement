@@ -406,3 +406,12 @@ Congratulations! You have successfully completed this workflow for managing cust
 . Configured Automation Controller to use all of your custom content.
 . Verified the entire process by launching a Job Template.
 . This process is fundamental to creating a secure, scalable, and manageable automation practice in an enterprise environment.
+
+== Helpful Links
+
+For additional reference and deeper learning on managing Ansible content:
+
+. https://docs.ansible.com/ansible/latest/galaxy/user_guide.html[Ansible Galaxy User Guide]
+. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+. https://ansible.readthedocs.io/projects/builder/[Ansible Builder Documentation]
+. https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/using_automation_hub/index[Private Automation Hub Documentation]

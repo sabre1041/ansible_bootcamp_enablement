@@ -1,4 +1,4 @@
-= Ansible Automation Platform on OpenShift
+= Lab: Ansible Automation Platform on OpenShift
 
 [abstract]
 We will take look around a working installation of the Red Hat Ansible Automation Platform on Openshift Container Platform using the AAP operator.
@@ -338,8 +338,29 @@ You're now logged into the newly deployed AAP instance!
 
 == 5. Exercise: Modify the existing deployment
 
-lorem ipsum
+In this exercise, you would modify the existing AAP deployment to add new components or change configurations. This demonstrates the flexibility of the operator-based approach where changes can be applied declaratively through the CRD.
 
 == 6. Exercise: Modify the default AAP containergroup spec
 
-lorem ipsum
+Container groups in AAP define execution environments for running jobs. This exercise would show how to customize the default container group specifications to include additional tools or configurations needed for your automation workloads.
+
+== Conclusion
+
+You have successfully explored Ansible Automation Platform deployment and management on OpenShift:
+
+. Examined the resources managed by the AAP operator including deployments, pods, secrets, and routes
+. Learned about cluster-scoped vs namespace-scoped operator installations
+. Deployed a custom AAP instance with specific configurations
+. Monitored deployment progress and accessed the running platform
+. Understood the various CRDs and their purposes in the AAP ecosystem
+
+This knowledge prepares you to deploy, manage, and troubleshoot AAP on OpenShift in enterprise environments, leveraging the power of Kubernetes-native automation platform management.
+
+== Helpful Links
+
+For additional reference and deeper learning on AAP on OpenShift:
+
+. https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/deploying_the_red_hat_ansible_automation_platform_operator_on_openshift/index[AAP Operator Deployment Guide]
+. https://docs.openshift.com/container-platform/latest/operators/understanding/olm/olm-understanding-olm.html[OpenShift Operator Lifecycle Manager]
+. https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/red_hat_ansible_automation_platform_installation_guide/index[Ansible Automation Platform Installation Guide]
+. https://kubernetes.io/docs/concepts/extend-kubernetes/operator/[Kubernetes Operators]

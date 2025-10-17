@@ -1,8 +1,11 @@
 = Lab: Creating a CI/CD Pipeline
 
+[abstract]
+We will create a complete CI/CD pipeline for Ansible collection development using Tekton on OpenShift. This includes building a pipeline that automatically lints, tests, builds, publishes, and approves Ansible collections to Private Automation Hub, with webhook integration for automated triggering on git commits.
+
 == 1. Prerequisites
 
-.Particpants should have
+.Participants should have
 
 . Completed the Ansible Bootcamp Lab: xref:04-managing-content-automation-hub.adoc[Managing Ansible Content with Private Automation Hub]
 
@@ -526,7 +529,7 @@ Place the following lines in the roles/dad_joke/tasks/main.yml
 . Navigate to the extensions directory of your collection.  This should be a folder in the root of the collection
 . Init the dad_joke test senario
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 molecule init scenario dad_joke
 ----
@@ -536,7 +539,7 @@ molecule init scenario dad_joke
 .converge.yml
 [%collapsible]
 ====
-[source,yaml,role=execute,title="converge.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="converge.yml"]
 ----
 ---
 - name: Converge
@@ -555,7 +558,7 @@ molecule init scenario dad_joke
 .molecule.yml
 [%collapsible]
 ====
-[source,yaml,role=execute,title="molecule.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="molecule.yml"]
 ----
 ---
 driver:
@@ -648,4 +651,25 @@ export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
 ----
  ansible-playbook test.yml
 ----
+
+== Conclusion
+
+Congratulations! You have successfully implemented a complete CI/CD pipeline for Ansible automation:
+
+. Created a Tekton pipeline on OpenShift that automates the full Ansible collection development lifecycle
+. Configured webhook integration between Gitea and OpenShift Pipelines for automatic triggering
+. Implemented automated testing with Molecule scenarios
+. Set up collection publishing and approval workflows to Private Automation Hub
+. Verified the end-to-end pipeline functionality with a working collection update
+
+This automated workflow ensures consistent, reliable, and secure deployment of Ansible content across your organization, reducing manual errors and improving development velocity.
+
+== Helpful Links
+
+For additional reference and deeper learning on CI/CD pipelines:
+
+. https://docs.openshift.com/container-platform/latest/cicd/pipelines/understanding-openshift-pipelines.html[OpenShift Pipelines Documentation]
+. https://tekton.dev/docs/[Tekton Documentation]
+. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+. https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/using_automation_hub/index[Private Automation Hub Documentation]
 
