@@ -100,8 +100,8 @@ WARNING: Do not include https:// in the GATEWAY_HOST value
 === Task 4 - Create our Vault
 
 - The secrets are defined in the file `config/dev/vault.yml`. 
-- Your username should be: {ssh_username}
-- Your password should be: {ssh_password}
+- Your username should be: {aap_controller_admin_user}
+- Your password should be: {aap_controller_admin_password}
 +
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/vault.yml"]
 ----
