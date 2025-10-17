@@ -12,6 +12,8 @@ The Ansible Automation Platform Operator provides cloud-native, push-button depl
 
 Deploying Ansible Automation Platform instances with a Kubernetes native operator offers several advantages over launching instances from a playbook deployed on Red Hat OpenShift Container Platform, including upgrades and full lifecycle support for your Red Hat Ansible Automation Platform deployments.
 
+More information can be found on the official AAP on OCP documentation here: https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/installing_on_openshift_container_platform/index.
+
 == 2. Lab Setup: Configuring Your Environment
 
 The demo.redhat.com lab environment provisioned for you is a working OpenShift 4.19 environment with the AAP operator pre-installed and deployed.
@@ -338,7 +340,81 @@ You're now logged into the newly deployed AAP instance!
 
 == 5. Exercise: Modify the existing deployment
 
-In this exercise, you would modify the existing AAP deployment to add new components or change configurations. This demonstrates the flexibility of the operator-based approach where changes can be applied declaratively through the CRD.
+THe operator will manage the desired state of the created CRDs.
+
+For instance, if changes are manually made to operator managed resources like `deployments`, `configmaps`, etc. Then the operator may override those changes and reapply the desired state according the the deployed `ansibleautomationplatform`, `automationcontroller`, etc CRDs.
+
+Likewise, if updates are made to already deployed `ansibleautomationplatform`, `automationcontroller`, etc CRDs than the operator will reconcile already deployed instances and apply the desired configuration automatically.
+
+Let's demonstrate this by modifying the alreay created `ansibleautomationplatform` CRD to also deploy an Automation hub instance and observe how the AAP deployment gets updated.
+
+* Navigate to `Operators` -> `Installed Operators`.
+* Next to `Project:` in the top left ensure `my-aap` is the project shown.
+* Click on the `Ansible Automation Platform` operator.
+* In the toolbar click on `All instances`.
+* Modify the existing deployment...
+* Click on the `YAML view` radio button.
+* In the code entry field paste the following YAML in:
++
+[source,yaml,role=execute,subs="verbatim,attributes",title="Custom AAP Deployment"]
+----
+apiVersion: aap.ansible.com/v1alpha1
+kind: AnsibleAutomationPlatform
+metadata:
+  name: aap
+  namespace: my-aap
+spec:
+  admin_password_secret: my-aap-admin-secret
+  image_pull_policy: IfNotPresent
+  no_log: false
+  redis_mode: standalone
+  route_tls_termination_mechanism: Edge
+  controller:
+    disabled: false
+  eda:
+    disabled: true
+  hub:
+    disabled: false
+    content:
+      replicas: 1
+    file_storage_access_mode: ReadWriteMany
+    file_storage_size: 100Gi
+    file_storage_storage_class: ocs-external-storagecluster-cephfs
+    gunicorn_api_workers: 1
+    gunicorn_content_workers: 1
+    worker:
+      replicas: 1
+  lightspeed:
+    disabled: true
+----
+* Click the `Save` button.
++
+NOTE: Note the only changes made from originally deployed CRD in section 4.4 is the change of child keys of the `hub` parent key.
+
+The operator Just like in section 4.5, the different components of the operator can be observed to monitor the changes being made.
+
+When the status of the `AnsibleAutomationPlatform` and `AutomationHub` instance are updated to `Conditions: Running, Successful` under `All instances`, the Automation Hub component of AAP should be successfully deployed.
+
+Just like in section 4.6 before, log into the AAP instance again and see that the Automation Hub component of AAP is now deployed!
+
+== 6. Exercise: Modify the default AAP container group
+
+The operator deployed AAP instance is pre-configured with a default container group. A container group is an instance group that points to an OCP cluster. In this case, the OCP cluster that the operator was installed on.
+
+By default, the container group is setup to deploy job pods in the same namesapce that the `ansbibleautomationplatform` was created in.
+
+AAP allows you to edit the default containergroup, or create new ones, and modify the k8s request that AAP makes on each job execution.
+
+More detailed informnation on container groups can be found here: https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html-single/using_automation_execution/index#controller-container-groups.
+
+Let's walk thru making a slight change the default container group on the deployed AAP instance to demonstrate.
+
+* Log into AAP
+* Go to container groups
+* Click the edit button and make a change
+* Edit the receoptor keep setting
+* Launch a demo job
+* Observe the change that was made
 
 == 6. Exercise: Modify the default AAP containergroup spec
 
