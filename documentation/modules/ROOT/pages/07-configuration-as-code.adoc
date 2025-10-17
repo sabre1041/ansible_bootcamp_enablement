@@ -305,7 +305,7 @@ hub_configuration_collection_repository_sync_async_retries: 150
 
 - Here's the desired layout for your folders from the root of the repo. Please examine the file organization to confirm that each file resides in its correct location within this structure. Run the `+tree+` command to verify.
 +
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash]
 ----
 .
 ├── ansible.cfg
