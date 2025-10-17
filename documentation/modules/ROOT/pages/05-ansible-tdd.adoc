@@ -533,8 +533,6 @@ Change to the extensions directory and execute the test suite.
 molecule test --all
 ----
 
-This corrected structure removes the invalid `extends` keyword and uses a more explicit configuration for each scenario, which will resolve the validation error.
-
 == Conclusion
 
 Congratulations! You have successfully implemented Test-Driven Development for Ansible automation by:
