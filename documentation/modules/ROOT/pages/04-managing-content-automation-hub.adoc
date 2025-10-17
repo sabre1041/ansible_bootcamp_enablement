@@ -417,14 +417,6 @@ Congratulations! You have successfully mastered the complete lifecycle of managi
 
 This foundation enables you to create, manage, and distribute automation content at enterprise scale while maintaining security, compliance, and governance standards. The skills learned here are essential for managing automation in large organizations where content needs to be curated, controlled, and distributed efficiently.
 
-== Next Steps
-
-With content creation and management mastered, advance your automation development skills:
-
-* **xref:05-ansible-tdd.adoc[Advanced Collection Testing]**: Implement comprehensive testing strategies with Molecule
-* **xref:06-ansible-cicd.adoc[CI/CD for Ansible Content]**: Automate your content development pipeline
-* **xref:07-configuration-as-code.adoc[Configuration as Code]**: Manage entire AAP configurations programmatically
-
 == Helpful Links
 
 For additional reference and deeper learning on managing Ansible content:

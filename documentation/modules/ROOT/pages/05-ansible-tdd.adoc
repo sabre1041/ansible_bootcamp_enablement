@@ -546,14 +546,6 @@ Congratulations! You have successfully implemented Test-Driven Development for A
 
 This TDD approach ensures your automation is reliable, maintainable, and ready for production deployment. The skills you've learned here form the foundation for developing high-quality Ansible content that can be confidently deployed in enterprise environments.
 
-== Next Steps
-
-With testing methodologies established, integrate automation into production workflows:
-
-* **xref:06-ansible-cicd.adoc[CI/CD for Ansible Content]**: Automate testing and deployment pipelines
-* **xref:07-configuration-as-code.adoc[Configuration as Code]**: Apply TDD principles to infrastructure configuration
-* **Advanced Testing**: Explore integration testing, performance testing, and chaos engineering
-
 == Helpful Links
 
 For additional reference and deeper learning on Test-Driven Development with Ansible:

@@ -822,16 +822,6 @@ You have successfully implemented Configuration as Code for Ansible Automation P
 
 This approach enables you to manage your entire AAP infrastructure as code, ensuring consistency, version control, and repeatability across environments. The skills learned here form the foundation for managing complex enterprise automation platforms.
 
-== Next Steps
-
-With Configuration as Code mastered, you're ready for advanced AAP deployment scenarios:
-
-* **xref:08-aap-openshift.adoc[AAP on OpenShift]**: Learn operator-based AAP deployment on OpenShift
-* **Multi-Environment Deployments**: Extend your config-as-code to manage development, staging, and production environments
-* **GitOps Integration**: Implement GitOps workflows for continuous configuration updates
-* **Backup and Recovery**: Create automated backup and disaster recovery procedures
-* **Compliance Automation**: Implement automated compliance checking and reporting
-
 == Helpful Links
 
 For additional reference and deeper learning on Configuration as Code:

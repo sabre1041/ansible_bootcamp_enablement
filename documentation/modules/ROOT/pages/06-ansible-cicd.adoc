@@ -677,16 +677,6 @@ Congratulations! You have successfully implemented a complete CI/CD pipeline for
 
 This automated workflow ensures consistent, reliable, and secure deployment of Ansible content across your organization, reducing manual errors and improving development velocity.
 
-== Next Steps
-
-Now that you have implemented automated CI/CD for Ansible collections, consider these advanced topics:
-
-* **xref:07-configuration-as-code.adoc[Configuration as Code]**: Learn how to manage your entire AAP configuration as code
-* **Advanced Pipeline Features**: Explore pipeline parameterization, conditional execution, and multi-stage deployments
-* **Integration Testing**: Add integration tests that validate collections against real AAP instances
-* **Security Scanning**: Implement automated security scanning in your pipelines
-* **Monitoring & Observability**: Set up comprehensive logging and monitoring for your CI/CD workflows
-
 == Helpful Links
 
 For additional reference and deeper learning on CI/CD pipelines:

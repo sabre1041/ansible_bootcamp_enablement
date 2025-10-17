@@ -133,16 +133,6 @@ You have successfully learned:
 
 This foundation prepares you to start your Ansible Bootcamp Enablement lab.
 
-== Next Steps
-
-Now that you have your development environment set up, you can proceed to any of the following modules based on your interests:
-
-* **xref:02-aap-azure.adoc[AAP on Azure]**: Learn how to deploy AAP as a managed service on Microsoft Azure
-* **xref:03-developer-tools.adoc[Developer Tools]**: Master essential tools for Ansible automation development
-* **xref:04-managing-content-automation-hub.adoc[Managing Content in Automation Hub]**: Create and publish Ansible collections
-
-Each module is designed to be taken independently after completing this introduction, though following the suggested sequence will provide the best learning experience.
-
 == Helpful Links
 
 For additional reference and deeper learning on AAP in Azure, review the following resources:

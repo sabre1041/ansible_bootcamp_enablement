@@ -444,14 +444,6 @@ You have successfully learned essential software development practices applied t
 
 This foundation prepares you to develop automation content that follows industry best practices for code quality, security, and maintainability.
 
-== Next Steps
-
-With your development environment configured, you're ready to create and manage automation content:
-
-* **xref:04-managing-content-automation-hub.adoc[Managing Content in Automation Hub]**: Create custom collections and execution environments
-* **xref:05-ansible-tdd.adoc[Advanced Collection Testing]**: Learn comprehensive testing methodologies for Ansible content
-* **xref:06-ansible-cicd.adoc[CI/CD for Ansible Content]**: Implement automated pipelines for your automation development workflow
-
 == Helpful Links
 
 . https://github.com/gitleaks/gitleaks

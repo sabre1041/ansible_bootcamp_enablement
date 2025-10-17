@@ -439,17 +439,6 @@ You have successfully explored Ansible Automation Platform deployment and manage
 
 This knowledge prepares you to deploy, manage, and troubleshoot AAP on OpenShift in enterprise environments, leveraging the power of Kubernetes-native automation platform management.
 
-== Next Steps
-
-Congratulations on completing the Ansible Bootcamp Enablement! You now have comprehensive skills across the full automation lifecycle. Consider these advanced topics to continue your journey:
-
-* **Red Hat Ansible Automation Platform Certification**: Pursue official certification to validate your skills
-* **Production Deployments**: Apply your knowledge to real-world enterprise automation projects
-* **Community Contribution**: Share your knowledge and contribute to Ansible open source projects
-* **Advanced Topics**: Explore event-driven automation, decision frameworks, and multi-cloud orchestration
-
-You've mastered the essential skills for enterprise automation with Ansible. Continue building on this foundation to drive automation excellence in your organization.
-
 == Helpful Links
 
 For additional reference and deeper learning on AAP on OpenShift:
