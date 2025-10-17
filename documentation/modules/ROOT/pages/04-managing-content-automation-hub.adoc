@@ -285,7 +285,7 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
+WARNING: Remove the https:// from the base_image name
 
 === Step 7.3: Increment Version and Republish
 
@@ -341,7 +341,7 @@ Create a playbook named `playbooks/test_pah_ee.yml`. This playbook uses the debu
 
 === Step 8.2: Push Project Files to Git
 
-Push the `test_pah_ee.yml` playbook to your Git repository
+Push all your new and updated files to your Git repository
 
 == 9. Integrating with Automation Controller
 
