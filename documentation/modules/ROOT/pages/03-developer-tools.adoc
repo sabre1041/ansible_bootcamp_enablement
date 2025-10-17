@@ -25,7 +25,7 @@ Notice your prompt will now display which branch you are in. Also, `git` sub com
 
 If you haven't done so already in this Ansible Workspace, set your global username and email:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash,subs="verbatim,attributes"]
 ----
 [user devspaces-example (main)]$ git config --global user.name "First Last"
 [user devspaces-example (main)]$ git config --global user.email "email@example.com"
@@ -35,7 +35,7 @@ If you haven't done so already in this Ansible Workspace, set your global userna
 
 Branches should be used liberally. Test ideas and have no fear trashing a branch that didn't work. It's better to leave a branch is it is and start a new one based on your current working branch rather than testing a few things and reverting the commits or comment/uncomment things. Using the new `git` prompt outlined above should update when your branch changes as such:
 
-[source,bash,role=execute,subs="verbatim,attributes"]
+[source,bash,subs="verbatim,attributes"]
 ----
 [user devspaces-example (main)]$ git branch
 * main

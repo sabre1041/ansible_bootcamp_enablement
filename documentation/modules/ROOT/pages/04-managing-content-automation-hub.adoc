@@ -131,8 +131,6 @@ NOTE: The Copy URL button on the far right of the 'Clone this repository' sectio
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-git config --global user.email "gitea@opentlc.com"
-git config --global user.name <YOUR NAME>
 git init
 git checkout -b main
 git add --all
@@ -211,7 +209,7 @@ podman tag localhost/my-pah-ee:1.0 {aap_controller_web_url}/my-pah-ee:1.0
 podman push {aap_controller_web_url}/my-pah-ee:1.0
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+WARNING: Remove the https:// in these commands or it will error. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 7. Adding a Custom Filter Plugin
 
@@ -320,7 +318,7 @@ podman tag localhost/my-pah-ee:1.1 {aap_controller_web_url}/my-pah-ee:1.1
 podman push {aap_controller_web_url}/my-pah-ee:1.1
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
+WARNING: Remove the https:// in these commands or it will error.
 
 == 8. Preparing the Project for Automation Controller
 
