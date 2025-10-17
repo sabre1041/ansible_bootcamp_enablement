@@ -277,7 +277,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
       ansible.builtin.wait_for_connection:
         timeout: 30
       delegate_to: "{{ item }}"
-      loop: "{{ play_hosts }}"
+      loop: "{{ ansible_play_batch }}"
 ...
 
 ----
@@ -356,21 +356,21 @@ The `verify.yml` playbook performs functional testing to validate that your role
       community.postgresql.postgresql_query:
         login_user: "{{ db_server_user }}"
         login_password: "{{ db_server_password }}"
-        db: "{{ db_server_name }}"
+        login_db: "{{ db_server_name }}"
         query: "CREATE TABLE IF NOT EXISTS molecule_verify (id INT);"
 
     - name: "FUNCTIONAL TEST: Write data to the new table"
       community.postgresql.postgresql_query:
         login_user: "{{ db_server_user }}"
         login_password: "{{ db_server_password }}"
-        db: "{{ db_server_name }}"
+        login_db: "{{ db_server_name }}"
         query: "INSERT INTO molecule_verify (id) VALUES (1);"
 
     - name: "FUNCTIONAL TEST: Read data back and verify the result"
       community.postgresql.postgresql_query:
         login_user: "{{ db_server_user }}"
         login_password: "{{ db_server_password }}"
-        db: "{{ db_server_name }}"
+        login_db: "{{ db_server_name }}"
         query: "SELECT COUNT(*) FROM molecule_verify;"
       register: query_result
       changed_when: false
