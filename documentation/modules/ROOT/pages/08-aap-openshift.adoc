@@ -320,10 +320,24 @@ In the next section we'll take a look at different ways to monitor the progress 
 
 === Step 4.5: Monitor the installation progress
 
-* You can track the logs of the `<component<>-controller-operator-manager-<id>` logs.
+There are several ways to monitor what actions the operator are taking:
+
+* You can track the logs of the `<component<>-controller-operator-manager-<id>` pod logs.
 * You'll start noticing deployments, pods, secrets, etc start to be created and changing. Feel free to monitor their individual progress like in sections 3.2.
 * Resources start to get populated under the `Details` -> `Resources` page.
-* The status of the `AnsibleAutomationPlatform` and `AutomationController` instance should be `Conditions: Running, Successful` under `All instances`.
+
+When the `ansibleautomationplatform` CRD is successfully deployed then status of it and the `automationcontroller` instance should show `Conditions: Running, Successful`.
+
+This can be checked by:
+
+* Navigate to `Operators` -> `Installed Operators`.
+* Next to `Project:` in the top left ensure `my-aap` is the project shown.
+* Click on the `Ansible Automation Platform` operator.
+* In the toolbar click on `All instances`.
+* Look at what is displayed in the `Status` column on this page.
+* When the status for both components shows `Conditions: Running, Successful` then proceed to the next section.
++
+NOTE: It will take about 10 minutes for the AAP deployment to complete.
 
 === Step 4.6: Access the deployed instance
 
@@ -337,6 +351,12 @@ A new browser tab will be opened to the URL and you should see a login page for 
 * For the credentials enter username: `admin` and password: `supersecret`.
 
 You're now logged into the newly deployed AAP instance!
+
+Go ahead and attach a subscription to this deployment by using a service account and password and choosing any valid subscription. Your Red Hat login used for cloud.redhat.com should have many subsctions to choose from.
+
+Once this is down you will see the AAP dashboard.
+
+Note that the only component of AAP that is currently deployed is Automation Controller.
 
 == 5. Exercise: Modify the existing deployment
 
@@ -352,17 +372,13 @@ Let's demonstrate this by modifying the alreay created `ansibleautomationplatfor
 * Next to `Project:` in the top left ensure `my-aap` is the project shown.
 * Click on the `Ansible Automation Platform` operator.
 * In the toolbar click on `All instances`.
-* Modify the existing deployment...
-* Click on the `YAML view` radio button.
-* In the code entry field paste the following YAML in:
+* Click on the `aap` named resource.
+* Click on the `YAML` toolbar button.
+* In the code entry field update the `spec` key to the following:
 +
 [source,yaml,role=execute,subs="verbatim,attributes",title="Custom AAP Deployment"]
 ----
-apiVersion: aap.ansible.com/v1alpha1
-kind: AnsibleAutomationPlatform
-metadata:
-  name: aap
-  namespace: my-aap
+...
 spec:
   admin_password_secret: my-aap-admin-secret
   image_pull_policy: IfNotPresent
@@ -386,39 +402,93 @@ spec:
       replicas: 1
   lightspeed:
     disabled: true
+...
 ----
-* Click the `Save` button.
+* Click the `Save` button.g
 +
-NOTE: Note the only changes made from originally deployed CRD in section 4.4 is the change of child keys of the `hub` parent key.
+NOTE: Note the only changes made from originally deployed spec in section 4.4 is the change of child keys of the `hub` parent key.
 
-The operator Just like in section 4.5, the different components of the operator can be observed to monitor the changes being made.
+Just like in section 4.5, the different components of the operator can be observed to monitor the changes being made.
 
-When the status of the `AnsibleAutomationPlatform` and `AutomationHub` instance are updated to `Conditions: Running, Successful` under `All instances`, the Automation Hub component of AAP should be successfully deployed.
+NOTE: The status of the `AnsibleAutomationPlatform` CRD will change to `Status: Running` while Automation Hub is deploying.
 
-Just like in section 4.6 before, log into the AAP instance again and see that the Automation Hub component of AAP is now deployed!
+When the status of the `AutomationHub` shows `Conditions: Database-Ready, Automationhub-API-Ready, Automationhub-Operator-Finished-Execution, Automationhub-Web-Ready, Automationhub-Content-Ready, Automationhub-Worker-Ready, Automationhub-Routes-Ready`, the Automation Hub component of AAP should be successfully deployed.
+
+NOTE: Automation Hub will take about 10 minutes to successfully deploy.
+
+Just like in section 4.6 before, log into the AAP instance again and see that the Automation Hub component of AAP is now deployed.
 
 == 6. Exercise: Modify the default AAP container group
 
 The operator deployed AAP instance is pre-configured with a default container group. A container group is an instance group that points to an OCP cluster. In this case, the OCP cluster that the operator was installed on.
 
-By default, the container group is setup to deploy job pods in the same namesapce that the `ansbibleautomationplatform` was created in.
+By default, the container group is setup to deploy job pods in the same namesapce that the `AnsibleAutomationPlatform` CRD was created in.
 
-AAP allows you to edit the default containergroup, or create new ones, and modify the k8s request that AAP makes on each job execution.
+AAP allows you to edit the default container group, or create new ones, and modify the k8s request that AAP makes on each job execution.
 
 More detailed informnation on container groups can be found here: https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html-single/using_automation_execution/index#controller-container-groups.
 
-Let's walk thru making a slight change the default container group on the deployed AAP instance to demonstrate.
+Before we modify the container group, let's make a slight configuration change to the AAP deployment that will allow job containers to persist after running, so the can be observed.
 
-* Log into AAP
-* Go to container groups
-* Click the edit button and make a change
-* Edit the receoptor keep setting
-* Launch a demo job
-* Observe the change that was made
+* Log into the deployed AAP instance.
+* Navigate to `Settings` -> `Automation Execution` -> `Troubleshooting`.
+* Click on the `Edit` button.
+* Uncheck the `Release Receptor Work` checkbox.
+* Click the `Save` button.
 
-== 6. Exercise: Modify the default AAP containergroup spec
+Now, let's walk thru making a slight change the default container group on the deployed AAP instance.
 
-Container groups in AAP define execution environments for running jobs. This exercise would show how to customize the default container group specifications to include additional tools or configurations needed for your automation workloads.
+* Navigate to `Automation Execution` -> `Infrastructure` -> `Instance Groups`.
+* Click on the `default` container group.
+* Click the `Edit container group` button.
+* Check the `Customize pod spec` option.
+
+You'll see a `Pod spec override` text box appear with a lengthy YAML snippet. This represents spec for the k8s API request that is made by AAP each time a job pod is launched.
+
+Let's modify the spec slighty to add a custom label to each job pod.
+
+Edit the `metadata` key to look like such:
+
+[source,yaml,role=execute,subs="verbatim,attributes",title="Custom AAP Deployment"]
+----
+...
+metadata:
+  namespace: my-aap
+  labels:
+    ansible_job: ''
+    my_label: foobar
+...
+----
+
+* Click the `Save container group` button.
+
+Now let's run a demo job and observe the job pod that gets launched.
+
+* Navigate to `Automation Execution` -> `Templates`.
+* Click on `Demo Job Template`.
+* Click the `Launch template` button.
+* Wait for the job to successfully complete.
+
+NOTE: The job template was successfully ran which means that an OCP pod was launched and the ansible playbook was successfully executed within it. Normally this pod would be terminated and removed upon success by AAP. But because we unchecked the `Release Receptor Work` option previously, this pod will not be removed and it will still be available for inspection if needed.
+
+Let's observe the created job pod in the OCP UI.
+
+* Navigate back to the OCP console.
+* Naviate to `Workloads` -> `Pods`.
+* In the filter text box enter `automation-job`.
+* Click on the `automation-job-<id>-<guid>` pod.
+* Observe the labels attached to this pod under `Labels`.
+
+You will see the pod has an additional label `my_label=foobar`. This is because of the change we did to the container group YAML spec above.
+
+This is a very simple example of modifying the container group specification to customize the k8s pod API request. More advanced examples of customizations a user may make for real-world deployments may be:
+
+* Launch job pods in a separate namespace from the core AAP platform pods.
+* Modify the resource requests and limits of job pods.
+* Attach volume mounts to each job pod request.
+* Edit the affinity or anti-affinity of job pods to certain OCP nodes.
+
+This demonstrates how easy and flexible container groups can be used and adjusted to manage AAP automation workloads.
 
 == Conclusion
 
