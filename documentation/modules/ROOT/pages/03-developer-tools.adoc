@@ -308,7 +308,7 @@ image::03-developer-tools/ansible-creator2.png[]
 +
 image::03-developer-tools/ansible-creator3.png[]
 +
-. Once the Dev Space Workspace loads with the new folder structure, explore the directories and files created by `ansible-creator`, using industry standard good practices:
+. Once the Dev Spaces Workspace loads with the new folder structure, explore the directories and files created by `ansible-creator`, using industry standard good practices:
 +
 image::03-developer-tools/ansible-creator4.png[]
 +
@@ -316,7 +316,7 @@ image::03-developer-tools/ansible-creator4.png[]
 +
 image::03-developer-tools/ansible-creator6.png[]
 +
-. Th `collections` directory contains a simple role with a few tasks.
+. The `collections` directory contains a simple role with a few tasks.
 +
 image::03-developer-tools/ansible-creator5.png[]
 
@@ -409,8 +409,21 @@ You can close the previous project window and return to the original Workspace, 
 image::03-developer-tools/ansible-creator7.png[]
 +
 . Explore the scafolded files to see their content
-.. `.gitignore`: Notice how it's pre-loaded with settings to ignore files in our git repository and make our commits cleaner.
+.. `.gitignore`: pre-loaded with settings to ignore files in our git repository and make our commits cleaner.
 .. `test-requirements.txt`: Already includes the Ansible Python dependencies required for running our tests later.
+.. `.github/workflows`: Sample workflow for your collection
 .. `.pre-commit-config`: Includes many useful pre-commit tools
 +
 image::03-developer-tools/ansible-creator8.png[]
++
+. Review the included sample role `run` and run it in your Workspace however you feel like using the tools learned in this lab.
++ 
+image::03-developer-tools/ansible-creator9.png[]
+
+== Helpful Links
+
+. https://github.com/gitleaks/gitleaks
+. https://pre-commit.com
+. https://github.com/redhat-cop/infra.aap_configuration/blob/devel/.pre-commit-config.yaml
+. https://ansible.readthedocs.io/projects/dev-tools/
+. https://ansible.readthedocs.io/projects/vscode-ansible/
