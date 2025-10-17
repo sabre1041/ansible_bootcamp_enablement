@@ -1,15 +1,15 @@
-= Lab: Ansible Development in Dev Spaces
+= Lab: Ansible Development in DevSpaces
 
 [abstract]
 We will explore the Red Hat OpenShift Dev Spaces environment and learn how to launch and configure development workspaces for Ansible automation development. This includes understanding the various components available in the demo environment, authenticating with git repositories, and using the Ansible Development Tools extension.
 
-This lab is hosted on the Red Hat Demo Platform. This section walks through the various components and aspects of launching, configuring and using Dev Spaces on OpenShift as your primary development environment for Ansible.
+This lab is hosted on the Red Hat Demo Platform. This section walks through the various components and aspects of launching, configuring and using DevSpaces on OpenShift as your primary development environment for Ansible.
 
 == 1. Introduction: What is included in the demo environment
 
 .Red Hat OpenShift Platform
 
-Dedicated OCP cluster for hosting AAP and Dev Spaces
+Dedicated OCP cluster for hosting AAP and DevSpaces
 
 .Ansible Automation Platform
 
@@ -17,7 +17,7 @@ Dedicated instance of AAP running on OpenShift
 
 .Red Hat OpenShift Dev Spaces
 
-Dedicated Dev Spaces instance running on OpenShift
+Dedicated DevSpaces instance running on OpenShift
 
 .Gitea
 
@@ -31,11 +31,11 @@ These lab instructions you are reading
 
 If you see an error in this lab, fork and submit a pull request against https://github.com/sabre1041/ansible_bootcamp_enablement
 
-== 2. Dev Spaces console
+== 2. DevSpaces console
 
-*Red Hat OpenShift Dev Spaces* is a powerful tool for creating consistent and reproducible development environments. It has a rich history rooted in open source starting as *Eclipse Che* - a Java-based developer workspace server and cloud-native IDE. Recognizing the potential of this technology, Red Hat became a key contirbutor to this project and this involvement led to the acquisition of Codenvy in 2017. On Feburary 5, 2019, Red Hat officially launched *Red Hat CodeReady Workspaces*. This is when the powerful concept of *devfiles* was introduced, a YAML-based configuration file that defines a development environment as code. This allowed the reproducibility and portability of development workspaces that aimed to end the "works on my system" problem many developers experienced. In June 2022, Red Hat announced a major evolution and rebranding of CodeReady Workspaces to *Red Hat OpenShift Dev Spaces*. With the release of AAP 2.6, a technology preview for *Ansible Development Workspaces* was announced which uses *Red Hat OpenShift Dev Spaces* https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/using_ansible_development_workspaces_for_automation_content_development/index[Ansible Development Workspaces documentation]
+*Red Hat OpenShift Dev Spaces* is a powerful tool for creating consistent and reproducible development environments. It has a rich history rooted in open source starting as *Eclipse Che* - a Java-based developer workspace server and cloud-native IDE. Recognizing the potential of this technology, Red Hat became a key contributor to this project and this involvement led to the acquisition of Codenvy in 2017. On February 5, 2019, Red Hat officially launched *Red Hat CodeReady Workspaces*. This is when the powerful concept of *devfiles* was introduced, a YAML-based configuration file that defines a development environment as code. This allowed the reproducibility and portability of development workspaces that aimed to end the "works on my system" problem many developers experienced. In June 2022, Red Hat announced a major evolution and rebranding of CodeReady Workspaces to *Red Hat OpenShift Dev Spaces*. With the release of AAP 2.6, a technology preview for *Ansible Development Workspaces* was announced which uses *Red Hat OpenShift Dev Spaces* https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/using_ansible_development_workspaces_for_automation_content_development/index[Ansible Development Workspaces documentation]
 
-.Launching Dev Spaces from OpenShift
+.Launching DevSpaces from OpenShift
 
 . Open the `OpenShift Console` link from your lab instructions
 . Check the `authentication` information in the lab instructions to login
@@ -49,13 +49,13 @@ image::01-introduction/intro1.png[]
 +
 image::01-introduction/intro2.png[]
 
-NOTE: These are the long steps. For a shortcut, use the 9-block icon in the upper right to launch `Red Hat OpenShift Dev Space`
+NOTE: These are the long steps. For a shortcut, use the 9-block icon in the upper right to launch `Red Hat OpenShift Dev Spaces`
 
 image::01-introduction/intro-dev_spaces_shortcut.png[]
 
-== 3. Dev Spaces Workspace
+== 3. DevSpaces Workspace
 
-.Launching a specific Dev Spaces Workspace
+.Launching a specific DevSpaces Workspace
 
 . Login via OpenShift authentication provided in lab instructions
 . Select `Allow selected permissions` to authorize access and launch the console
@@ -63,7 +63,7 @@ image::01-introduction/intro-dev_spaces_shortcut.png[]
 +
 image::01-introduction/intro3.png[]
 +
-. This will take a few minutes and eventually show the VSCode infterface. While it loads think about the previous page that you can't see right now. There were other workspaces available and an input box to provide your own git URL.
+. This will take a few minutes and eventually show the VSCode interface. While it loads think about the previous page that you can't see right now. There were other workspaces available and an input box to provide your own git URL.
 +
 image::01-introduction/intro4.png[]
 +
@@ -130,7 +130,7 @@ ansible [core 2.16.14]
 You have successfully learned:
 
 . Some details about lab resources
-. How to use your lab information to login to OpenShift and Dev Spaces
+. How to use your lab information to login to OpenShift and DevSpaces
 . How to provide feedback and contributions to this demo environment
 
 This foundation prepares you to start your Ansible Bootcamp Enablement lab.
