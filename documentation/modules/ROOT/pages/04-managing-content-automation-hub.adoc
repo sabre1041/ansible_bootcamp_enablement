@@ -90,15 +90,11 @@ ansible-galaxy collection build
 ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token <token>
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub
-
 NOTE: Make sure to Approve collection in the hub UI
 
 == 4. Push Collection to Repository
 
 After we've published our collection to your Private Automation Hub, we need to save our work into your lab's Gitea.
-
-NOTE: Make sure to set your Git Config user parameters, 'git config --global user.email "gitea@ansible_bootcamp"' and 'git config --global user.name "gitea"
 
 === 4.1 Create Gitea Repository
 
@@ -146,7 +142,7 @@ Verify the collection is now pushed to the Gitea repository, as it will be refer
 Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
 
 . In your Private Automation Hub UI, navigate to Execution Environments -> Remote Registries.
-. Click Add remote registry and configure it for registry.redhat.io with your credentials.
+. Click Add remote registry and configure it for https://registry.redhat.io with your credentials.
 . Once saved, edit the registry and add ansible-execution-env/ee-minimal-rhel9 to the include tags list.
 . Save and Sync the registry.
 . After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
@@ -192,7 +188,7 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub.
+WARNING: Remove the https:// Make sure to set your Git Config user parameters, 'git config --global user.email "gitea@ansible_bootcamp"' and 'git config --global user.name "gitea"from the base_image name
 
 === Step 6.2: Build and Publish the Execution Environment
 
@@ -306,7 +302,7 @@ ansible-galaxy collection build
 ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Replace `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 NOTE: Make sure to Approve collection in the hub UI
 
@@ -380,6 +376,15 @@ Now, let's configure Controller to use our custom content.
 ==== Step 9.6: Sync collections
 . Log in to your Private Automation Hub web interface.
 . From the navigation menu on the left, click on Remotes.
+. Click on edit `community` copy and paste this in the requirements file section.
+
+[source,yaml,role=execute,subs="verbatim,attributes"]
+----
+collections:
+  - name: containers.podman
+  - name: community.postgresql
+----
+
 . Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
 . From the navigation menu on the left, click on Repositories.
 . Edit validated and for the `Remote` field choose validated from the drop down and save.
