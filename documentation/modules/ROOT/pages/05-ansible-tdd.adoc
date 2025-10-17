@@ -88,7 +88,7 @@ Replace the entire contents of this file. Notice there are no installation, init
 
 '''
 
-== Step 3.5: Add Argument Specification for Role Validation
+=== 3.5: Add Argument Specification for Role Validation
 
 The `argument_spec` file provides a way to validate role arguments, document their purpose, and define default values. This file is placed in `roles/db_server/meta/argument_specs.yml` and helps ensure that the role receives the correct parameters.
 
@@ -179,7 +179,7 @@ rm -rf extensions/molecule/integration_hello_world
 **Modify `extensions/molecule/db_server/molecule.yml`:**
    Replace the contents of this file with the following configuration:
 
-[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 dependency:
@@ -238,7 +238,7 @@ The scenario uses shared playbook files for container management and testing. Cr
 
 The `create.yml` playbook is responsible for provisioning the test infrastructure. In Molecule's testing lifecycle, this is the first phase where containers or virtual machines are created to provide isolated environments for testing.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/create.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/create.yml"]
 ----
 ---
 - name: Create container instances
@@ -282,7 +282,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
 
 ----
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
 ----
 ---
 - name: Retrieve container log
@@ -304,7 +304,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
 
 The `prepare.yml` playbook handles any pre-testing setup tasks. This optional phase in Molecule allows you to configure the test environment before applying your Ansible role, such as installing dependencies or setting up prerequisites.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/prepare.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/prepare.yml"]
 ----
 ---
 - name: Prepare play
@@ -495,7 +495,7 @@ ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansibl
 
 '''
 
-== Step 5.1: Understanding the Test Sequence
+=== 5.1: Understanding the Test Sequence
 
 Molecule executes a comprehensive test sequence to validate your role:
 
@@ -528,7 +528,7 @@ For additional reference and deeper learning on Test-Driven Development with Ans
 
 Change to the extensions directory and execute the test suite.
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 molecule test --all
 ----
