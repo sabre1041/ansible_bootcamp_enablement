@@ -1,4 +1,18 @@
-= Configuration as Code
+= Lab: Configuration as Code
+
+[abstract]
+Learn how to manage your entire Ansible Automation Platform configuration as code using Ansible playbooks. This includes configuring organizations, teams, users, credentials, projects, inventories, job templates, and execution environments through automated, version-controlled processes.
+
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Understand the principles of infrastructure and configuration as code
+* Configure AAP organizations, teams, and users programmatically
+* Manage credentials, projects, and inventories through code
+* Create and configure job templates via automation
+* Implement execution environment management
+* Deploy complete AAP configurations using CI/CD pipelines
 
 == Building out the basics for config as code
 
@@ -7,7 +21,7 @@
 
 First, let's build a new EE with all our required collections.
 
-=== Step 1.1: Build new EE
+==== 1.1: Build new EE
 
 [source,bash,role=execute,subs="verbatim,attributes",title="execution-environment.yml"]
 ----

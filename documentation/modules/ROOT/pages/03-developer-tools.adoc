@@ -3,7 +3,17 @@
 [abstract]
 We will explore essential software development practices applied to automation development, including git workflows, secret scanning with pre-commit hooks, and comprehensive testing. This lab covers treating automation as code with proper linting, testing, and CI/CD practices, culminating in an overview of the Ansible Development Tools suite.
 
-This lab walks through some of the basic software development pratices as they apply to automation development then ends with an overview of the Ansible Development Tools. All automation files should be treated as code. This means scanning for code syntax and quality, checking for secrets, and testing your code as much as possible before committing it. Once it is in git, consider it public and without effort will be there forever. 
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Apply software development best practices to automation code
+* Use git effectively for version control in automation projects
+* Implement pre-commit hooks for code quality and security
+* Set up comprehensive testing frameworks for automation
+* Navigate the Ansible Development Tools ecosystem
+
+This lab walks through some of the basic software development practices as they apply to automation development then ends with an overview of the Ansible Development Tools. All automation files should be treated as code. This means scanning for code syntax and quality, checking for secrets, and testing your code as much as possible before committing it. Once it is in git, consider it public and without effort will be there forever.
 
 == Git
 
@@ -293,7 +303,7 @@ image::03-developer-tools/ansible-extension2.png[]
 
 === Creating a Playbook Project
 
-Now that we have covered the basics of tools available as an automation developer, let's walk through bringing it all together.  While not a command-line tool, the VSCode extension ties together functionality of Dev Spaces and Ansible Development Tools into the development Workspace you are currently using. This potion of the lab will walk through several aspects of automation development activities in this Workspace.
+Now that we have covered the basics of tools available as an automation developer, let's walk through bringing it all together.  While not a command-line tool, the VSCode extension ties together functionality of Dev Spaces and Ansible Development Tools into the development Workspace you are currently using. This portion of the lab will walk through several aspects of automation development activities in this Workspace.
 
 . Click on `Playbook project` and specify the following values:
 +

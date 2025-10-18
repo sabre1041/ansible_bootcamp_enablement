@@ -1,6 +1,17 @@
 = Lab: Advanced Collection Testing with a `db_server` Role
 
-'''
+[abstract]
+Learn Test-Driven Development (TDD) principles applied to Ansible automation using Molecule. This lab demonstrates how to write tests before code, create isolated testing environments, and implement comprehensive testing strategies for Ansible roles that manage PostgreSQL databases in containerized environments.
+
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Understand Test-Driven Development principles in automation
+* Set up and configure Molecule testing frameworks
+* Write comprehensive tests for Ansible roles
+* Implement container-based testing environments
+* Validate role functionality in isolated scenarios
 
 == 1. Introduction: Test-Driven Development with Molecule
 
@@ -88,7 +99,7 @@ Replace the entire contents of this file. Notice there are no installation, init
 
 '''
 
-== Step 3.5: Add Argument Specification for Role Validation
+=== 3.5: Add Argument Specification for Role Validation
 
 The `argument_spec` file provides a way to validate role arguments, document their purpose, and define default values. This file is placed in `roles/db_server/meta/argument_specs.yml` and helps ensure that the role receives the correct parameters.
 
@@ -179,7 +190,7 @@ rm -rf extensions/molecule/integration_hello_world
 **Modify `extensions/molecule/db_server/molecule.yml`:**
    Replace the contents of this file with the following configuration:
 
-[source,yaml,role=execute,title="extensions/molecule/db_server/molecule.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/molecule.yml"]
 ----
 ---
 dependency:
@@ -238,7 +249,7 @@ The scenario uses shared playbook files for container management and testing. Cr
 
 The `create.yml` playbook is responsible for provisioning the test infrastructure. In Molecule's testing lifecycle, this is the first phase where containers or virtual machines are created to provide isolated environments for testing.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/create.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/create.yml"]
 ----
 ---
 - name: Create container instances
@@ -282,7 +293,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
 
 ----
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/tasks/create-fail.yml"]
 ----
 ---
 - name: Retrieve container log
@@ -304,7 +315,7 @@ The `create.yml` playbook is responsible for provisioning the test infrastructur
 
 The `prepare.yml` playbook handles any pre-testing setup tasks. This optional phase in Molecule allows you to configure the test environment before applying your Ansible role, such as installing dependencies or setting up prerequisites.
 
-[source,yaml,role=execute,title="extensions/molecule/utils/playbooks/prepare.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/prepare.yml"]
 ----
 ---
 - name: Prepare play
@@ -495,7 +506,7 @@ ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansibl
 
 '''
 
-== Step 5.1: Understanding the Test Sequence
+=== 5.1: Understanding the Test Sequence
 
 Molecule executes a comprehensive test sequence to validate your role:
 
@@ -515,20 +526,11 @@ Molecule executes a comprehensive test sequence to validate your role:
 
 The test suite validates that your db_server role successfully installs PostgreSQL, creates the application database and user, and enables functional database operations.
 
-== Helpful Links
-
-For additional reference and deeper learning on Test-Driven Development with Ansible:
-
-. https://molecule.readthedocs.io/[Molecule Documentation]
-. https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
-. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
-. https://ansible.readthedocs.io/projects/dev-tools/[Ansible Development Tools]
-
 == Step 6: Run the Full Test Suite!
 
 Change to the extensions directory and execute the test suite.
 
-[source,bash,role=execute]
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 molecule test --all
 ----
@@ -543,3 +545,12 @@ Congratulations! You have successfully implemented Test-Driven Development for A
 * Running comprehensive tests that validate role functionality and idempotence
 
 This TDD approach ensures your automation is reliable, maintainable, and ready for production deployment. The skills you've learned here form the foundation for developing high-quality Ansible content that can be confidently deployed in enterprise environments.
+
+== Helpful Links
+
+For additional reference and deeper learning on Test-Driven Development with Ansible:
+
+. https://molecule.readthedocs.io/[Molecule Documentation]
+. https://ansible.readthedocs.io/projects/creator/[Ansible Creator Documentation]
+. https://docs.ansible.com/ansible/latest/collections_guide/index.html[Ansible Collections Guide]
+. https://ansible.readthedocs.io/projects/dev-tools/[Ansible Development Tools]

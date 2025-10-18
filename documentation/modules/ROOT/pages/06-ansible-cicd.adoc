@@ -3,6 +3,17 @@
 [abstract]
 We will create a complete CI/CD pipeline for Ansible collection development using Tekton on OpenShift. This includes building a pipeline that automatically lints, tests, builds, publishes, and approves Ansible collections to Private Automation Hub, with webhook integration for automated triggering on git commits.
 
+== Learning Objectives
+
+After completing this module, you will be able to:
+
+* Understand CI/CD concepts and their application to Ansible automation
+* Create and configure Tekton pipelines on OpenShift
+* Set up automated testing and linting for Ansible collections
+* Implement automated publishing workflows to Private Automation Hub
+* Configure webhook integrations for git-triggered deployments
+* Monitor and troubleshoot CI/CD pipeline execution
+
 == 1. Prerequisites
 
 .Participants should have
@@ -25,7 +36,7 @@ Upon completion of this lab you will have
 .Prior to starting the lab, ensure the following tools and services are set up:
 
 . Repository for the *ansible_bootcamp_my_collection* is created on Gitea
-. You have access to your dev-spaces workspace for your enviornment
+. You have access to your Dev Spaces workspace for your environment
 . Make sure the Gitea repository is *public*
 . Commit the collection 
 
@@ -49,10 +60,10 @@ image::06-ansible-cicd/gitea-repo-create.png[]
 . On the New Repository page, enter 'ansible_bootcamp_ci_cd_pipeline' in the Repository Name field.
 . Leave everything else as default and click on the button at the bottom, 'Create Repository'.
 
-image::06-ansible-cicd/gitea-reo-config.png[]
+image::06-ansible-cicd/gitea-repo-config.png[]
 
 
-==== 4.1.1: Clone CI/CD Pipeline Repository into DevSpaces Workspace
+==== 4.1.1: Clone CI/CD Pipeline Repository into Dev Spaces Workspace
 
 After an empty repository is created on your Gitea, we need to clone the repository into the workspace to begin creating lab files.
 
@@ -72,9 +83,11 @@ image::06-ansible-cicd/devspaces.png[]
 
 === 4.2: Build Tekton pipeline on OpenShift Container Platform
 
-. In the DevSpaces Workspace, create a new file called *collection-pipeline.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
+==== 4.2.1: Create the Pipeline Definition
 
-. Open file _collection-pipeline.yml_ in the DevSpaces Workspace, and copy the contents *collection-pipeline.yml* from below into the _collection-pipeline.yml_ file
+. In the Dev Spaces Workspace, create a new file called *collection-pipeline.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
+
+. Open file _collection-pipeline.yml_ in the Dev Spaces Workspace, and copy the contents *collection-pipeline.yml* from below into the _collection-pipeline.yml_ file
 
 .collection-pipeline.yml
 [%collapsible]
@@ -265,12 +278,12 @@ spec:
   workspaces:
     - name: shared-workspace
 ----
-====
+==== 4.2.2: Create the Trigger Binding
 
 [start=3]
-. In the DevSpaces Workspace, create a new file called *collection-cluster-trigger-binding.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
+. In the Dev Spaces Workspace, create a new file called *collection-cluster-trigger-binding.yml* in the _ansible_bootcamp_ci_cd_pipeline_ directory, that we'll later push to the _ansible_bootcamp_ci_cd_pipeline_ repository
 
-. Open file _collection-cluster-trigger-binding.yml_ in the DevSpaces Workspace, and copy the contents *collection-cluster-trigger-binding.yml* from below into the _collection-cluster-trigger-binding.yml_ file
+. Open file _collection-cluster-trigger-binding.yml_ in the Dev Spaces Workspace, and copy the contents *collection-cluster-trigger-binding.yml* from below into the _collection-cluster-trigger-binding.yml_ file
 
 .collection-cluster-trigger-binding.yml
 [%collapsible]
@@ -298,9 +311,9 @@ spec:
 ----
 ====
 
-==== 4.2.1: Applying collection-pipeline.yml config
+==== 4.2.3: Apply Pipeline Configurations
 
-. In the terminal of your DevSpaces Workspace, change into the _ansible_bootcamp_ci_cd_pipeline_ directory
+. In the terminal of your Dev Spaces Workspace, change into the _ansible_bootcamp_ci_cd_pipeline_ directory
 . *oc apply -f collection-pipeline.yml* with the previously created _collection-pipeline.yml_
 . *oc apply -f collection-cluster-trigger-binding.yml* with the previously created _collection-cluster-trigger-binding.yml_
 
