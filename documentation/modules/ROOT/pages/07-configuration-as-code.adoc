@@ -21,7 +21,7 @@ After completing this module, you will be able to:
 
 First, let's build a new EE with all our required collections.
 
-==== 1.1: Build new EE
+=== 1.1: Build new EE
 
 [source,bash,role=execute,subs="verbatim,attributes",title="execution-environment.yml"]
 ----

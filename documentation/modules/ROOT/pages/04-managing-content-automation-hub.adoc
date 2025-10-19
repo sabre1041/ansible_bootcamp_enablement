@@ -1,23 +1,27 @@
 = Lab: Managing Ansible Content with Private Automation Hub
 
 [abstract]
-We will create a custom collection, publish it to a Private Automation Hub (PAH), build a custom Execution Environment (EE) from a certified base image, and finally, run the automation from Ansible Automation Controller.
+We will create a custom Collection, publish it to a Private Automation Hub (PAH), build a custom Execution Environment (EE) from a Red Hat certified base image, and finally, run the automation from Ansible Automation Controller.
+
+Content management is a critical component of enterprise automation. Instead of publishing and retrieving content directly from public sources, automation assets will be sourced from a local and trusted content source. This lab will guide you through the process of creating and publishing Ansible Content Collections to a Private Automation Hub, building custom Execution Environments, and integrating them with Ansible Automation Controller. 
 
 == Learning Objectives
 
 After completing this module, you will be able to:
 
 * Understand the role and benefits of Private Automation Hub
-* Create and publish custom Ansible collections
+* Create and publish custom Ansible Collections
 * Build custom Execution Environments
-* Integrate collections with Automation Controller
+* Integrate Collections with Automation Controller
 * Manage content lifecycle in enterprise environments
 
 == 1. Introduction: The Role of Private Automation Hub
 
-A Private Automation Hub acts as a central repository for your organization's curated and trusted automation content. It allows you to manage, share, and control access to your own Execution Environments and Ansible Content Collections.
+A link:https://www.redhat.com/en/technologies/management/ansible/automation-hub[Private Automation Hub (PAH),window=_blank] acts as a central repository containing curated and trusted automation content. It allows you to manage, share, and control access to a curated set of Execution Environments and Ansible Content Collections.
 
-.Why is this important?
+=== 1.1: Importance of Private Automation Hub?
+
+Private Automation Hub provides several key benefits for enterprise automation:
 
 . Centralized Control: A single source of truth for all your certified automation content.
 . Security & Trust: Ensures that teams are using approved and vetted collections and EEs.
@@ -26,26 +30,45 @@ A Private Automation Hub acts as a central repository for your organization's cu
 
 == 2. Lab Setup: Configuring Your Environment
 
-First, let's configure everything to communicate with your Private Automation Hub.
+First, let's configure the steps that your Dev Spaces environment needs to communicate with your Private Automation Hub.
 
-=== Step 2.1: Configure Ansible to Use PAH via Environment Variables
+=== 2.1: Configure Ansible to Use PAH via Environment Variables
 
-Instead of creating a configuration file with your secret token, we will set environment variables. This is a more secure practice for local development as it prevents tokens from being accidentally committed to source control.
+Instead of creating an _ansible.cfg_ configuration file with your secret token that is used to communicate with PAH, we will set environment variables. This is a more secure practice for local development as it prevents tokens from being accidentally committed to source control.
 
-==== Step 2.1.1: Creating namespace for collection
-. Log in to your Private Automation Hub web interface.
-. From the navigation menu on the left, click on Namespaces.
-. Click on the create namespace button.
-. Put in `ansible_bootcamp` for the name, you can leave everything else blank and click create namespace.
+==== 2.1.1: Obtaining Your PAH API Token
 
-==== Step 2.1.2: Obtaining Your PAH API Token
-. Log in to your Private Automation Hub web interface.
-. From the navigation menu on the left, click on API Token.
-. On the API Token page, click the Load token button.
-. Your API token will be displayed. Click the Copy to clipboard icon to copy it. You will use this in the next step.
+Utilize the following steps to obtain your PAH API token:
+
+. Launch the link:{aap_controller_web_url}[Private Automation Hub,window=_blank] web interface and login using the credentials from the xref:environment-details.adoc[Environment Details,window=_blank] page.
+. From the navigation menu on the left, expand **Automation Content** and click on **API Token**.
++
+image::04-managing-content-automation-hub/api-token-overview.png[API Token Overview]
++
+. On the API Token page, click the **Generate token** button. Your API token will be displayed.
++
+image::04-managing-content-automation-hub/api-token-generate.png[Generate an API Token]
++
+. Click the Copy to clipboard icon to copy it.
+
+image::04-managing-content-automation-hub/api-token-copy.png[Copy the API Token]
+
+NOTE: Make sure to store the token securely, as it will not be displayed again.
 
 ==== Step 2.1.3: Set Environment Variables
-In your terminal, run the following commands. These variables will configure ansible-galaxy and ansible-builder to use your PAH instance for the current terminal session.
+
+In your Dev Spaces terminal, run the following commands. These variables will configure `ansible-galaxy` and `ansible-builder` to use your PAH instance to pull and push collections and execution environments.
+
+First, set a new variable for your PAH API Token created previously
+
+[source,bash,role=execute,subs="verbatim,attributes"]
+----
+export PAH_API_TOKEN='YOUR_API_TOKEN_HERE'
+----
+
+NOTE: Replace `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+
+Next, set the environment variables for Ansible to communicate with PAH.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -54,28 +77,26 @@ export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
 
 # Configure the 'published' repository
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/published/'
-export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='YOUR_API_TOKEN_HERE'
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$PAH_API_TOKEN
 
 # Configure the 'certified' repository
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/'
-export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='YOUR_API_TOKEN_HERE'
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$PAH_API_TOKEN
 
 # Configure the 'validated' repository
 export ANSIBLE_GALAXY_SERVER_VALIDATED_URL='{aap_controller_web_url}/pulp_ansible/galaxy/validated/'
-export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='YOUR_API_TOKEN_HERE'
+export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$PAH_API_TOKEN
 
 # Configure the 'community' repository
 export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL='{aap_controller_web_url}/pulp_ansible/galaxy/community/'
-export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='YOUR_API_TOKEN_HERE'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$PAH_API_TOKEN
 ----
-
-NOTE: Replace `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
 
 == 3. Creating and Publishing a Custom Collection
 
-Now, let's use ansible-creator to scaffold a new collection.
+Now, let's use `ansible-creator`` to scaffold a new collection.
 
-=== Step 3.1: Initialize the Collection with ansible-creator
+=== 3.1: Initialize the Collection with ansible-creator
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -87,9 +108,31 @@ cd my_pah_project
 ansible-creator init ansible_bootcamp.my_collection --init-path ./
 ----
 
-WARNING: Remove ansible.utils from deps list
+=== 3.2: Publishing Collections
 
-=== Step 3.2: Build and Publish the Collection
+Publishing a Collection makes it available in PAH for use in Automation Controller and other tools. To publish a collection, a _namespace_ must exist in PAH for which the collection can be built and then published.
+
+==== 3.2.1: Creating namespace for collection
+
+Create a new _Namespace_ in PAH.
+
+. Launch the link:{aap_controller_web_url}[Private Automation Hub,window=_blank] web interface and login using the credentials from the xref:environment-details.adoc[Environment Details,window=_blank] page.
+. From the navigation menu on the left, expand **Automation Content** and click on **Namespaces**.
++
+image::04-managing-content-automation-hub/navigate-namespaces.png[Namespaces navigation]
++
+. Click on the **Create Namespace** button.
++
+image::04-managing-content-automation-hub/namespaces-overview.png[Namespaces overview]
++
+. Enter `ansible_bootcamp` for the name. The rest of the values can be left blank
+. Click **Create Namespace** to create the namespace.
+
+image::04-managing-content-automation-hub/create-namespace.png[Namespace creation form]
+
+=== 3.3: Build and Publish the Collection
+
+Now that a namespace exists, we can build and publish our collection to PAH.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -97,23 +140,77 @@ WARNING: Remove ansible.utils from deps list
 ansible-galaxy collection build
 
 # Publish the collection to PAH
-ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token <token>
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.0.tar.gz --token $PAH_API_TOKEN
 ----
 
-NOTE: Make sure to Approve collection in the hub UI
+NOTE: You can safely ignore any warnings that may be emitted during the publishing process.
 
-== 4. Push Collection to Repository
+Once your collection has been published, it must be approved before it is available for use.
 
-After we've published our collection to your Private Automation Hub, we need to save our work into your lab's Gitea.
+. Launch the link:{aap_controller_web_url}[Private Automation Hub,window=_blank] web interface and login using the credentials from the xref:environment-details.adoc[Environment Details,window=_blank] page.
+. From the navigation menu on the left, expand **Automation Content** and click on **Collection Approvals**.
++
+image::04-managing-content-automation-hub/collection-approvals-overview.png[Collection Approvals overview]
++
+. The `ansible_bootcamp.my_collection` should be listed as pending approval. Click the **Thumbs Up** icon to approve and sign the collection.
++
+image::04-managing-content-automation-hub/collections-approvals-pending.png[Approve the Collection]
++
+. Select the _Yes, I confirm that I want to approve these 1 collections._ checkbox and click **Approve collections** button.
++
+image::04-managing-content-automation-hub/collections-approvals-approve-collection.png[Pending Approval Collection]
++
+. Navigate to the **Collections** page in PAH to verify that your collection is published and available.
++
+image::04-managing-content-automation-hub/navigate-collections.png[Navigate to Collections]
++
+. You should see your `ansible_bootcamp.my_collection` listed and available for use.
 
-=== 4.1 Create Gitea Repository
+image::04-managing-content-automation-hub/pah-collections.png[PAH Collections]
 
-. Log in to your Gitea web interface, with the provided login credentials.
-. In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
+== 4. Syncing a Base EE from the Red Hat Registry
+
+Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
+
+. In your Private Automation Hub UI, navigate to Execution Environments -> Remote Registries.
+. Click Add remote registry and configure it for https://registry.redhat.io with your credentials.
+. Once saved, edit the registry and add ansible-execution-env/ee-minimal-rhel9 to the include tags list.
+. Save and Sync the registry.
+. After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
+
+
+== 5. Push Collection to Repository
+
+After we've published our collection to Private Automation Hub, the next step is to save our work into your lab's Gitea instance.
+
+=== 5.1 Create Gitea Repository
+
+Create a new repository in your Gitea instance to hold the collection code using the following steps:
+
+. Navigate to your link:{gitea_console_url}[Gitea instance] and click the **Sign In** button on the upper right hand corner
++ 
+image::04-managing-content-automation-hub/gitea-homepage.png[Gitea Homepages]
++
+. Enter the username and password using the credentials provided from the xref:environment-details.adoc[Environment Details,window=_blank] page and click the **Sign In** button
++ 
+image::04-managing-content-automation-hub/gitea-login.png[Gitea Login Page]
++
+. Once authenticated, in the top left of the web interface, click on the **+** symbol and select **New Repository**.
++
+image::04-managing-content-automation-hub/gitea-navigate-new-repository.png[Navigate to new Gitea Repository]
++
 . On the New Repository page, enter 'ansible_bootcamp_my_collection' in the Repository Name field.
-. Leave everything else as default and click on the button at the bottom, 'Create Repository'.
++ 
+image::04-managing-content-automation-hub/gitea-new-repository-name.png[Gitea New Repository]
++
+. Leave everything else as default and click on the button at the bottom, **Create Repository**.
 
-==== 4.2 Append to the `.gitignore` file
+image::04-managing-content-automation-hub/gitea-create-repository.png[Gitea Create Repository]
+
+
+==== 5.2 Append to the `.gitignore` file
+
+Back in your Dev Spaces instance, update the `.gitignore` file within the `my_pah_project` directory containing the `my_collection` collection and append the following lines to exclude files that should not be committed to the repository.
 
 [source,bash,role=execute,subs="verbatim,attributes",title=".gitignore"]
 ----
@@ -126,14 +223,14 @@ ansible.cfg
 
 ----
 
-=== 4.3 Push collection to new repository
+=== 5.3 Push collection to new repository
 
-After an empty repository is created on your Gitea, we need to push the collection to the repository.
+After an empty repository is created on your Gitea instance, the next step is to push the collection to the repository.
 
-. In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
-. Now, follow these steps in the root directory of 'my_pah_project' collection.
+. Navigate to the link:{gitea_console_url}/{gitea_user}/ansible_bootcamp_my_collection[ansible_bootcamp_my_collection] repository.
+. In the section _Clone this repository_, click the **Copy URL** icon on the far right to copy Gitea repository URL for the _HTTPS_ protocol option.
 
-NOTE: The Copy URL button on the far right of the 'Clone this repository' section will be used to copy Gitea repository URL in this set of instructions
+Now, from within the the terminal of your Dev Spaces instance, within the 'my_pah_project' directory, execute the following commands to initialize a new Git repository and push the content to the Gitea repository.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -141,21 +238,36 @@ git init
 git checkout -b main
 git add --all
 git commit -m "Uploading collection on initial commit"
-git remote add origin <PASTE GIT URL FROM GITEA HERE>
+git remote add origin {gitea_console_url}/{gitea_user}/ansible_bootcamp_my_collection.git
 git push -u origin main
 ----
 
-Verify the collection is now pushed to the Gitea repository, as it will be referenced later in the Ansible Bootcamp Lab: xref:06-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
+Since the repository requires authentication, you will be prompted to enter your Gitea username and password at the top of the Dev Spaces window.
 
-== 5. Syncing a Base EE from the Red Hat Registry
+image::04-managing-content-automation-hub/devspaces-git-auth.png[Gitea Repository Containing Collection Content]
 
-Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
+Once the credentials have been entered, the push operation will proceed in your terminal with a result similar to the following:
 
-. In your Private Automation Hub UI, navigate to Execution Environments -> Remote Registries.
-. Click Add remote registry and configure it for https://registry.redhat.io with your credentials.
-. Once saved, edit the registry and add ansible-execution-env/ee-minimal-rhel9 to the include tags list.
-. Save and Sync the registry.
-. After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
+[source,bash,subs="verbatim,attributes"]
+----
+Enumerating objects: 83, done.
+Counting objects: 100% (83/83), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (60/60), done.
+Writing objects: 100% (83/83), 31.42 KiB | 3.14 MiB/s, done.
+Total 83 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: . Processing 1 references
+remote: Processed 1 references in total
+To {gitea_console_url}/{gitea_user}/ansible_bootcamp_my_collection.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+----
+
+Refresh the `ansible_bootcamp_my_collection` page within the Gitea UI to confirm that the collection has been published successfully.
+
+image::04-managing-content-automation-hub/gitea-repository.png[Dev Spaces Git Authentication]
+
+The repository will be referenced later in the Ansible Bootcamp Lab: xref:06-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
 
 == 6. Building a Custom Execution Environment
 
@@ -172,7 +284,7 @@ version: 3
 
 images:
   base_image:
-    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: aap-aap.{openshift_cluster_ingress_domain}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   ansible_core:

@@ -29,7 +29,7 @@ The demo.redhat.com lab environment provisioned for you is a working OpenShift 4
 
 Let's click around the OpenShift UI to see what's already installed and configured by the operator.
 
-==== 3.1: The installed operator and CRDs
+=== 3.1: The installed operator and CRDs
 
 * First let's make sure we're using the `aap` project. In the top left select `Project` -> `aap` if it's not already selected.
 * Navigate to `Operators` -> `Installed Operators` and we can see `Ansible Automation Platform`` operator listed and installed in the current project.
