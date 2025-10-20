@@ -365,12 +365,10 @@ ansible.cfg
 After an empty repository is created on your Gitea, we need to push the collection to the repository.
 
 . In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
-. Now, follow these steps in the root directory of 'my_pah_project'
+. Now, follow these steps in the root directory of 'config_as_code'
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-git config --global user.email "gitea@opentlc.com"
-git config --global user.name <YOUR NAME>
 git init
 git checkout -b main
 git add --all
