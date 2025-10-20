@@ -372,7 +372,7 @@ After an empty repository is created on your Gitea, we need to push the collecti
 git init
 git checkout -b main
 git add --all
-git commit -m "Uploading collection on initial commit"
+git commit -m "Uploading config on initial commit"
 git remote add origin <PASTE GIT URL FROM GITEA HERE>
 git push -u origin main
 ----
