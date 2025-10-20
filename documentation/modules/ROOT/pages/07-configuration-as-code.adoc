@@ -251,11 +251,8 @@ hub_collection_remotes_all:
   - name: community
     url: https://galaxy.ansible.com/api/
     requirements:
-      - community.docker
-      - community.general
-      - community.crypto
-      - cloud.terraform
       - containers.podman
+      - community.postgresql
 
 hub_collection_repositories:
   - name: rh-certified
@@ -368,16 +365,14 @@ ansible.cfg
 After an empty repository is created on your Gitea, we need to push the collection to the repository.
 
 . In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
-. Now, follow these steps in the root directory of 'my_pah_project'
+. Now, follow these steps in the root directory of 'config_as_code'
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-git config --global user.email "gitea@opentlc.com"
-git config --global user.name <YOUR NAME>
 git init
 git checkout -b main
 git add --all
-git commit -m "Uploading collection on initial commit"
+git commit -m "Uploading config on initial commit"
 git remote add origin <PASTE GIT URL FROM GITEA HERE>
 git push -u origin main
 ----
@@ -389,7 +384,7 @@ git push -u origin main
 ---
 ansible-navigator:
   execution-environment:
-    image: <AAP HOST>>/config_as_code_ee:1.0
+    image: {aap_controller_web_url}/config_as_code_ee:1.0
 
 ----
 
@@ -409,7 +404,7 @@ ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
 image::07-configuration-as-code/hub_task.png[Hub task,125%,125%,link=self, window=blank]
 
 [#results]
-=== Task 12 - Validate configuration was applied
+=== Task 14 - Validate configuration was applied
 - Navigate to the AAP console and login with the provided passwords (You will find the link to the console on the start page of this lab)
 
 Check that the following objects have been correctly created on AAP and are aligned with the instructions above
@@ -427,7 +422,7 @@ configured with the completed code. You will also be provided the
 variables sections from the readme’s for each of the required roles to
 help you complete this task.
 
-=== Task 1 - Configure settings
+=== Task 15 - Configure settings
 
 - Create a file `config/all/settings.yml` with the below content.
 +
@@ -444,7 +439,7 @@ controller_settings_all:
 
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_settings[Settings role,window=_blank]
 
-=== Task 2 - Configure Execution Environments
+=== Task 16 - Configure Execution Environments
 
 - Create a file `config/all/execution_environments.yml` and add the required information to the list `controller_execution_environments`
 to include a new EE (that we will show how to create with code in the next module) called `config_as_code` with image path `{{ aap_hostname }}/config_as_code_ee` that is pull `always` and uses the credential `cr_ah`.
@@ -455,25 +450,23 @@ image::07-configuration-as-code/config_ee_v2.png[title="Config Execution Environ
 ----
 ---
 controller_execution_environments_all:
-  - name: "supported"
-    image: "{{ aap_hostname }}/ee-supported-rhel8"
+  - name: supported
+    image: registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9
     pull: always
-    credential: cr_ah
 
-  - name: "minimal"
-    image: "{{ aap_hostname }}/ee-minimal-rhel8"
+  - name: minimal
+    image: registry.redhat.io/ansible-automation-platform-25/ee-minimal-rhel9
     pull: always
-    credential: cr_ah
 
 ...
 
 ----
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_execution_environments[Execution Environments role,window=_blank]
 
-=== Task 3 - Create credential types
+=== Task 17 - Create credential types
 
 - Create a file `config/all/credential_types.yml` where we will create a list called `controller_credential_types` that has 5 variables per item defined below:
 
@@ -552,11 +545,11 @@ controller_credential_types_all:
 ...
 ----
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credential_types[Credential types role,window=_blank]
 
-=== Task 4 - Create credentials
+=== Task 18 - Create credentials
 
 - Create a file `config/all/credentials.yml` and add the required information to the list `controller_credentials` to configure the UI to look like the screenshot. Make it to look like the screenshot, but make sure to use parameters for the values.
 *DO NOT PASTE YOUR PASSWORD IN CLEARTEXT FOR CREDENTIALS!*
@@ -628,20 +621,28 @@ controller_credentials_all:
     description: vault password
     inputs:
       vault_password: "{{ vault_pass }}"
+
+  - name: gitea
+    credential_type: Source Control
+    organization: config_as_code
+    description: gitea
+    inputs:
+      username: ### Insert gitea username here
+      password: ### Insert gitea pass variable here
+
 ...
 
 ----
 +
-image::07-configuration-as-code/credential_hub_v2.png[title="Credential",125%,125%, link=self, window=blank]
 image::07-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,125%, link=self, window=blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credentials[Credentials role,window=_blank]
 
-=== Task 5 - Create organizations
+=== Task 19 - Create organizations
 
-- Update the file `config/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the credentials that we created above to the Organization so we can pull collections from Automation Hub.
+- Update the file `config/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the `galaxy_credentials` credentials that we created above to the Organization so we can pull collections from Automation Hub, as well as setting a `default_environment`.
 +
 image::07-configuration-as-code/orgs.png[title="Config as Code Organization",125%,125%, link=self, window=blank]
 +
@@ -653,11 +654,11 @@ aap_organizations_all:
 ...
 ----
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/gateway_organizations[Organizations role,window=_blank]
 
-=== Task 6 - Create projects
+=== Task 20 - Create projects
 
 - Create a file `config/all/projects.yml` and add the required
 information to the list `controller_projects` to configure the UI to
@@ -679,11 +680,11 @@ controller_projects_all:
 
 image::07-configuration-as-code/project_v2.png[title="Project",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_projects[Projects role,window=_blank]
 
-=== Task 7 - Create inventories
+=== Task 21 - Create inventories
 
 - Create a file `config/all/inventories.yml` and add the required
 information to the list `controller_inventories` to configure the UI
@@ -698,11 +699,11 @@ controller_inventories_all:
 +
 image::07-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_inventories[Inventories role,window=_blank]
 
-=== Task 8 - Create inventory sources
+=== Task 22 - Create inventory sources
 
 - Add to file `config/all/inventory_sources.yml` and a new variable with the required information to the list `controller_inventory_sources` to configure the UI to look like the screenshot
 +
@@ -710,16 +711,26 @@ image::07-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, 
 ----
 ---
 controller_inventory_sources_all:
+  - name: config_as_code_source
+    organization: config_as_code
+    source: scm
+    source_project: ### Insert name of project
+    source_path: ### Insert hosts file here
+    inventory: config_as_code
+    credential: ""
+    verbosity: 0
+    overwrite: true
+    overwrite_vars: true
 ...
 ----
 +
 image::07-configuration-as-code/inventory_sources_v2.png[title="Inventory Sources",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_inventory_sources[Inventory sources role,window=_blank]
 
-=== Task 9 - Create job_templates
+=== Task 23 - Create job_templates
 
 - Create a file `config/all/job_templates.yml` and add the required
 information to the list `controller_templates` to configure the UI to like the screenshot.
@@ -736,11 +747,11 @@ controller_templates_all:
 +
 image::07-configuration-as-code/aap_config_template_v3.png[title="AAP Config Template",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_job_templates[Job templates role,window=_blank]
 
-=== Task 10 - Update the Playbook
+=== Task 24 - Update the Playbook
 ==== Update the playbook to get the hub token for the configuration
 
 - We need to create a token from Automation Hub so that we can provide it to the Platform for the collection syncing to take place.
@@ -792,7 +803,7 @@ The next step is to create a playbook/file `playbooks/aap_config.yml` that will 
 
 ----
 
-=== Task 11 - Run the playbook
+=== Task 25 - Run the playbook
 
 - Run `playbooks/aap_config` playbook.
 +
