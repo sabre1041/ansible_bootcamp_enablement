@@ -168,26 +168,71 @@ image::04-managing-content-automation-hub/navigate-collections.png[Navigate to C
 
 image::04-managing-content-automation-hub/pah-collections.png[PAH Collections]
 
-== 4. Syncing a Base EE from the Red Hat Registry
+== 4: Syncing a Base EE from the Red Hat Registry
 
-Before building our own EE, we'll configure PAH to pull in a certified base image from Red Hat.
+Before producing our own Execution Environment (EE) in subsequent steps, we'll configure PAH to pull in a certified base image from Red Hat. Since AAP images within the Red Hat Container Registry are private, we need to configure a credential within PATH to allow for the retrieval of images.
 
-. In your Private Automation Hub UI, navigate to Execution Environments -> Remote Registries.
-. Click Add remote registry and configure it for https://registry.redhat.io with your credentials.
-. Once saved, edit the registry and add ansible-execution-env/ee-minimal-rhel9 to the include tags list.
-. Save and Sync the registry.
-. After the sync is complete, the ee-minimal-rhel9 image will be available in your Private Automation Hub.
+. Launch the link:{aap_controller_web_url}[Private Automation Hub,window=_blank] web interface and login using the credentials from the xref:environment-details.adoc[Environment Details,window=_blank] page.
+. From the navigation menu on the left, expand **Automation Content** and click on **Remote Registries**.
++
+image::04-managing-content-automation-hub/remote-registries-overview.png[Navigate to Remote Registries]
++
+. Click the **Create remote registry** button
++
+image::04-managing-content-automation-hub/create-remote-registry.png[Create Remote Registry]
++
+. Enter the following details on the _Create Remote Registry_ page:
+.. Name: `redhat`
+.. URL: `https://registry.redhat.io`
+.. Username: `YOUR_REDHAT_USERNAME`
+.. Password: `YOUR_REDHAT_PASSWORD`
+.. Click **Create remote registry** to add the new registry.
++
+image::04-managing-content-automation-hub/create-remote-registry-details.png[Create Remote Registry Details]
++
+NOTE: You can link:https://access.redhat.com/terms-based-registry[Create Service Account Credentials,window=_blank] in the Red Hat Customer Portal to simplify the management and access to the Red Hat Container Catalog.
 
+Now that details related to the Red Hat Container Registry have been added, configure PAH to sync the `ee-minimal-rhel9` image 
 
-== 5. Push Collection to Repository
+. From the navigation menu on the left, expand **Automation Content** and click on **Execution Environments**. 
++
+image::04-managing-content-automation-hub/execution-environments-navigate.png[Navigate to Execution Environments]
++
+. Click the **Create execution environment** button.
++
+image::04-managing-content-automation-hub/create-execution-environment.png[Create Execution Environment]
++
+. Enter the following details on the _Create Execution Environment_ page:
+.. Name: `ansible-automation-platform-25/ee-minimal-rhel9`
+.. Upstream Name: `ansible-automation-platform-25/ee-minimal-rhel9`
+.. Remote Registry: `redhat`
+.. To reduce the sync time and storage requirements, enter `latest` in the _Add tag(s) to include_ field and click **Add**
+.. Click the **Create execution environment** button to create the new EE.
+
+image::04-managing-content-automation-hub/create-execution-environment-form.png[Create Execution Environments Form]
+
+Synchronize the Execution Environment into PAH from the Red Hat Container Registry.
+
+. Next to the `ansible-automation-platform-25/ee-minimal-rhel9` Execution Environment, click the kebab menu (three vertical dots) on the right hand side of the entry and select **Sync execution environment**.
++
+image::04-managing-content-automation-hub/execution-environment-sync.png[Sync Execution Environment]
++
+. Click the checkbox next to the _Yes, I confirm I want to sync these 1 execution environments_.  the box to confirm and click **Sync execution environment**.
+. Click the **Sync Execution Environments** button to start the synchronization process.
+
+image::04-managing-content-automation-hub/execution-environment-confirm-sync.png[Confirm Sync Execution Environment]
+
+After the sync is complete, the `ee-minimal-rhel9` image will be available in your Private Automation Hub instance. Feel free to explore the details of the newly synchronized Execution Environment as you see fit.
+
+== 5: Push Collection to Repository
 
 After we've published our collection to Private Automation Hub, the next step is to save our work into your lab's Gitea instance.
 
-=== 5.1 Create Gitea Repository
+=== 5.1: Create Gitea Repository
 
 Create a new repository in your Gitea instance to hold the collection code using the following steps:
 
-. Navigate to your link:{gitea_console_url}[Gitea instance] and click the **Sign In** button on the upper right hand corner
+. Navigate to your link:{gitea_console_url}[Gitea instance,window=_blank] and click the **Sign In** button on the upper right hand corner
 + 
 image::04-managing-content-automation-hub/gitea-homepage.png[Gitea Homepages]
 +
@@ -208,7 +253,7 @@ image::04-managing-content-automation-hub/gitea-new-repository-name.png[Gitea Ne
 image::04-managing-content-automation-hub/gitea-create-repository.png[Gitea Create Repository]
 
 
-==== 5.2 Append to the `.gitignore` file
+==== 5.2: Append to the `.gitignore` file
 
 Back in your Dev Spaces instance, update the `.gitignore` file within the `my_pah_project` directory containing the `my_collection` collection and append the following lines to exclude files that should not be committed to the repository.
 
@@ -220,14 +265,13 @@ ansible.cfg
 .vscode/
 *.tar.gz
 *.json
-
 ----
 
-=== 5.3 Push collection to new repository
+=== 5.3: Push collection to new repository
 
 After an empty repository is created on your Gitea instance, the next step is to push the collection to the repository.
 
-. Navigate to the link:{gitea_console_url}/{gitea_user}/ansible_bootcamp_my_collection[ansible_bootcamp_my_collection] repository.
+. Navigate to the link:{gitea_console_url}/{gitea_user}/ansible_bootcamp_my_collection[ansible_bootcamp_my_collection,window=_blank] repository.
 . In the section _Clone this repository_, click the **Copy URL** icon on the far right to copy Gitea repository URL for the _HTTPS_ protocol option.
 
 Now, from within the the terminal of your Dev Spaces instance, within the 'my_pah_project' directory, execute the following commands to initialize a new Git repository and push the content to the Gitea repository.
@@ -269,13 +313,13 @@ image::04-managing-content-automation-hub/gitea-repository.png[Dev Spaces Git Au
 
 The repository will be referenced later in the Ansible Bootcamp Lab: xref:06-ansible-cicd.adoc[Creating a CI/CD Pipeline]. 
 
-== 6. Building a Custom Execution Environment
+== 6: Building a Custom Execution Environment
 
-Now, we'll define and build an EE that uses our synced minimal image and our custom collection.
+Now, we'll define and build a custom Execution Environment (EE) that uses our synced minimal image and our custom collection.
 
-=== Step 6.1: Define the Execution Environment
+=== 6.1: Define the Execution Environment
 
-Create a file named execution-environment.yml.
+Create a file named `execution-environment.yml` with the following content.
 
 [source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
@@ -310,24 +354,24 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-WARNING: Remove the https:// from the base_image name
+=== 6.2: Build and Publish the Execution Environment
 
-=== Step 6.2: Build and Publish the Execution Environment
+Login to your PAH container registry, build the custom Execution Environment, and push the resulting image to your PAH instance using the following commands:
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Log in to your PAH container registry
-podman login {aap_controller_web_url}
+podman login aap-aap.{openshift_cluster_ingress_domain}
 
 # Build the EE. It will pull the base from PAH, then add our content.
-ansible-builder build --tag my-pah-ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
+ansible-builder build --tag my-pah-ee:1.0 --build-arg TOKEN=$PAH_API_TOKEN
 
 # Tag and push the image to your PAH registry
-podman tag localhost/my-pah-ee:1.0 {aap_controller_web_url}/my-pah-ee:1.0
-podman push {aap_controller_web_url}/my-pah-ee:1.0
+podman tag localhost/my-pah-ee:1.0 aap-aap.{openshift_cluster_ingress_domain}/my-pah-ee:1.0
+podman push aap-aap.{openshift_cluster_ingress_domain}/my-pah-ee:1.0
 ----
 
-WARNING: Remove the https:// in these commands or it will error. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: The `$PAH_API_TOKEN` environment variable was set previously containing the value of the API Token from PAH. Set this variable once again if your terminal session has been restarted.
 
 == 7. Adding a Custom Filter Plugin
 
