@@ -462,7 +462,7 @@ controller_execution_environments_all:
 
 ----
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_execution_environments[Execution Environments role,window=_blank]
 
@@ -545,7 +545,7 @@ controller_credential_types_all:
 ...
 ----
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credential_types[Credential types role,window=_blank]
 
@@ -636,7 +636,7 @@ controller_credentials_all:
 +
 image::07-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,125%, link=self, window=blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credentials[Credentials role,window=_blank]
 
@@ -654,7 +654,7 @@ aap_organizations_all:
 ...
 ----
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/gateway_organizations[Organizations role,window=_blank]
 
@@ -680,7 +680,7 @@ controller_projects_all:
 
 image::07-configuration-as-code/project_v2.png[title="Project",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_projects[Projects role,window=_blank]
 
@@ -699,7 +699,7 @@ controller_inventories_all:
 +
 image::07-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_inventories[Inventories role,window=_blank]
 
@@ -711,12 +711,22 @@ image::07-configuration-as-code/inventories_v2.png[title="Inventory",125%,125%, 
 ----
 ---
 controller_inventory_sources_all:
+  - name: config_as_code_source
+    organization: config_as_code
+    source: scm
+    source_project: ### Insert name of project
+    source_path: ### Insert hosts file here
+    inventory: config_as_code
+    credential: ""
+    verbosity: 0
+    overwrite: true
+    overwrite_vars: true
 ...
 ----
 +
 image::07-configuration-as-code/inventory_sources_v2.png[title="Inventory Sources",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_inventory_sources[Inventory sources role,window=_blank]
 
@@ -737,7 +747,7 @@ controller_templates_all:
 +
 image::07-configuration-as-code/aap_config_template_v3.png[title="AAP Config Template",125%,125%, link=self, window=_blank]
 
-- Further documentation for those who are interested to learn more see:
+- Link to the roles documenation here:
 +
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_job_templates[Job templates role,window=_blank]
 
