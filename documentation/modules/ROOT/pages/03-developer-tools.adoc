@@ -3,6 +3,8 @@
 [abstract]
 We will explore essential software development practices applied to automation development, including git workflows, secret scanning with pre-commit hooks, and comprehensive testing. This lab covers treating automation as code with proper linting, testing, and CI/CD practices, culminating in an overview of the Ansible Development Tools suite.
 
+This lab walks through some of the basic software development practices as they apply to automation development. Finally, it concludes with an overview of the Ansible Development Tools. All automation files should be treated as code. This means scanning for code syntax and quality, checking that sensitive assets have not been exposed, and testing your code as much as possible before committing it. Once committed to git and published, consider it public and without effort will be there forever.
+
 == Learning Objectives
 
 After completing this module, you will be able to:
@@ -13,17 +15,15 @@ After completing this module, you will be able to:
 * Set up comprehensive testing frameworks for automation
 * Navigate the Ansible Development Tools ecosystem
 
-This lab walks through some of the basic software development practices as they apply to automation development then ends with an overview of the Ansible Development Tools. All automation files should be treated as code. This means scanning for code syntax and quality, checking for secrets, and testing your code as much as possible before committing it. Once it is in git, consider it public and without effort will be there forever.
+== 1: Git
 
-== Git
+While a local directory can be used to manage resources related to automation development, it is generally considered best practice that version control tools be utilized. These days, when speaking of version control, we are referring to link:https://git-scm.com[Git,window=_blank]. Furthermore, to properly scale automation across an enterprise, `git` _proficiency_ is required. 
 
-While technically you can use something like a local directory for AAP, in general consider `git` a requirement. Furthermore, to properly scale automation across an enterprise, `git` _proficiency_ is required. 
+NOTE: This lab covers the extreme basics of `git`. For many of you, this may be second nature, so feel free to skip basic concepts you are already familiar with.
 
-NOTE: This lab covers the extreme basics of `git`. For many of you, this may be second nature so feel free to skip basic concepts you are already familiar with. This will not affect the lab later on. You will just miss some fun.
+=== 1.1: CLI Completion
 
-=== CLI Completion
-
-While not required, sourcing these two files will greatly improve your CLI interactions. Note that this can also be added to the `devfile` or a local `.bashrc`
+While not required, sourcing these two files will greatly improve your CLI interactions. Note that this can also be added to the `devfile` for Dev Spaces customization or a local `.bashrc` file.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -32,21 +32,21 @@ source /usr/share/git-core/contrib/completion/git-prompt.sh
 PS1='[\u \W$(__git_ps1 " (%s)")]\$ '
 ----
 
-Notice your prompt will now display which branch you are in. Also, `git` sub commands now auto-complete with the TAB key. Feel free to customize this prompt as desired.
+Notice your prompt will now display which branch you are currently operating against. Also, `git` sub commands now auto-complete with the TAB key. Feel free to customize this prompt as desired.
 
-=== Set Global Settings
+=== 1.2: Set Global Settings
 
-If you haven't done so already in this Ansible Workspace, set your global username and email:
+Before working with Git in your Ansible Workspace, you will need to set your global username and email. This metadata is used when committing code so that it can be associated with the user who made the change:
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-git config --global user.name "First Last"
-git config --global user.email "email@example.com"
+$ git config --global user.name "First Last"
+$git config --global user.email "email@example.com"
 ----
 
-=== Branches
+=== 1.3: Branches
 
-Branches should be used liberally. Test ideas and have no fear trashing a branch that didn't work. It's better to leave a branch is it is and start a new one based on your current working branch rather than testing a few things and reverting the commits or comment/uncomment things. Using the new `git` prompt outlined above should update when your branch changes as such:
+link;https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell[Branches] should be used liberally. They can be used to test ideas and have no fear trashing a branch that didn't quite work out. It's better to leave a branch as is and start a new one based on your current working branch rather than testing a few things and reverting the commits or comment/uncomment things. Using the new `git` prompt configured previously, your prompt should update when your branch changes similar to the following:
 
 [source,bash,subs="verbatim,attributes"]
 ----
@@ -61,31 +61,53 @@ Switched to a new branch 'test'
 * test
 ----
 
-=== Pull/Merge Requests
+NOTE: Since a `git` repository is used to manage an OpenShift Dev Spaces workspace, the current directory that you are operating within is already an initialized as a git repository.
 
-Pull/Merge requests are when you have work in a branch you want to merge into another branch. Typically this is a feature branch with your work that you want to merge into `main` but it could be any other branch target. PR/MRs are an essential way to review code and allow others to comment and provide feedback or changes. PR/MRs can also be used to kick off pipelines to run further commands on this branch of code.
+`main` is the name of the branch that is typically used as the default branch. `master` is also another name that was used in the past. however, most newer repositories make use of `main` as the default branch. The `git config --global init.defaultBranch` command can be used to configure your `git` client with the name of the default branch for new repositories.
+
+Switch back to the `main` branch:
+
+[source,bash,subs="verbatim,attributes"]
+----
+[user devspaces-example (test)]$ git checkout main
+Switched to branch 'main'
+----
+
+Now, delete the `test` branch:
+
+[source,bash,subs="verbatim,attributes"]
+----
+[user devspaces-example (main)]$ git branch -d test
+Deleted branch test (was 1234567).
+----
+
+See how easy it was to create and delete branches in `git`!
+
+=== 1.4:Pull/Merge Requests
+
+Pull/Merge (PR/MR) requests are used when contributing code in a shared git server with collaboration capabilities (GitHub, GitLab, Gitea etc) and you want to merge a branch into another branch. Typically, this is a feature branch with your work that you want to merge into the `main` branch. However, it could be any other branch target. PR/MR's are an essential way to review code and allow others to comment and provide feedback or changes. PR/MRs can also be used to kick off pipelines to run further automation activities based on this branch of code.
 
 === Merge conflicts
 
-When a change is detected on the same line and git is unable to automtically apply the changes, human intervention is needed.
+When a change is detected on the same line and git is unable to automatically apply the changes, human intervention is needed. Several strategies and tools are available to assist you with resolving the conflict.
 
-=== Branch update strategies
+=== 1.5: Branch update strategies
 
-When working in a branch, it is often necessary to ensure your branch has the latest commits that are in main. If it has been a while since you created or updated your branch, it could be several commits behind. 
+When working in a branch, it is often necessary to ensure your branch has the latest commits that are in `main``. If it has been a while since you created or updated your branch, it could be several commits behind. 
 
 _Merge_ will take two divergent branches and preserve their history, adding a commit to tie them together
 
-_Rebase_ will rewind and play commits back in order resulting in a cleaner, more linear history, but can make merge conflicts more difficult to manage
+_Rebase_ will rewind and play commits back in order resulting in a cleaner, more linear history, but can make merge conflicts more difficult to manage.
 
-=== Cleaning up git history
+=== 1.6: Cleaning up git history
 
-While you generally should not be editing git history, there are times where this is necessary. Perhaps commits were made with a default or incorrect `user.name` or `user.email` and needed to be corrected. Or perhaps secrets were leaked and though cleaned up in HEAD, they are still in git history. In these cases, it is possible to edit specific commits.
+While you generally should not be editing git history, there are times where this is necessary. Perhaps commits were made with a default or incorrect `user.name` or `user.email` and needed to be corrected. Maybe you want to combine several commits that you made locally before publishing (also known as _squashing_). Or, perhaps secrets were leaked and though cleaned up in HEAD (the current active commit), they are still in git history. In these cases, it is possible to edit specific commits or a series of commits.
 
-== Secrets Scanning 
+== 2: Secrets Scanning 
 
-It is absolutely vital that you never EVER commit any secrets to git. Even if you revert the commit or delete the file, it is still in history. Even if it is "just a lab server" or "only internal" a secret will trigger many security scans requiring additinal work to explain if it is valid and needs rotating or not. Just don't do it. This lab will walk through using a tool like `gitleaks` to help keep your secrets out of git.
+It is absolutely vital that you never EVER commit any secrets to git. Even if you revert the commit or delete the file, it is still in history. Even if it is "just a lab server" or "only internal", a secret will trigger many security scans requiring additional work to explain if it is valid and needs rotating or not. Just don't do it. This lab will walk through using a tool like link:https://gitleaks.io[Gitleaks,window=_blank] to help keep your secrets out of git.
 
-First create a fake API-like key. The default regex and patterns will determine a UUID-like value to be similar to an API key:
+First, create a fake API-like key. The default regex and patterns will determine a UUID-like value to be similar to an API key:
 
 [source,bash]
 ----
@@ -95,7 +117,9 @@ $ cat secret
 key=3863b2c6-cc7b-4832-92b6-5b82d6b1a987
 ----
 
-Pull the appropriate image first:
+Gitleaks is available as a container image, so no installation is necessary. 
+
+Pull the image into your Dev Spaces workspace:
 
 [source,bash]
 ----
@@ -111,7 +135,7 @@ Writing manifest to image destination
 49c41c2292e05b683dd2dbbe7f7677ca397722f1f0364adf615a3a6913f71ade
 ----
 
-Run `gitleaks` to scan the directory containing the generated fake secret:
+Run `gitleaks` to scan the directory containing the generated fake secret by mounting the current working directory into the gitleaks container:
 
 [source,bash]
 ----
@@ -137,11 +161,13 @@ Fingerprint: /scan/secret:generic-api-key:1
 
 The default rules should detect the UUID as an API key.
 
-== Pre-Commit
+While this was only a brief introduction, we hope that you can see just how vital a tool such as _gitleaks_ can be to keep you and the content of your git repository free of sensitive assets.
 
-Pre-commit is a tool that essentially hooks into `git` and runs additional tooling before the commit actualy writes to git history. This is a perfect way to automatically call things like `ansible-lint` and `gitleaks` before having to go back and squash or clean up git history.
+== 3: Pre-Commit
 
-Install pre-commit:
+link:https://pre-commit.com/[pre-commit,window=_blank] is a tool that essentially hooks into the `git` lifecycle and runs additional tooling before the commit writes changes to git history. This is a perfect way to automatically invoke actions, like `ansible-lint` and `gitleaks`, before having to go back and squash or clean up git history.
+
+Install pre-commit using `pip`:
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -177,7 +203,7 @@ Successfully installed cfgv-3.4.0 identify-2.6.15 nodeenv-1.9.1 pre-commit-4.3.0
 
 Notice the *WARNING:* this tells you the path the binary was installed to.
 
-Add the following to `.pre-commit-config.yaml`:
+Create a _pre-commit_ configuration file by creating a new file called `.pre-commit-config.yaml` with the following content:
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -228,7 +254,12 @@ Fingerprint: /gitleaks/secret:generic-api-key:1
 
 1:22AM INF scanned ~15523 bytes (15.52 KB) in 7.62ms
 1:22AM WRN leaks found: 1
+----
 
+Run `git status` and confirm the file is still staged for commit: 
+
+[source,bash]
+----
 bash-5.1$ git status
 On branch main
 Your branch is up to date with 'origin/main'.
@@ -243,9 +274,11 @@ Untracked files:
 
 ----
 
-In this way a developer never needs to remember to run a tool before a commit, pre-commit will do it for you, keeping mistakes out of git history. For a more comprehensive pre-commit-config see https://github.com/redhat-cop/infra.aap_configuration/blob/devel/.pre-commit-config.yaml
+In this way, a developer never needs to remember to run a tool before a commit. _pre-commit_ will do the work for you, keeping mistakes out of git history. For a more comprehensive exploration of pre-commit and the pre-commit-config, see https://github.com/redhat-cop/infra.aap_configuration/blob/devel/.pre-commit-config.yaml
 
-== Ansible Development Tools (ADT)
+== 4: Ansible Development Tools (ADT)
+
+link:https://www.redhat.com/en/technologies/management/ansible/development-tools[Ansible Development Tools,window=_blank] is a curated suite of tools to help Ansible automation developers be more productive. These tools cover a wide range of activities from scaffolding new projects, building execution environments, linting code, testing code, and signing content.
 
 In your terminal, view the installed Ansible Development Tools:
 
@@ -264,8 +297,6 @@ molecule                                 25.9.0
 pytest-ansible                           25.8.0
 tox-ansible                              25.8.0
 ----
-
-More details available from: https://ansible.readthedocs.io/projects/dev-tools/
 
 The curated list of tools installed as part of the Ansible automation developer tools package includes:
 
@@ -289,66 +320,70 @@ The curated list of tools installed as part of the Ansible automation developer 
 
 `ansible-dev-environment`: a utility for building and managing a virtual environment for Ansible content development.
 
-=== VSCode Extension
+=== 4.1: Visual Studio Code (VS Code) Extension
 
-All extensions should be loaded by now. If you are not familiar with the Ansible extension see https://ansible.readthedocs.io/projects/vscode-ansible/
+Ansible includes a Visual Studio Code (VS Code) extension to enhance the development experience. You can learn more about the features that are available in the extension at https://ansible.readthedocs.io/projects/vscode-ansible/
 
-. Open the Ansible extension on the left of the window
+. Open the Ansible extension on the left hand side of the Dev Spaces window
 +
 image::03-developer-tools/ansible-extension1.png[]
 +
-. For this lab we will not be using Lightspeed so feel free to close these panes
+. For this lab, we will not be using Lightspeed, so feel free to close these panes
 +
 image::03-developer-tools/ansible-extension2.png[]
 
-=== Creating a Playbook Project
+=== 4.2: Creating a Playbook Project
 
-Now that we have covered the basics of tools available as an automation developer, let's walk through bringing it all together.  While not a command-line tool, the VSCode extension ties together functionality of Dev Spaces and Ansible Development Tools into the development Workspace you are currently using. This portion of the lab will walk through several aspects of automation development activities in this Workspace.
+Now that we have covered the basics of tools available as an automation developer, let's walk through bringing it all together. While not a command-line tool, the VS Code extension ties together functionality of Dev Spaces and Ansible Development Tools into the development Workspace you are currently using. This portion of the lab will walk through several aspects of automation development activities in this Workspace.
 
-. Click on `Playbook project` and specify the following values:
+. Within the _Initialize_ section of the Ansible Development Tools, click on `Playbook project` to open a dialog to create a new project. 
++
+Specify the following values within the playbook project creation dialog:
 +
 image::03-developer-tools/ansible-creator1.png[]
 +
 .. Destination directory: `/projects/myproject`
 .. Namespace: `mynamespace`
 .. Collection: `mycollection`
-. Click `Create`
+. Click **Create**
 +
 image::03-developer-tools/ansible-creator2.png[]
 +
 . The logs will display in the box below that
-. Click `Open Project` to open a new VSCode window with this new project
+. Click `Open Project` to open a new VS Code window with this new project
 +
 image::03-developer-tools/ansible-creator3.png[]
 +
-. Once the Dev Spaces Workspace loads with the new folder structure, explore the directories and files created by `ansible-creator`, using industry standard good practices:
+. Once the Dev Spaces Workspace loads with the new folder structure, select the **Yes, I trust the Authors** button again and begin to explore the directories and files created by `ansible-creator`, which was generated using industry standard good practices:
 +
 image::03-developer-tools/ansible-creator4.png[]
 +
-. The `inventory` directory contains a ready to use structure:
+. The `inventory` director contains a ready to use directory structure:
 +
 image::03-developer-tools/ansible-creator6.png[]
 +
-. The `collections` directory contains a simple role with a few tasks.
+. The `collections` directory contains the tree structure representing how a collection is organized, a collection called `mycollection` and a simple role called `run` with a few tasks.
 +
 image::03-developer-tools/ansible-creator5.png[]
 
-=== Running playbooks in VSCode
+=== 4.3: Running playbooks in VS Code
 
-While you may be familar with `ansible-playbook` or even `ansible-navigator` on the CLI, VSCode provides a way to execute them via ClickOps if so desired.
+While you may be familiar with `ansible-playbook` or even `ansible-navigator` on the CLI, VS Code provides a way to execute them via ClickOps if so desired.
 
-==== Running playbooks via ansible-playbook in VSCode
+==== 4.3.1: Running playbooks via ansible-playbook in VS Code
 
-. Right-click on the file at the base of the directory `site.yml` and choose `Run Ansible Playbook Via ...`
+. Right-click on the file at the base of the directory called `site.yml` and choose `Run Ansible Playbook Via ...`
 . Choose `Run playbook via  'ansible-playbook'`.
 +
 image::03-developer-tools/ansible-playbook1.png[]
 +
-. A terminal opens up with the results:
+. A terminal opens up with the results of the `ansible-playbook` execution:
 +
 image::03-developer-tools/ansible-playbook2.png[]
 
-==== Running playbooks via ansible-navigator in VSCode
+==== 4.3.2:Running playbooks via ansible-navigator in VS Code
+
+Alternatively, `ansible-navigator` can be used to execute the `site.yml` playbook.
 
 . Right-click on the file at the base of the directory `site.yml` and choose `Run Ansible Playbook Via ...`
 . Choose `Run playbook via  'ansible-navigator run'`.
@@ -359,19 +394,19 @@ image::03-developer-tools/ansible-navigator1.png[]
 +
 image::03-developer-tools/ansible-navigator2.png[]
 +
-. Click inside the terminal and select one of the task output lines to get more information, e.g. `3`:
+. Click inside the terminal and enter `0` to inspect the execution of the play. You can inspect the output of any of the tasks included within this play. e.g. `3`:
 +
 image::03-developer-tools/ansible-navigator3.png[]
 +
-. Once reviewed, hit `ESC` several times until you exit back to the terinal.
+. Once reviewed, hit `ESC` several times until you exit `ansible-navigator` and return back to the terminal.
 +
 image::03-developer-tools/ansible-navigator4.png[]
 
-==== Using ansible-lint in VSCode
+==== 4.3.3: Using ansible-lint in VS Code
 
-The VSCode Ansible extension proactively runs `ansible-lint` on any playbook you are editing. Experiment with this tool to understand how the feature works.
+The VS Code Ansible extension proactively runs `ansible-lint` on any playbook you are editing. Experiment with this tool to understand how the feature works.
 
-. Add the following poorly written task to `site.yml`
+. Append the existing `site.yml` playbook with the following poorly written task
 +
 [source,yaml,role=execute,subs="verbatim,attributes"]
 ----
@@ -380,23 +415,23 @@ The VSCode Ansible extension proactively runs `ansible-lint` on any playbook you
         msg: "Hello"
 ----
 +
-. As soon as you finish editing, the autosave feature will kick in and run `ansible-lint`, notice the message and the bottom of the screen:
+. As soon as you finish editing, the autosave feature will kick in and run `ansible-lint`. Notice the message and the bottom of the screen:
 +
 image::03-developer-tools/ansible-lint1.png[]
 +
-. The exention should have added red squiggly lines underneath `debug`, hover over it to see the violations:
+. The extension should have added red squiggly lines underneath `debug`. Hover over the red squiggly lines to see the violations:
 +
 image::03-developer-tools/ansible-lint2.png[]
 +
-. You can fix these manually, but why not let `ansible-lint` do that for you? Open the exension settings:
+. You can fix these manually. However, why not let automation and  `ansible-lint` do the work for you? Open the extension settings:
 +
 image::03-developer-tools/ansible-lint3.png[]
 +
-. Open `Settings` for the Ansible extension:
+. Open **Settings** for the Ansible extension:
 +
 image::03-developer-tools/ansible-lint4.png[]
 +
-. Under the Ansible extension settings, click on the subsection `Validation` and enter `--fix` as an extra argument
+. Under the Ansible extension settings, click on the **Validation** subsection and enter `--fix` as an extra argument
 +
 image::03-developer-tools/ansible-lint5.png[]
 +
@@ -405,42 +440,43 @@ image::03-developer-tools/ansible-lint5.png[]
 +
 image::03-developer-tools/ansible-lint6.png[]
 +
-. Notice it did not fix every violation such as adding a `name:` key. Feel free to fix this manually. Not every rule is enforced automatically. See `man ansible-lint` for more info.
+. Notice it did not fix every violation, such as adding a `name:` key for the _debug_ task. Feel free to fix this manually if you choose. Not every rule is enforced automatically. See `man ansible-lint` for more information.
 
-=== Creating a Collection project
+=== 4.4:Creating a Collection project
 
-You can close the previous project window and return to the original Workspace, or open the Ansible extension in this Workspace, it doesn't matter
+You can close the previous project window and return to the original Workspace. Once in the original Workspace, create a new Ansible Collection project using the Ansible extension.
 
-. Click on the `Collection project` link.
+. Click the Ansible extension icon on the left side of the VS Code window
+. Under the _Initialize_ section of the Ansible Development Tools panel, click on the `Collection project` link.
 . Enter the following details:
 .. Namespace: `mynamespace`
-.. Collection: `mycolleciton2`
+.. Collection: `mycollection2`
 .. Init path: this value should be autodetected for you as `/projects/myproject/.ansible/collections/ansible_collections`
 . Click `Create`
-. When complete, click `Open Collection`
+. When complete, click **Open Collection** to open the new collection project in a new VS Code window.
 +
 image::03-developer-tools/ansible-creator7.png[]
 +
-. Explore the scafolded files to see their content
-.. `.gitignore`: pre-loaded with settings to ignore files in our git repository and make our commits cleaner.
-.. `test-requirements.txt`: Already includes the Ansible Python dependencies required for running our tests later.
-.. `.github/workflows`: Sample workflow for your collection
-.. `.pre-commit-config`: Includes many useful pre-commit tools
+. Explore the scaffolded files to see their content
+.. `.gitignore`: pre-loaded with settings to ignore files in our git repository and make and avoid including unnecessary or undesired files.
+.. `test-requirements.txt`: Already includes the Ansible Python dependencies required for running tests.
+.. `.github/workflows`: Sample workflow for your collection to run CI capabilities on link:https://github.com/features/actions[GitHub Actions,window=_blank]
+.. `.pre-commit-config`: Includes many useful pre-commit utilities
 +
 image::03-developer-tools/ansible-creator8.png[]
-+
-. Review the included sample role `run` and run it in your Workspace however you feel like using the tools learned in this lab.
-+ 
+
+. Review the included sample role `run` and its tasks. Feel free to create a playbook that invokes the collection using the tools that you learned in this lab.
+
 image::03-developer-tools/ansible-creator9.png[]
 
 == Conclusion
 
-You have successfully learned essential software development practices applied to automation development:
+In this lab, you have successfully learned essential software development practices and tools that can be applied to automation development:
 
-. Git version control fundamentals including branching strategies and merge conflicts
-. Secret scanning using gitleaks and pre-commit hooks for automated code quality checks
-. Ansible Development Tools suite including ansible-lint, ansible-navigator, and VSCode extensions
-. Creating and managing Ansible projects and collections through the VSCode interface
+. Git version control fundamentals, including branching strategies and merge conflicts
+. Secret scanning using `gitleaks` and `pre-commit` hooks for automated code quality checks
+. Ansible Development Tools suite including `ansible-lint`, `ansible-navigator`, and VS Code extensions
+. Creating and managing Ansible projects and collections through the VS Code interface
 
 This foundation prepares you to develop automation content that follows industry best practices for code quality, security, and maintainability.
 

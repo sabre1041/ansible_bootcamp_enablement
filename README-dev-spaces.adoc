@@ -8,7 +8,7 @@ Once you re-authenticate to Red Hat OpenShift Dev Spaces, you can paste in the r
 
 == Launching antora to view content
 
-. Inside your Developer Workspace (browser based vscode), click the hamburger icon in the top left
+. Inside your Developer Workspace (browser based VS Code), click the hamburger icon in the top left
 . Hover over "Terminal" in the menu that pops up
 . Click on "Run Task..."
 . Select 'devfile' from the menu that pops up
