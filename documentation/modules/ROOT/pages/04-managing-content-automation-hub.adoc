@@ -108,6 +108,13 @@ cd my_pah_project
 ansible-creator init ansible_bootcamp.my_collection --init-path ./
 ----
 
+Update the `galaxy.yml` file and remove `ansible.utils` from the list of `dependencies` so that the `dependencies` properties appears as follows:
+
+[source,bash,role=execute,subs="verbatim,attributes"]
+----
+dependencies: {}
+----
+
 === 3.2: Publishing Collections
 
 Publishing a Collection makes it available in PAH for use in Automation Controller and other tools. To publish a collection, a _namespace_ must exist in PAH for which the collection can be built and then published.
@@ -319,7 +326,7 @@ Now, we'll define and build a custom Execution Environment (EE) that uses our sy
 
 === 6.1: Define the Execution Environment
 
-Create a file named `execution-environment.yml` with the following content.
+Create a file named `execution-environment.yml` at the root of the `my_pah_project` directory with the following content.
 
 [source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
@@ -360,7 +367,7 @@ Login to your PAH container registry, build the custom Execution Environment, an
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-# Log in to your PAH container registry
+# Log in to your PAH container registry with your AAP user credentials
 podman login aap-aap.{openshift_cluster_ingress_domain}
 
 # Build the EE. It will pull the base from PAH, then add our content.
@@ -373,13 +380,13 @@ podman push aap-aap.{openshift_cluster_ingress_domain}/my-pah-ee:1.0
 
 NOTE: The `$PAH_API_TOKEN` environment variable was set previously containing the value of the API Token from PAH. Set this variable once again if your terminal session has been restarted.
 
-== 7. Adding a Custom Filter Plugin
+== 7: Adding a Custom Filter Plugin
 
-Now that we have a working EE, let's iterate by adding a custom filter plugin to our collection.
+Now that we have a working EE, let's iterate by adding a custom link:https://docs.ansible.com/ansible/latest/plugins/filter.html[Filter plugin,window=_blank] to our collection.
 
-=== Step 7.1: Create the Custom Filter Plugin
+=== 7.1: Create the Custom Filter Plugin
 
-Create the file with the following content:
+Create the file at `plugins/filter/cowsay_filter.py` with the following content:
 
 [source,python,title="plugins/filter/cowsay_filter.py",role=execute,subs="verbatim,attributes"]
 ----
@@ -414,7 +421,7 @@ class FilterModule(object):
 
 === Step 7.2: Update the EE Definition for the Plugin Dependency
 
-Our new plugin requires the cowsay Python library, and we need to ensure our EE is pulling the new version of our collection. Modify execution-environment.yml to include both changes.
+Our new plugin requires the link:https://pypi.org/project/cowsay/[cowsay Python library,window=_blank], and we need to ensure our EE is pulling the new version of our collection. Modify the `execution-environment.yml`` to include both changes.
 
 [source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
@@ -423,7 +430,7 @@ version: 3
 
 images:
   base_image:
-    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: aap-aap.{openshift_cluster_ingress_domain}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   ansible_core:
@@ -451,9 +458,7 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-WARNING: Remove the https:// from the base_image name
-
-=== Step 7.3: Increment Version and Republish
+=== 7.3: Increment Version and Republish
 
 Now, we publish a new version of the collection and a new version of the EE that includes the updated collection and dependency.
 
@@ -465,30 +470,28 @@ Then, run the following commands:
 ----
 # Rebuild and republish the collection
 ansible-galaxy collection build
-ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token YOUR_API_TOKEN_HERE
+ansible-galaxy collection publish -s aap-aap.{openshift_cluster_ingress_domain}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token $PAH_API_TOKEN
 ----
 
-NOTE: Replace `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+NOTE: Make sure to Approve collection in the PAH web interface as described previously.
 
-NOTE: Make sure to Approve collection in the hub UI
+Finally, build and push the new EE version:
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Rebuild and republish the EE with a new version tag
-ansible-builder build --tag my-pah-ee:1.1 --build-arg TOKEN=YOUR_API_TOKEN_HERE
-podman tag localhost/my-pah-ee:1.1 {aap_controller_web_url}/my-pah-ee:1.1
-podman push {aap_controller_web_url}/my-pah-ee:1.1
+ansible-builder build --tag my-pah-ee:1.1 --build-arg TOKEN=$PAH_API_TOKEN
+podman tag localhost/my-pah-ee:1.1 aap-aap.{openshift_cluster_ingress_domain}/my-pah-ee:1.1
+podman push aap-aap.{openshift_cluster_ingress_domain}/my-pah-ee:1.1
 ----
 
-WARNING: Remove the https:// in these commands or it will error.
+== 8: Preparing the Project for Automation Controller
 
-== 8. Preparing the Project for Automation Controller
+Now that both the collection and Execution Environment has been created and published to Private Automation hub, we'll create a playbook to use the filter contained within the `ansible_bootcamp.my_collection` collection.
 
-Now we'll update our playbook to use the new filter.
+=== 8.1: Create a Playbook
 
-=== Step 8.1: Create a Playbook
-
-Create a playbook named `playbooks/test_pah_ee.yml`. This playbook uses the debug module to print a message that has been formatted by our custom cowsay filter.
+Create a new directory called `playbooks` within the `my_pah_project` directory and create a new playbook in a file named `playbooks/test_pah_ee.yml`. This playbook uses the `debug` module to print a message that has been formatted by our custom cowsay filter.
 
 [source,yaml,title="playbooks/test_pah_ee.yml",role=execute,subs="verbatim,attributes"]
 ----
@@ -505,62 +508,222 @@ Create a playbook named `playbooks/test_pah_ee.yml`. This playbook uses the debu
 ...
 ----
 
-=== Step 8.2: Push Project Files to Git
+=== 8.2: Push Project Files to Git
 
-Push all your new and updated files to your Git repository
+With the changes to incorporate the updated collection (filter plugin and version) and the Execution Environment, publish all of the changes to your git repository.
 
-== 9. Integrating with Automation Controller
+[source,bash,role=execute,subs="verbatim,attributes"]
+----
+git add --all
+git commit -m "Uploading latest collection updates"
+git push origin main
+----
 
-Now, let's configure Controller to use our custom content.
 
-=== Step 9.1: Create a Credential for Hub Container Registry
-. Navigate to Automation Execution -> Infrastructure -> Credentials and click Add.
-. Name it Hub, select the type Container Registry, and fill out your "Authentication URL": {aap_controller_web_url}, "username": {aap_controller_admin_user}, "password": {aap_controller_admin_password}.
+== 9: Integrating with Automation Controller
 
-=== Step 9.2: Add the Execution Environment to Controller
-. Navigate to Automation Execution -> Infrastructure -> Execution Environments.
-. Click Add, name it My Custom PAH EE, and use the image path `{aap_controller_web_url}/my-pah-ee:1.1`.
-. Select your Hub credential as the registry credential and Save.
+Now, let's configure Automation Controller to use our custom content.
 
-NOTE: Remove https://
+=== 9.1: Create a Credential for Hub Container Registry
 
-=== Step 9.3: Create a Project
-. Navigate to Automation Execution -> Projects and click Add.
-. Name it Custom Content Test Project and point it to your Git repository URL.
-. Under Ansible Galaxy Credentials, select the PAH Galaxy Credential you just created.
-. Click Save and Sync the project.
+First, create a new credential in Automation Controller to allow it to pull the custom Execution Environment from Private Automation Hub.
 
-=== Step 9.4: Create a Job Template
-. Navigate to Automation Execution -> Templates and click Add -> Add job template.
-. Name it Test Custom Cowsay Filter.
-. Select an Inventory, the Custom Content Test Project, and the playbooks/test_pah_ee.yml playbook.
-. For the Execution Environment, select My Custom PAH EE.
-. Click Save.
+. Launch the link:{aap_controller_web_url}[Automation Controller,window=_blank] web interface and login using the credentials from the xref:environment-details.adoc[Environment Details,window=_blank] page.
+. From the navigation menu on the left, expand **Automation Execution** and expand **Infrastructure** and click on **Credentials**.
++
+image::04-managing-content-automation-hub/automation-controller-credentials-overview.png[Navigate to Credentials]
++
+. Click **Create credential** to add a new credential.
++
+image::04-managing-content-automation-hub/automation-controller-create-credential.png[Create Credentials]
++
+. Enter the following details on the _Create Credential_ page:
+.. Name: `Hub`
+.. Credential type: `Container Registry`
+.. Authentication URL: `aap-aap.{openshift_cluster_ingress_domain}`
+.. Username: `{aap_controller_admin_user}`
+.. Password: `{aap_controller_admin_password}`
+.. Verify SSL: Checked
+. Click **Create credential** to save the new credential.
 
-=== Step 9.5: Launch the Job Template and Verify
-. From the Job Templates view, click the rocket icon 🚀 to Launch your template.
-. In the job output view, look for the output of the "Print a message" task. You should see your message printed inside a cowsay bubble within the JSON output of the debug task.
+image::04-managing-content-automation-hub/automation-controller-create-credential-dialog.png[Create Credentials Dialog]
 
-==== Step 9.6: Sync collections
-. Log in to your Private Automation Hub web interface.
-. From the navigation menu on the left, click on Remotes.
-. Click on edit `community` copy and paste this in the requirements file section and click save.
+=== 9.2: Create a Credential for the Git Repository
 
-[source,yaml,role=execute,subs="verbatim,attributes"]
+Next, create a new credential to retrieve the source code from the Gitea repository.
+
+
+. From the Credentials page in Automation Controller, click **Create credential** once again to add a new credential.
++
+image::04-managing-content-automation-hub/automation-controller-create-credential-2.png[Create Credentials]
++
+. Enter the following details on the _Create Credential_ page:
+.. Name: `Gitea`
+.. Credential type: `Source Control`
+.. Username: `{gitea_user}`
+.. Password: `{gitea_password}`
+.. Verify SSL: Checked
+. Click **Create credential** to save the new credential.
+
+image::04-managing-content-automation-hub/automation-controller-create-credential-git-dialog.png[Create Credentials Dialog]
+
+=== 9.3: Add the Execution Environment to Controller
+
+Next, add the custom Execution Environment that we published previously to Automation Controller.
+
+. From the navigation menu on the left, expand **Automation Execution** and expand **Infrastructure** and click on **Execution Environments**.
++
+image::04-managing-content-automation-hub/automation-controller-ee-overview.png[Navigate to Execution Environments]
++
+. Click **Create execution environment** to add a new execution environment.
++
+image::04-managing-content-automation-hub/automation-controller-create-ee.png[Create Execution Environment]
++
+. Enter the following details on the _Create Execution Environment_ page:
+.. Name: `My Custom PAH EE`
+.. Image URL: `aap-aap.{openshift_cluster_ingress_domain}/my-pah-ee:1.1`
+.. Registry Credential: Select the `Hub` credential created previously.
+. Click **Create execution environment** to create the new EE.
+
+image::04-managing-content-automation-hub/automation-controller-create-ee-dialog.png[Create Execution Environment Dialog]
+
+=== 9.4: Create a Project
+
+Create a new link:https://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html[Project,window=_blank] in Automation Controller that points to your Git repository containing the playbook.
+
+. From the navigation menu on the left, expand **Automation Execution** and click on **Projects**.
++
+image::04-managing-content-automation-hub/automation-controller-projects-overview.png[Navigate to Projects]
++
+. Click **Create project** to add a new project.
++
+image::04-managing-content-automation-hub/automation-controller-create-project.png[Create Project]
++
+. Enter the following details on the _Create Project_ page:
+.. Name: `Custom Content Test Project`
+.. Organization: `Default`
+.. Source Control Type: `Git`
+.. Source control URL: `{gitea_console_url}/{gitea_user}/ansible_bootcamp_my_collection.git`
+.. Source code credential: Select the `Gitea` credential created previously.
+. Click **Create project** to create the new Project.
+
+image::04-managing-content-automation-hub/automation-controller-create-project-dialog.png[Create Project Dialog]
+
+Confirm that the project has been synced successfully by looking _Success_ underneath _Last job status_.
+
+image::04-managing-content-automation-hub/automation-controller-sync-project.png[Project Sync Status]
+
+=== 9.5: Create a Job Template
+
+With the Execution Environment and Project created, the final step is to create a Job Template that uses both components.
+
+. From the navigation menu on the left, expand **Automation Execution** and click on **Templates**.
++
+image::04-managing-content-automation-hub/automation-controller-templates-overview.png[Navigate to Templates]
++
+. Click the **Create template** dropdown and select **Create job template**.
++
+image::04-managing-content-automation-hub/automation-controller-create-job-template.png[Create Job Template]
++
+. Enter the following details on the _Create job template_ page:
+.. Name: `Test Custom Cowsay Filter`
+.. Inventory: `Demo Inventory`
+.. Project: `Custom Content Test Project`
+.. Playbook: `playbooks/test_pah_ee.yml`
+.. Execution Environment: `My Custom PAH EE`
+. Click **Create job template** to create the new Job Template.
+
+image::04-managing-content-automation-hub/automation-controller-create-job-template-dialog.png[Create Job Template Dialog]
+
+=== 9.6: Launch the Job Template and Verify
+
+Now that the Job Template has been created, launch the _Test Custom Cowsay Filter_ and verify that the custom filter is working as expected.
+
+. From the _Test Custom Cowsay Filter_ Job Template details page, click the **Launch template** button on the upper right hand side.
+
+image::04-managing-content-automation-hub/automation-controller-launch-job-template.png[Launch Job Template]
+
+Monitor the status of the job until it completes successfully displaying the output of the cowsay filter similar to the following:
+
+image::04-managing-content-automation-hub/automation-controller-job-template-success.png[Job Template Success]
+
+=== 9.7: Sync collections
+
+The final exercise in this lab is to customize the content sources from link:https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html-single/managing_automation_content/index#proc-create-remote_remote-management[Remote Automation Hub / Ansible Galaxy instances,window=_blank] into Private Automation Hub. To support lab exercises later in this bootcamp, we will specify additional collections to be synchronized.
+
+==== 9.7.1: Update Community Remote
+
+. From the navigation menu on the left, expand **Automation Content** and click on **Remotes**.
++
+image::04-managing-content-automation-hub/remotes-overview.png[Remotes Navigation]
++
+. Click the pencil icon to edit the `community` remote.
++
+image::04-managing-content-automation-hub/remotes-edit-community.png[Edit Community Remote]
++
+. Paste the following into the _Requirements file_ field to specify additional collections to be synced:
++
+[source,bash,role=execute,subs="verbatim,attributes"]
 ----
 collections:
   - name: containers.podman
   - name: community.postgresql
 ----
++
+. Click **Save remote** to apply the changes.
 
-. Click on create remote and call it `validated` with url being `https://console.redhat.com/api/automation-hub/content/validated/` SSO url `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token` and token.
-. From the navigation menu on the left, click on Repositories.
-. Edit validated and for the `Remote` field choose validated from the drop down and save.
-. Click on the triple dots for `rh-certified`, `validated`, and `community` and select `Sync repository` and click sync on the popup.
+==== 9.7.2: Add Validated Remote
 
-NOTE: Syncing the certified collections will take some time, it is needed for another section so continue on and do not wait for it to finish.
+Create a new remote for the `validated` collections repository. A token for Red Hat Automation Hub is required to access this repository.
 
-== 10. Conclusion
+. Navigate to Red Hat Automation Hub and click link:https://console.redhat.com/ansible/automation-hub/token[here,window=_blank] to generate a token
+. Click **Load token** to generate a new token and copy it to your clipboard.
++
+image::04-managing-content-automation-hub/load-automation-hub-token.png[Load Automation Hub Token]
++
+. From the Remotes page in Private Automation Hub, click **Create remote**.
++
+image::04-managing-content-automation-hub/remotes-create-remote.png[Create Remote]
++
+. Enter the following details on the _Create remote_ page:
+.. Name: `validated`
+.. Server URL: `https://console.redhat.com/api/automation-hub/content/validated/`
+.. SSO URL: `https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token`
+.. Token: `<The token copied previously from Red Hat Automation Hub>`
+. Click **Create remote** to create the new Remote.
+
+image::04-managing-content-automation-hub/remotes-add-remote.png[Add Remote]
+
+Now that the `validated` remote has been created, update the _validated_ repository to reference the newly created remote.
+
+. From the navigation menu on the left, expand **Automation Content** and click on **Repositories**.
++
+image::04-managing-content-automation-hub/repositories-overview.png[Add Remote]
++
+. Edit the _validated_ repository by selecting the pencil icon
++
+image::04-managing-content-automation-hub/repositories-edit-validated.png[Edit Validated Repository]
++
+. Update the `Remote` field by selecting `validated` from the drop down.
+. Click **Save repository** to update the repository.
+
+image::04-managing-content-automation-hub/repositories-update-validated.png[Updated Validated Repository]
+
+==== 9.7.3: Sync Repositories
+
+Finally, synchronize the `rh-certified`, `validated`, and `community` repositories to pull in the new collections within the _Repositories_ page.
+
+. From the navigation menu on the left, expand **Automation Content** and click on **Repositories**.
++
+. Next to the `community` repository, click the kebab menu (three vertical dots) on the right hand side of the entry and select **Sync repository**.
++
+image::04-managing-content-automation-hub/sync-repository.png[Sync Repository]
++
+. Repeat the above steps to sync the `rh-certified` and `validated` repositories as well.
+
+NOTE: Syncing the _rh-certified_ collections will take some time. You can monitor the progress, but it will not impact the next set of labs in this bootcamp.
+
+== Conclusion
 
 Congratulations! You have successfully mastered the complete lifecycle of managing Ansible content in enterprise environments:
 
