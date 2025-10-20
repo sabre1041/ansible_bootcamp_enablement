@@ -384,7 +384,7 @@ git push -u origin main
 ---
 ansible-navigator:
   execution-environment:
-    image: <AAP HOST>>/config_as_code_ee:1.0
+    image: {aap_controller_web_url}/config_as_code_ee:1.0
 
 ----
 
@@ -450,15 +450,13 @@ image::07-configuration-as-code/config_ee_v2.png[title="Config Execution Environ
 ----
 ---
 controller_execution_environments_all:
-  - name: "supported"
-    image: "{{ aap_hostname }}/ee-supported-rhel8"
+  - name: supported
+    image: registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9
     pull: always
-    credential: cr_ah
 
-  - name: "minimal"
-    image: "{{ aap_hostname }}/ee-minimal-rhel8"
+  - name: minimal
+    image: registry.redhat.io/ansible-automation-platform-25/ee-minimal-rhel9
     pull: always
-    credential: cr_ah
 
 ...
 
@@ -623,6 +621,15 @@ controller_credentials_all:
     description: vault password
     inputs:
       vault_password: "{{ vault_pass }}"
+
+  - name: gitea
+    credential_type: Source Control
+    organization: config_as_code
+    description: gitea
+    inputs:
+      username: ### Insert gitea username here
+      password: ### Insert gitea pass variable here
+
 ...
 
 ----
@@ -635,7 +642,7 @@ image::07-configuration-as-code/credential_gitea_v2.png[title="Credential",125%,
 
 === Task 19 - Create organizations
 
-- Update the file `config/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the credentials that we created above to the Organization so we can pull collections from Automation Hub.
+- Update the file `config/all/organizations.yml` and add the required information to the list `aap_organizations` to configure the UI to look like the screenshot. Here we are adding the `galaxy_credentials` credentials that we created above to the Organization so we can pull collections from Automation Hub, as well as setting a `default_environment`.
 +
 image::07-configuration-as-code/orgs.png[title="Config as Code Organization",125%,125%, link=self, window=blank]
 +
