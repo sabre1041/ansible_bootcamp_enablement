@@ -562,7 +562,6 @@ image::04-managing-content-automation-hub/automation-controller-create-credentia
 .. Credential type: `Source Control`
 .. Username: `{gitea_user}`
 .. Password: `{gitea_password}`
-.. Verify SSL: Checked
 . Click **Create credential** to save the new credential.
 
 image::04-managing-content-automation-hub/automation-controller-create-credential-git-dialog.png[Create Credentials Dialog]
