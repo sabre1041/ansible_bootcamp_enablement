@@ -36,7 +36,7 @@ It provides, by default, a Visual Studio Code (VS Code) environment as configure
 === 3.1: Launching Dev Spaces from OpenShift
 
 . Launch the link:{openshift_cluster_console_url}[OpenShift Web Console,window=_blank]
-. Select the **htpasswd_provide** button and use the credentials provided in the xref:environment-details.adoc[Environment Details,window=_blank] page to login to the OpenShift console
+. Select the **htpasswd_provider** button and use the credentials provided in the xref:environment-details.adoc[Environment Details,window=_blank] page to login to the OpenShift console
 . On the left hand navigation pane, click on **Operators** -> **Installed Operators**
 . Locate `Red Hat OpenShift Dev Spaces` and on the far right column underneath `Provided APIs`, click the link titled `Red Hat OpenShift Dev Spaces instance Specification`
 +
