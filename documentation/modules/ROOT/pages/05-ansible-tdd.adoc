@@ -329,7 +329,7 @@ The `prepare.yml` playbook handles any pre-testing setup tasks. This optional ph
 
 The `converge.yml` playbook is the core of Molecule testing - it executes your Ansible role against the test infrastructure. This phase applies your automation to verify that the role works correctly and achieves the desired state.
 
-[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/converge.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/converge.yml"]
 ----
 ---
 - name: Converge
@@ -352,7 +352,7 @@ The `converge.yml` playbook is the core of Molecule testing - it executes your A
 
 The `verify.yml` playbook performs functional testing to validate that your role not only ran successfully, but actually achieved the desired results. This phase includes tests that check database connectivity, verify data persistence, and confirm your automation works end-to-end.
 
-[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/db_server/verify.yml"]
+[source,yaml,role=execute,subs="verbatim,attributes",title="extensions/molecule/utils/playbooks/verify.yml"]
 ----
 ---
 - name: Verify
