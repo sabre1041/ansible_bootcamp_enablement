@@ -166,7 +166,7 @@ With the scenario now created, the next step is to move the scenario to the exte
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-mv molecule/db_server extensions/molecule/; rmdir molecule
+mv molecule/db_server extensions/molecule/ && rmdir molecule
 ----
 
 Next, move the Molecule playbooks into the `utils` directory for sharing between scenarios.
