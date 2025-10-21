@@ -32,7 +32,7 @@ Let's click around the OpenShift UI to see what's already installed and configur
 === 3.1: The installed operator and CRDs
 
 * First let's make sure we're using the `aap` project. In the top left select `Project` -> `aap` if it's not already selected.
-* Navigate to `Operators` -> `Installed Operators` and we can see `Ansible Automation Platform`` operator listed and installed in the current project.
+* Navigate to `Operators` -> `Installed Operators` and we can see `Ansible Automation Platform` operator listed and installed in the current project.
 * Click on the `Ansible Automation Platform` operator.
 * This will navigate to the details page of the operator and all the different components the operator can manage.
 * In the top tab click on `All Instances`.

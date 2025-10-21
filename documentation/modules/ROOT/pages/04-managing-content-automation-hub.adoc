@@ -94,7 +94,7 @@ export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$PAH_API_TOKEN
 
 == 3. Creating and Publishing a Custom Collection
 
-Now, let's use `ansible-creator`` to scaffold a new collection.
+Now, let's use `ansible-creator` to scaffold a new collection.
 
 === 3.1: Initialize the Collection with ansible-creator
 
@@ -421,7 +421,7 @@ class FilterModule(object):
 
 === Step 7.2: Update the EE Definition for the Plugin Dependency
 
-Our new plugin requires the link:https://pypi.org/project/cowsay/[cowsay Python library,window=_blank], and we need to ensure our EE is pulling the new version of our collection. Modify the `execution-environment.yml`` to include both changes.
+Our new plugin requires the link:https://pypi.org/project/cowsay/[cowsay Python library,window=_blank], and we need to ensure our EE is pulling the new version of our collection. Modify the `execution-environment.yml` to include both changes.
 
 [source,yaml,title="execution-environment.yml",role=execute,subs="verbatim,attributes"]
 ----
