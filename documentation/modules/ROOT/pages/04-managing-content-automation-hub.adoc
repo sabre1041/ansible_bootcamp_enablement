@@ -470,7 +470,7 @@ Then, run the following commands:
 ----
 # Rebuild and republish the collection
 ansible-galaxy collection build
-ansible-galaxy collection publish -s https://aap-aap.{openshift_cluster_ingress_domain}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token $PAH_API_TOKEN
+ansible-galaxy collection publish -s {aap_controller_web_url}/api/galaxy/ ansible_bootcamp-my_collection-1.0.1.tar.gz --token $PAH_API_TOKEN
 ----
 
 NOTE: Make sure to Approve collection in the PAH web interface as described previously.
