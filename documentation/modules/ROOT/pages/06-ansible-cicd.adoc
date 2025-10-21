@@ -663,19 +663,19 @@ export ANSIBLE_GALAXY_SERVER_LIST='published,certified,validated,community'
 
 # Configure the 'published' repository
 export ANSIBLE_GALAXY_SERVER_PUBLISHED_URL={aap_controller_web_url}/pulp_ansible/galaxy/published/
-export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN='$PAH_API_TOKEN'
+export ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$PAH_API_TOKEN
 
 # Configure the 'certified' repository
 export ANSIBLE_GALAXY_SERVER_CERTIFIED_URL={aap_controller_web_url}/pulp_ansible/galaxy/rh-certified/
-export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN='$PAH_API_TOKEN'
+export ANSIBLE_GALAXY_SERVER_CERTIFIED_TOKEN=$PAH_API_TOKEN
 
 # Configure the 'validated' repository
 export ANSIBLE_GALAXY_SERVER_VALIDATED_URL={aap_controller_web_url}/pulp_ansible/galaxy/validated/
-export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN='$PAH_API_TOKEN'
+export ANSIBLE_GALAXY_SERVER_VALIDATED_TOKEN=$PAH_API_TOKEN
 
 # Configure the 'community' repository
 export ANSIBLE_GALAXY_SERVER_COMMUNITY_URL={aap_controller_web_url}/pulp_ansible/galaxy/community/
-export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN='$PAH_API_TOKEN'
+export ANSIBLE_GALAXY_SERVER_COMMUNITY_TOKEN=$PAH_API_TOKEN
 ----
 +
 . Use `ansible-galaxy` to install the new version of your collection from Private Automation hub
