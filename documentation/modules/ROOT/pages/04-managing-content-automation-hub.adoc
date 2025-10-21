@@ -709,7 +709,20 @@ image::04-managing-content-automation-hub/repositories-edit-validated.png[Edit V
 
 image::04-managing-content-automation-hub/repositories-update-validated.png[Updated Validated Repository]
 
-==== 9.7.3: Sync Repositories
+==== 9.7.3: Update RH-Certified Remote
+
+Now that you have a Red Hat Automation Hub token, update the `rh-certified` remote to use this value as well.
+
+. From the Remotes page in Private Automation Hub, edit the `rh-certified` remote by selecting the pencil icon.
++
+image::04-managing-content-automation-hub/remotes-edit-rh-certified.png[Edit RH-Certified Remote]
++
+. Update the _Token_ field by pasting the token copied previously from Red Hat Automation Hub.
+. Click **Save remote** to apply the changes.
+  
+image::04-managing-content-automation-hub/remotes-update-rh-certified.png[Update RH-Certified Remote]
+
+==== 9.7.4: Sync Repositories
 
 Finally, synchronize the `rh-certified`, `validated`, and `community` repositories to pull in the new collections within the _Repositories_ page.
 
