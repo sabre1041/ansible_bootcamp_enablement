@@ -463,7 +463,7 @@ Add a _Trigger_ to the _ansible-collection-ci_ Pipeline created earlier to enabl
 Enter the following parameters to create the link:https://tekton.dev/docs/triggers/eventlisteners[Event Listener,window=_blank].
 .. Git provider type: `gitea-push`
 .. collection-url: `$(tt.params.git-repo-url)`
-..playbook-repo: `{gitea_console_url}/{gitea_user}/ansible_bootcamp_ci_cd_pipeline.git`
+.. playbook-repo: `{gitea_console_url}/{gitea_user}/ansible_bootcamp_ci_cd_pipeline.git`
 .. collection-repo-version: `$(tt.params.git-revision)`
 .. shared-workspace: `VolumeClaimTemplate`
 . Click **Add** to create the Trigger.
