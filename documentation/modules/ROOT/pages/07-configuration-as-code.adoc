@@ -14,14 +14,29 @@ After completing this module, you will be able to:
 * Implement execution environment management
 * Deploy complete AAP configurations using CI/CD pipelines
 
-== Building out the basics for config as code
+== 1: Introduction
 
-[#setup]
-== 1. Lab Setup: Configuring Your Environment
+In this module, we will explore how to manage Ansible Automation Platform (AAP) configurations declaratively as code using Ansible playbooks and the `infra.aap_configuration` collection instead of manually configuring settings through the AAP user interface. This approach allows for automated, repeatable, and version-controlled management of AAP settings, ensuring consistency across environments.
 
-First, let's build a new EE with all our required collections.
+WARNING: In prior labs, we provided many of the values that were required to simplify the experience. However, in this lab, you will be required to specify the majority of the values based on your environment. This approach will enable you to better understand how the values apply to Configuration as Code.
 
-=== 1.1: Build new EE
+== 2. Lab Setup: Configuring Your Environment
+
+First, let's build a new EE with all our required collections including the `infra.aap_configuration` collection.
+
+=== 2.1: Local Environment Preparation
+
+Create a new directory called `config_as_code` for the resources that will be created within this lab and change into the newly created directory.
+
+[source,bash,role=execute,subs="verbatim,attributes"]
+----
+mkdir  /projects/devspaces-example/config_as_code
+cd /projects/devspaces-example/config_as_code
+----
+
+=== 2.2: Build a new EE
+
+Create a new `execution-environment.yml` file within the `config_as_code` directory with the following content:
 
 [source,bash,role=execute,subs="verbatim,attributes",title="execution-environment.yml"]
 ----
@@ -30,7 +45,7 @@ version: 3
 
 images:
   base_image:
-    name: {aap_controller_web_url}/ansible-automation-platform-25/ee-minimal-rhel9:latest
+    name: aap-aap.{openshift_cluster_ingress_domain}/ansible-automation-platform-25/ee-minimal-rhel9:latest
 
 dependencies:
   system:
@@ -61,35 +76,41 @@ additional_build_steps:
     - ENV ANSIBLE_GALAXY_SERVER_PUBLISHED_TOKEN=$TOKEN
 ----
 
-NOTE: Replace the following values `{aap_controller_web_url}` With the URL of your Private Automation Hub. Also update `YOUR_API_TOKEN_HERE` With the personal API token you just copied from PAH.
+=== 2.3: Build and Publish the Execution Environment
 
-=== Task 2: Build and Publish the Execution Environment
+Build and push a new execution environment (EE) to your Private Automation Hub (PAH) registry that will enable the use of Config as Code.
+
+NOTE: Ensure that the `PAH_API_TOKEN` environment variable is set within your terminal session so that the build process can retrieve the required set of dependencies.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
 # Log in to your PAH container registry
-podman login {aap_controller_web_url}
+podman login aap-aap.{openshift_cluster_ingress_domain}
 
 # Build the EE. It will pull the base from PAH, then add our content.
-ansible-builder build --tag config_as_code_ee:1.0 --build-arg TOKEN=YOUR_API_TOKEN_HERE
+ansible-builder build --tag config_as_code_ee:1.0 --build-arg TOKEN=$PAH_API_TOKEN
 
 # Tag and push the image to your PAH registry
-podman tag localhost/config_as_code_ee:1.0 {aap_controller_web_url}/config_as_code_ee:1.0
-podman push {aap_controller_web_url}/config_as_code_ee:1.0
+podman tag localhost/config_as_code_ee:1.0 aap-aap.{openshift_cluster_ingress_domain}/config_as_code_ee:1.0
+podman push aap-aap.{openshift_cluster_ingress_domain}/config_as_code_ee:1.0
 ----
 
-[#variable_files]
-=== Task 3 - Creating Variable Files
+=== 2.4: Creating Variable Files
 
-**In the next few steps pay attention to the folder paths and make sure to put the files in the correct folders you can either use vscode editor or the ssh terminal to do the below changes** 
+Config as Code leverages Ansible variables files containing properties that will be used to drive the configuration of AAP. These variables include hosts, usernames, and other items that are reused in each role contained within the Config as Code collection.
 
-- Set the `variables` to be used in the collections for use. These include hosts, usernames, and other variables that are reused in each role.
+. Create a new directory `config/dev` containing variables for a _dev_ AAP instance
 
-- The variables are defined in the file `config/dev/auth.yml`. 
-
+[source,yaml,role=execute,subs="verbatim,attributes"]
+----
+mkdir -p config/dev
+----
++
+. Create the file `config/dev/auth.yml` with the following content. 
++
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/auth.yml"]
 ----
-aap_hostname: <GATEWAY_HOST>
+aap_hostname: <AAP_HOST>
 aap_username: "{{ student_account }}"
 aap_password: "{{ aap_password }}"
 aap_validate_certs: false
@@ -108,33 +129,32 @@ ee_base_registry_password: "{{ aap_password }}"
 ee_validate_certs: false
 ----
 
-WARNING: Do not include https:// in the GATEWAY_HOST value
+IMPORTANT: Update the value of `<AAP_HOST>` to match the location of your AAP instance (`aap-aap.{openshift_cluster_ingress_domain}`).
 
-[#vault]
-=== Task 4 - Create our Vault
+=== 2.5: Define Secrets with Ansible Vault
 
-- The secrets are defined in the file `config/dev/vault.yml`. 
-- Your username should be: {aap_controller_admin_user}
-- Your password should be: {aap_controller_admin_password}
-+
+Certain configurations of AAP contain sensitive information such as passwords and tokens. To securely manage these secrets, we will use Ansible Vault to encrypt them.
+
+Create a file `config/dev/vault.yml` to store sensitive information.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/dev/vault.yml"]
 ----
 ---
-aap_password: ### Insert Password here
-aap_service_account_password: ### Insert Password here
-console_token: ### Insert console token here
-hub_token: ### Insert hub token here
-gitea_pass: ### Insert gitea password here
+aap_password: ### Insert AAP admin password here
+aap_service_account_password: admin123!
+console_token: ### Insert Red Hat Automation Hub console token here
+hub_token: ### Insert Private Automation Hub (PAH) token here
+gitea_pass: ### Insert Gitea password here
 student_account: admin
 vault_pass: cascLB2193
 ...
 ----
 +
-TIP: The easiest way to do this is have all passwords be the provided password.
+NOTE: You will need to replace the placeholder values (### Insert ... here) with the actual values. 
 +
 NOTE: For good configuration as code we recommend retrieving passwords from secure systems secret management systems (such as Hashicorp Vault).
 
-- Create a `.password` file and put a password in it. This is the password vault uses to encrypt secrets.
+Create a `.password` file and put a password in it. This is the password vault uses to encrypt secrets. You can use the value provided, or choose a different value entirely.
 +
 [source,bash,role=execute,subs="verbatim,attributes",title=".password"]
 ----
@@ -143,31 +163,34 @@ cascLB2193
 +
 IMPORTANT: **We do not recommend using .password files outside of lab environment** This process is just to simplify/speed up the lab.
 
-- The `ansible.cfg` file points to the `.password` file. This has been preopulated, but please review the ansible.cfg file to see how this lab is connected to hub and uses the password file.
-+
+The `ansible.cfg` configuration file points to the `.password` file which instructs Ansible Vault to use this file encrypting and decrypting sensitive values. This has been preopulated, but please review the `ansible.cfg`` file to see how this lab is connected to hub and uses the password file.
+
+Create a `ansible.cfg` file with the following content:
+
 [source,bash,role=execute,subs="verbatim,attributes",title="ansible.cfg"]
 ----
 [defaults]
 vault_password_file=.password
 ----
 +
-Encrypt vault with the password in the .password file
+Encrypt the contents of the `config/dev/vault.yml` file using the password in the .password file
 +
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
 ansible-vault encrypt config/dev/vault.yml
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
-+
+Additional documentation related to these tools can be found in the following resources below:
+
 * https://docs.ansible.com/ansible/latest/user_guide/vault.html[Ansible vaults,window=_blank]
 * https://ansible.readthedocs.io/projects/navigator/faq/#how-can-i-use-a-vault-password-with-ansible-navigator[Vault with navigator,window=_blank]
 
-[#organizations]
-=== Task 5 - Create organizations
+=== 2.5: Create organizations
 
-- Create a file `config/all/organizations.yml`
-+
+Config as Code leverages a standard set of variables that drives the configuration of different AAP resources. The next few sections will define the variables related to configure these reources.
+
+Create a `config/all/organizations.yml` file to define the organizations to be created on AAP.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/organizations.yml"]
 ----
 ---
@@ -176,17 +199,14 @@ aap_organizations_all:
 ...
 ----
 
+Documentation related to this component can be found below:
 
-- Further documentation are provided below for those who are interested to learn more:
-+
 * https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/gateway_organizations[Organizations role,window=_blank]
 
+=== 2.6: Create a Team
 
-[#team setup]
-=== Task 6 - Create a Team
+Create a `config/all/teams.yml` file to define the teams to be created on AAP.
 
-- Create a file `config/all/teams.yml`
-+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/teams.yml"]
 ----
 ---
@@ -197,15 +217,14 @@ aap_teams_all:
 ...
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
-+
+Documentation related to this component can be found below:
+
 * https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/gateway_teams[Teams role,window=_blank]
 
-[#service_account]
-=== Task 7 - Create a local service account user
+=== 2.7: Create a local service account user
 
-- Create a file `config/all/users.yml` with the below information:
-+
+Create a `config/all/users.yml` file to define the users to be created on AAP.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/users.yml"]
 ----
 ---
@@ -217,25 +236,24 @@ aap_user_accounts_all:
 ...
 ----
 
-=== Task 8 - Create hosts inventory file
+=== 2.8: Create hosts inventory file
 
-- Create a file `hosts` inventory file:
-+
+Create a `hosts` inventory file that defines how the execution of Config as Code will be run:
+
 [source,bash,role=execute,subs="verbatim,attributes",title="hosts"]
 ----
 [dev]
 localhost
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
-+
+Documentation related to this component can be found below:
+
 * https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/gateway_users[Users role,window=_blank]
 
-[#repositories]
-=== Task 8 - Create Collection Repositories and Remotes
+=== 2.9: Create Collection Repositories and Remotes
 
-- Create a file `config/all/hub_repositories.yml` to create the list of community repositories and their remote counterpart.
-+
+Create a `config/all/hub_repositories.yml` file to create the list of community repositories and their remote counterpart.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/hub_repositories.yml"]
 ----
 ---
@@ -269,16 +287,17 @@ hub_configuration_collection_repository_sync_async_retries: 150
 ...
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
-+
+Documentation related to this component can be found below:
+
 * https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/hub_collection_repository[Hub collection repository role,window=_blank]
 * https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/hub_collection_remote[Hub collection remote role,window=_blank]
 
-[#playbook_create]
-=== Task 9 - Create a playbook to apply the configuration
+=== 2.10: Create a playbook to apply the configuration
 
-- The next step is to create the `playbooks/aap_config.yml` playbook. This playbook will execute the `aap_configuration` dispatch role, applying the provided configurations in the necessary order.
-+
+The next step is to create a playbook that can be used to execute Config as Code.
+
+Create a directory called `playbooks` and within the newly created directory, create an `aap_config.yml` playbook. This playbook will execute the `aap_configuration` dispatch role, applying the provided configurations in the necessary order to configure AAP.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="playbooks/aap_config.yml"]
 ----
 ---
@@ -308,19 +327,18 @@ hub_configuration_collection_repository_sync_async_retries: 150
 ...
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
-+
+Documentation related to this component can be found below:
+
 * https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/dispatch[Dispatch role,window=_blank]
 
-=== Task 10 - Check your paths
+=== 2.11: Check your paths
 
-- Here's the desired layout for your folders from the root of the repo. Please examine the file organization to confirm that each file resides in its correct location within this structure. Run the `+tree+` command to verify.
-+
+After creating the files and directories as described in the prior sections, the following directory should be present, Here's the desired layout for your folders from the root of the repository. Please examine the file organization to confirm that each file resides in its correct location within this structure.
+
 [source,bash]
 ----
 .
 ├── ansible.cfg
-├── ansible-navigator.yml
 ├── config
 │   ├── all
 │   │   ├── hub_repositories.yml
@@ -334,21 +352,26 @@ hub_configuration_collection_repository_sync_async_retries: 150
 └── playbooks
     └── aap_config.yml
 
-4 directories, 9 files
+4 directories, 8 files
 ----
 
-=== Task 11 Push repo to new repository
+== 3: Publish to Gitea
 
-We need to save our work your lab's Gitea.
+With the proper configurations in place, we need to save our work to our Gitea instance.
 
-==== 11.1 Create Gitea Repository
+=== 3.1: Create Gitea Repository
 
-. Log in to your Gitea web interface, with the provided login credentials.
-. In the top left of the web interface, click on the '+' symbol and select 'New Repository'.
+Use the following steps to create a new repository on your Gitea instance.
+
+. Navigate to your link:{gitea_console_url}[Gitea instance,window=_blank] and click the **Sign In** button on the upper right hand corner
+. Enter the username and password using the credentials provided from the xref:environment-details.adoc[Environment Details,window=_blank] page and click the **Sign In** button
+. In the top left corner, click on the **+** symbol and select **New Repository**.
 . On the New Repository page, enter 'ansible_bootcamp_config_as_code' in the Repository Name field.
-. Leave everything else as default and click on the button at the bottom, 'Create Repository'.
+. Leave everything else as default and click on the button at the bottom, **Create Repository**.
 
-==== 11.2 Create `.gitignore` file
+=== 3.2 Create `.gitignore` file
+
+Create a file named `.gitignore` in the root of your repository with the following content to exclude unnecessary files and directories from being tracked by Git.
 
 [source,bash,role=execute,subs="verbatim,attributes",title=".gitignore"]
 ----
@@ -364,8 +387,9 @@ ansible.cfg
 
 After an empty repository is created on your Gitea, we need to push the collection to the repository.
 
-. In section 'Clone this repository', click the Copy URL button on the far right to copy Gitea repository URL, that will be pasted below in line that starts with 'git remote add origin ...'.
-. Now, follow these steps in the root directory of 'config_as_code'
+In the section _Clone this repository_, click the **Copy URL** icon on the far right to copy Gitea repository URL for the _HTTPS_ protocol option.
+
+Execute the following commands in the root directory of 'config_as_code' directory.
 
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
@@ -373,59 +397,47 @@ git init
 git checkout -b main
 git add --all
 git commit -m "Uploading config on initial commit"
-git remote add origin <PASTE GIT URL FROM GITEA HERE>
+git remote add origin {gitea_console_url}/{gitea_user}/ansible_bootcamp_config_as_code.git
 git push -u origin main
 ----
 
-=== Task 12 - Create ansible-navigator configuration file
+== 3: Execute your first Configuration as Code Playbook
 
-[source,yaml,role=execute,subs="verbatim,attributes",title="ansible-navigator.yml"]
-----
----
-ansible-navigator:
-  execution-environment:
-    image: {aap_controller_web_url}/config_as_code_ee:1.0
+=== 3.1: Run the Playbook
 
-----
+The next step is to run the playbook that executes Config as Code. This process kicks off the initial setup for everything we've just created for the Ansible Automation Platform.
 
-
-[#playbook_run]
-=== Task 13 - Put the playbook into action
-
-- The next step is to run this playbook, this kicks off the initial setup for everything we've just created for the Ansible Automation Platform.
-+
 [source,bash,role=execute,subs="verbatim,attributes"]
 ----
-ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
+ansible-navigator run --pp=missing --eei={aap_controller_web_url}/config_as_code_ee:1.0 -m stdout playbooks/aap_config.yml -e env=dev
 ----
 
-- While the playbook is running you can go to the Automation Hub tab and peak at the Task Management to see the repository syncing process
-+
+While the playbook is running, you can navigate to Automation Hub and review the progress in the **Task Management** page within to see the repository syncing process
+
 image::07-configuration-as-code/hub_task.png[Hub task,125%,125%,link=self, window=blank]
 
-[#results]
-=== Task 14 - Validate configuration was applied
-- Navigate to the AAP console and login with the provided passwords (You will find the link to the console on the start page of this lab)
+=== 3.2: Validate the configuration was applied
 
-Check that the following objects have been correctly created on AAP and are aligned with the instructions above
+Now that Config as Code was applied to AAP, navigate to your AAP instance and verify that the configuration was applied correctly.
+
+In particular, confirm that the following objects have been correctly created within your AAP instance and aligns to the definitions specified previously in the variable files.
 
 . Org
 . Repository
 . User
 . Team
 
-== Configuring the Automation controller
+== 4: Configuring the Automation controller
 
 In this section, you will only be given a summary of the objects you
-need to create along with some screenshots of a controller that is
-configured with the completed code. You will also be provided the
-variables sections from the readme’s for each of the required roles to
-help you complete this task.
+need to create along with screenshots of a configured controller instance that has been configured with the completed code. You will also be provided the variables sections from the README's for each of the required roles to help you complete this task.
 
-=== Task 15 - Configure settings
+IMPORTANT: Be sure to follow the steps within each section to ensure all of the desired objects are created.
 
-- Create a file `config/all/settings.yml` with the below content.
-+
+=== 4.1: Configure settings
+
+Create a `config/all/settings.yml` file with the following content.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/settings.yml"]
 ----
 ---
@@ -435,15 +447,19 @@ controller_settings_all:
 ...
 ----
 
-- Further documentation are provided below for those who are interested to learn more:
+Documentation related to this component can be found below:
 
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_settings[Settings role,window=_blank]
 
-=== Task 16 - Configure Execution Environments
+=== 4.2: Configure Execution Environments
 
-- Create a file `config/all/execution_environments.yml` and add the required information to the list `controller_execution_environments`
-to include a new EE (that we will show how to create with code in the next module) called `config_as_code` with image path `{{ aap_hostname }}/config_as_code_ee` that is pull `always` and uses the credential `cr_ah`.
-+
+Create a file `config/all/execution_environments.yml` to define Execution Environment and the following required information under the `controller_execution_environments_all` property:
+
+. `name` should be called `config_as_code`
+. `image` should be set to the path of the image you created earlier in the lab: `{{ aap_hostname }}/config_as_code_ee:1.0` 
+. `pull` should be set to `always`
+. `credential` should be set to `cr_ah`.
+
 image::07-configuration-as-code/config_ee_v2.png[title="Config Execution Environment",125%,125%, link=self, window=blank]
 
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/execution_environments.yml"]
@@ -462,15 +478,15 @@ controller_execution_environments_all:
 
 ----
 
-- Link to the roles documenation here:
-+
+Documentation related to this component can be found below:
+
 * https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_execution_environments[Execution Environments role,window=_blank]
 
-=== Task 17 - Create credential types
+=== 4.3: Create credential types
 
-- Create a file `config/all/credential_types.yml` where we will create a list called `controller_credential_types` that has 5 variables per item defined below:
+Create a `config/all/credential_types.yml` file to define a set of Custom Credential types as a list under the `controller_credential_types` property that has 5 variables per item defined below:
 
-* `name` this is required and will be what the credential type will be
+. `name` this is required and will be what the credential type will be
 called
 * `description` this is the description of the credential type
 * `kind` The type of credential type being added. Note that only cloud
@@ -481,9 +497,10 @@ fields in the GUI that prompt the user for input.
 * `injectors` Enter injectors using either JSON or YAML syntax. Refer
 to the Ansible controller documentation for example syntax. These are
 the variables that will then be useable in a job.
-+
-The role will iterate through this list and for each item in this list it will create custom credential types for using it in the controller.
-+
+
+
+The role included within Config as Code will iterate through this list and for each item and create a custom credential type within Automation Controller.
+
 [source,yaml,role=execute,subs="verbatim,attributes",title="config/all/credential_types.yml"]
 ----
 ---
