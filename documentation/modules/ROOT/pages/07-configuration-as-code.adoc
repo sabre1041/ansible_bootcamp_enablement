@@ -236,6 +236,10 @@ aap_user_accounts_all:
 ...
 ----
 
+Documentation related to this component can be found below:
+
+* https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/gateway_users[Users role,window=_blank]
+
 === 2.8: Create hosts inventory file
 
 Create a `hosts` inventory file that defines how the execution of Config as Code will be run:
@@ -245,10 +249,6 @@ Create a `hosts` inventory file that defines how the execution of Config as Code
 [dev]
 localhost
 ----
-
-Documentation related to this component can be found below:
-
-* https://github.com/redhat-cop/infra.aap_configuration/tree/devel/roles/gateway_users[Users role,window=_blank]
 
 === 2.9: Create Collection Repositories and Remotes
 
