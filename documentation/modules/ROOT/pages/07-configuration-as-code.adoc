@@ -149,6 +149,7 @@ student_account: admin
 vault_pass: cascLB2193
 ...
 ----
+TIP: Red Hat Automation Hub Console token can be obtained by going to https://console.redhat.com/ansible/automation-hub/token/ and clicking load token
 
 NOTE: You will need to replace the placeholder values (### Insert ... here) with the actual values. 
 
