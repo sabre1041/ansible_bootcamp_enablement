@@ -451,7 +451,7 @@ Let's demonstrate this assertion by modifying the already created `AnsibleAutoma
 +
 [source,yaml,role=execute,subs="verbatim,attributes",title="Custom AAP Deployment"]
 ----
-...
+# ... other configuration
 spec:
   admin_password_secret: my-aap-admin-secret
   image_pull_policy: IfNotPresent
@@ -475,7 +475,7 @@ spec:
       replicas: 1
   lightspeed:
     disabled: true
-...
+# ... other configuration
 ----
 +
 . Click the **Save** button.
@@ -529,13 +529,13 @@ Edit the `metadata` key to appear similar to the following:
 
 [source,yaml,role=execute,subs="verbatim,attributes",title="Custom AAP Deployment"]
 ----
-...
+# ... other configuration
 metadata:
   namespace: my-aap
   labels:
     ansible_job: ''
     my_label: foobar
-...
+# ... other configuration
 ----
 +
 . Click the **Save container group** button.
