@@ -574,7 +574,7 @@ cd /projects/devspaces-example/my_pah_project/extensions
 molecule init scenario dad_joke
 ----
 +
-. Update the `extensions/molecule/dad_joke/converge.yml` file with the contents below
+. Replace the contents of the `extensions/molecule/dad_joke/converge.yml` file with the contents below
 +
 .converge.yml
 [source,yaml,role=execute,subs="verbatim,attributes",title="converge.yml"]
@@ -592,7 +592,7 @@ molecule init scenario dad_joke
 
 ----   
 +
-. Update the `extensions/molecule/dad_joke/molecule.yml` file with the contents below
+. Replace the contents of the `extensions/molecule/dad_joke/molecule.yml` file with the contents below
 +
 .molecule.yml
 [source,yaml,role=execute,subs="verbatim,attributes",title="molecule.yml"]
