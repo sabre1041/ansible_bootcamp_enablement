@@ -93,7 +93,7 @@ When a change is detected on the same line and git is unable to automatically ap
 
 === 1.5: Branch update strategies
 
-When working in a branch, it is often necessary to ensure your branch has the latest commits that are in `main``. If it has been a while since you created or updated your branch, it could be several commits behind. 
+When working in a branch, it is often necessary to ensure your branch has the latest commits that are in `main`. If it has been a while since you created or updated your branch, it could be several commits behind. 
 
 _Merge_ will take two divergent branches and preserve their history, adding a commit to tie them together
 
