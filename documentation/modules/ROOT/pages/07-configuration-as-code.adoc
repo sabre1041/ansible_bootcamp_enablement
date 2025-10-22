@@ -165,7 +165,7 @@ IMPORTANT: **We do not recommend using .password files outside of lab environmen
 
 The `ansible.cfg` configuration file points to the `.password` file which instructs Ansible Vault to use this file encrypting and decrypting sensitive values. This has been preopulated, but please review the `ansible.cfg`` file to see how this lab is connected to hub and uses the password file.
 
-Create a `ansible.cfg` file with the following content:
+At the root of your project create a `ansible.cfg` file with the following content:
 
 [source,bash,role=execute,subs="verbatim,attributes",title="ansible.cfg"]
 ----
