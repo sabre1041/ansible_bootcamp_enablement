@@ -824,7 +824,7 @@ Execute the `playbooks/aap_config` playbook created in the prior section to set 
 
 [source,console,role=execute,subs="verbatim,attributes"]
 ----
-ansible-navigator run -m stdout playbooks/aap_config.yml -e env=dev
+ansible-navigator run --pp=missing --eei=aap-aap.{openshift_cluster_ingress_domain}/config_as_code_ee:1.0 -m stdout playbooks/aap_config.yml -e env=dev
 ----
 
 If issues occur during the execution, the following are several steps that you can take to resolve the challenges:
