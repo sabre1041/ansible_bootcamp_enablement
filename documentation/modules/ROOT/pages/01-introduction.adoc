@@ -42,6 +42,9 @@ It provides, by default, a Visual Studio Code (VS Code) environment as configure
 +
 image::01-introduction/intro1.png[OpenShift console showing Red Hat OpenShift Dev Spaces operator in the Installed Operators list]
 +
+. Locate `devspaces` link in the CheCluster section and click it
++
+image::01-introduction/intro8.png[Red Hat OpenShift Dev Spaces CheCluster listing]
 . Under `Details` click the `Red Hat OpenShift Dev Spaces URL`
 +
 image::01-introduction/intro2.png[Red Hat OpenShift Dev Spaces operator details page showing the Dev Spaces URL link]

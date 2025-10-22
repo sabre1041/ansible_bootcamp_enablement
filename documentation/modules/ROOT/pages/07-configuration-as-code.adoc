@@ -149,6 +149,7 @@ student_account: admin
 vault_pass: cascLB2193
 ...
 ----
+TIP: Red Hat Automation Hub Console token can be obtained by going to https://console.redhat.com/ansible/automation-hub/token/ and clicking load token
 
 NOTE: You will need to replace the placeholder values (### Insert ... here) with the actual values. 
 
@@ -165,7 +166,7 @@ IMPORTANT: **We do not recommend using .password files outside of lab environmen
 
 The `ansible.cfg` configuration file points to the `.password` file which instructs Ansible Vault to use this file encrypting and decrypting sensitive values. This has been preopulated, but please review the `ansible.cfg`` file to see how this lab is connected to hub and uses the password file.
 
-Create a `ansible.cfg` file with the following content:
+At the root of your project create a `ansible.cfg` file with the following content:
 
 [source,bash,role=execute,subs="verbatim,attributes",title="ansible.cfg"]
 ----
@@ -426,6 +427,8 @@ In particular, confirm that the following objects have been correctly created wi
 . Repository
 . User
 . Team
+
+NOTE: Org, user, and Team data can be in the AAP GUI under Acess Management tab, Repository information can be found in the Automation Content section.
 
 == 5: Additional Configuration as Code Components
 
