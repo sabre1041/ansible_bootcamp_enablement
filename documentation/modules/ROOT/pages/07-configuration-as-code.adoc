@@ -428,6 +428,8 @@ In particular, confirm that the following objects have been correctly created wi
 . User
 . Team
 
+NOTE: Org, user, and Team data can be in the AAP GUI under Acess Management tab, Repository information can be found in the Automation Content section.
+
 == 5: Additional Configuration as Code Components
 
 In this section, you will only be given a summary of the objects you
