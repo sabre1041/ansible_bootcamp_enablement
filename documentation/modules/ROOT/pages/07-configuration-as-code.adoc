@@ -831,6 +831,7 @@ ansible-navigator run --pp=missing --eei=aap-aap.{openshift_cluster_ingress_doma
 ----
 
 If issues occur during the execution, the following are several steps that you can take to resolve the challenges:
+
 . Review the error message provided in the output of the playbook execution to identify the specific issue.
 . Refer to the configuration that was being applied including the Config as Code role. Review the documentation including the supported properties for that role.
 . If the output was hidden, look for "Secure logging variables" on the https://github.com/redhat-cop/infra.aap_configuration/blob/devel/roles/controller_credentials[controller_credentials role documentation,window=_blank].
