@@ -501,7 +501,7 @@ AAP allows you to edit the default container group, or create new ones, and modi
 Before we modify the container group, let's make a slight configuration change to the AAP deployment that will allow job containers to persist after running. This change allows us to observe the state of job pods after they have completed.
 
 . Log into the link:https://aap-my-aap.{openshift_cluster_ingress_domain}[deployed AAP instance,window=_blank].
-. From the navigation menu on the left, expand **Settings** and expand **Automation Execution** and click on **Settings**.
+. From the navigation menu on the left, expand **Settings** and expand **Automation Execution** and click on **Troubleshooting**.
 +
 image::08-aap-openshift/aap-settings-troubleshooting.png[AAP Automation Execution Settings]
 +
