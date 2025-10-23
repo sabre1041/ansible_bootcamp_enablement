@@ -84,11 +84,11 @@ Next to the _Details_ tab click on **YAML**. This will show you the current YAML
 
 This `spec` definition shows us that the `controller`, `eda`, `hub`, and `lightspeed` components are enabled (`disabled: false`) and some customizations made to the `hub` component specifically.
 
-==== 2.2: Resources managed by the CRDs
+=== 2.2: Resources managed by the CRDs
 
 Each CRD manages its own set of OpenShift resources that are needed for the component to integrate into the final AAP deployment.
 
-===== 2.2.1: Deployments
+==== 2.2.1: Deployments
 
 Each CRD will create and manage `Deployment` resources that in turn manage the pods and other resources listed below in section 2.2.1.
 
@@ -101,7 +101,7 @@ image::08-aap-openshift/aap-deployments.png[AAP Deployments]
 image::08-aap-openshift/aap-deployment-details.png[AAP Deployment Details]
 
 
-===== 2.2.2: Pods
+==== 2.2.2: Pods
 
 Many pods will be up and running that correlate to the containers running the application pieces of AAP. These pods are ultimately owned by the deployments viewed in the previous section.
 
@@ -145,7 +145,7 @@ Let's do a similar exercise, but this time taking a look at the AAP web pods.
 . Next to the `Details` tab, click on the **Logs** tab. Under the `Containers` drop down, make sure that the `aap-controller-web` container is selected. Observe how you can view the application logs related to the AAP web API. This may be important for troubleshooting while the application is receiving web application requests.
 . Next to the `Details` tab, click on the **Terminal** tab. Under the `Containers` drop down, make sure that the `aap-controller-web` container is selected. You now have a direct terminal connection to the running container. Just like in the task pod example before, here you can view files, and interact with the running AWX application by running commands such as `awx-manage`.
 
-===== 2.2.3: PersistentVolumeClaims
+==== 2.2.3: PersistentVolumeClaims
 
 Some of the deployed components of the AAP operator may require persistent storage of data. Persistent Volume Claims (PVCs) are resources in OpenShift that enable access to persistent storage.
 
@@ -157,7 +157,7 @@ image::08-aap-openshift/aap-pvcs.png[AAP Persistent Volume Claims]
 
 image::08-aap-openshift/aap-pvc-details.png[AAP Persistent Volume Claim Details]
 
-===== 2.2.4: ConfigMaps
+==== 2.2.4: ConfigMaps
 
 The AAP operator will create and manage `ConfigMaps` that are used by the application components for storing application settings.
 
@@ -177,7 +177,7 @@ image::08-aap-openshift/aap-configmap-details.png[AAP ConfigMap Details]
 
 NOTE: The data for each ConfigMap is handled by the AAP operator. Any desired changes to these ConfigMaps should not be performed manually by editing the ConfigMaps. The operator may override any changes applied. If changes to the values of these ConfigMaps are desired, they should be applied by modifying the correct keys underneath the CRD `spec`.
 
-===== 2.2.5: Secrets
+==== 2.2.5: Secrets
 
 The AAP operator will create and manage sensitive values needed by the AAP application as `Secrets`. These can range from database configuration details, application login password, database encryption keys, application SSL certificates, and others.
 
@@ -193,7 +193,7 @@ image::08-aap-openshift/aap-secret-details.png[AAP Secrets]
 +
 * Under `Data` click the `Reveal values` button to show the hidden password. Go ahead and copy the password as it will be needed in the next section.
 
-===== 2.2.6: Routes
+==== 2.2.6: Routes
 
 The AAP operator also handles creating the services needed for the application to route traffic internally among its components (`Services`), and the `Routes` needed for external access to the web application itself.
 
@@ -209,7 +209,7 @@ image::08-aap-openshift/aap-route-details.png[AAP Route Details]
 +
 * Under `Details` and `Location`, you can see the externally accessible URL which we can use to access the deployed Ansible Automation Platform instance. Click on the link which should look something like {aap_controller_web_url}. A new browser tab should open which will be a login page to AAP. For user type in `admin` and for the password paste the value copied from the `aap-admin-password` secret in the previous section.
 
-===== 2.2.7: Others
+==== 2.2.7: Others
 
 Examples of other OpenShift resources that are managed by the operator include, but may not be limited to:
 
@@ -283,7 +283,7 @@ You are now redirected to the `Project details` page of the newly created projec
 
 image::08-aap-openshift/aap-project.png[AAP Project Details]
 
-==== 3.2: Install the operator
+=== 3.2: Install the operator
 
 Now that we have a project to work within, install another instance of the AAP operator into this namespace.
 
@@ -317,7 +317,7 @@ image::08-aap-openshift/aap-operator-install-success.png[AAP Operator Install Su
 
 The operator is now successfully installed into the `my-aap` namespace using a namespace scoped installation method.
 
-==== 3.3: Create a custom admin secret
+=== 3.3: Create a custom admin secret
 
 By default, the AAP operator will create a secret containing a random value for the initial admin password used to login to the deployed AAP instance.
 
@@ -337,7 +337,7 @@ image::08-aap-openshift/aap-operator-secret.png[AAP Operator Secret]
 
 You are now redirected to the _Secret details_ page of the newly created _Secret_. This _Secret_ will be referenced in the following section.
 
-==== 3.4: Deploy the operator
+=== 3.4: Deploy the operator
 
 Deploy a new instance of AAP using the operator.
 
@@ -389,7 +389,7 @@ The operator will now recognize the newly created `AnsibleAutomationPlatform` re
 
 In the next section, we'll take a look at different ways to monitor the progress of the actions the operator is performing.
 
-==== 3.4: Monitor the installation progress
+=== 3.5: Monitor the installation progress
 
 There are several ways to monitor the progress of the AAP deployment:
 
@@ -414,7 +414,7 @@ NOTE: It will take about 10 minutes for the AAP deployment to complete.
 
 image::08-aap-openshift/aap-running.png[AAP Running Status]
 
-==== 4.6: Access the deployed instance
+=== 3.6: Access the deployed instance
 
 Now that the operator is showing the AAP instance as being successfully deployed, attempt to access the newly created instance.
 
@@ -431,7 +431,7 @@ Once complete, you will see the AAP dashboard.
 
 NOTE: The only component of AAP that is currently deployed within this instance is Automation Controller, unlike the previous deployment we have been working with in prior exercises.
 
-== 5. Modify the existing deployment
+== 4. Modify the existing deployment
 
 The operator will manage the desired state of the created custom resources.
 
@@ -490,7 +490,7 @@ image::08-aap-openshift/aap-automationhub-status.png[AutomationHub Status]
 
 Log into the AAP instance again and see that the Automation Hub component of AAP is now deployed.
 
-== 6: Modify the default AAP container group
+== 5: Modify the default AAP container group
 
 The operator deployed AAP instance is pre-configured with a default link:https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/using_automation_execution/controller-instance-and-container-groups#controller-container-groups[Container Group,window=_blank]. A container group is an instance group that points to an OpenShift cluster. In this case, the OpenShift cluster that the operator was installed on.
 
